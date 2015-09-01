@@ -21,6 +21,7 @@ require 'polylines'
 
 require './api/geojson_formatter'
 require './api/v01/entities/route_result'
+require './wrappers/wrapper'
 
 module Api
   module V01
@@ -54,7 +55,7 @@ module Api
           optional :departure, type: Date, desc: 'Departure date time.'
           optional :arrival, type: Date, desc: 'Arrival date time.'
           optional :lang, type: String, default: :en
-          requires :loc, type: String, desc: 'List of Latitudes and longitudes separated with comma. Ex: lat1,lng1,lat2,lng2...'
+          requires :loc, type: String, desc: 'List of Latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
         }
         get do
           params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
@@ -65,20 +66,20 @@ module Api
             results = RouterWrapper::wrapper_route(params)
             results[:router][:version] = 'draft'
             results[:features].each{ |feature|
-              if feature[:geometry][:polylines]
-                if @env["rack.routing_args"][:format] == "geojson"
+              if @env['rack.routing_args'][:format] == 'geojson'
+                if feature[:geometry][:polylines]
                   feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6)
                   feature[:geometry].delete(:polylines)
                 end
-              else
-                if @env["rack.routing_args"][:format] == "json"
+              elsif @env['rack.routing_args'][:format] == 'json'
+                if feature[:geometry][:coordinates]
                   feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
                   feature[:geometry].delete(:coordinates)
                 end
               end
             }
             present results, with: RouteResult
-          rescue UnreachablePointError => e
+          rescue Wrappers::UnreachablePointError => e
             error!(e.message, 400)
           end
         end
