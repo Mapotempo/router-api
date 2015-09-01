@@ -23,25 +23,36 @@ require 'rest-client'
 
 
 module Wrappers
-  class Osrm < Wrapper
-    def initialize(cache, url, licence, attribution, boundary = nil)
+  class Otp < Wrapper
+    def initialize(cache, url, router_id, licence, attribution, boundary = nil)
       super(cache, boundary)
       @url = url
+      @router_id = router_id
       @licence = licence
       @attribution = attribution
     end
 
     def route(locs, departure, arrival, language, with_geometry)
-      # Workaround, cause restcleint dosen't deals with array params
-      query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, with_geometry]] + locs.collect{ |loc| [:loc, loc.join(',')] })
-
-      key = [:osrm, :request, Digest::MD5.hexdigest(Marshal.dump([query_params, language]))]
-      json = @cache.read(key)
-      if !json
-        resource = RestClient::Resource.new(@url)
-        response = resource[query_params].get
-        json = JSON.parse(response)
-        @cache.write(key, json)
+      datetime, arrive_by = departure ? [departure, false] : arrival ? [arrival, true] : [Time.now, false]
+      key = [:otp, :request, @router_id, Digest::MD5.hexdigest(Marshal.dump([@url, locs[0], locs[-1], datetime, arrive_by]))]
+      request = @cache.read(key)
+      if !request
+        params = {
+          fromPlace: locs[0].join(','),
+          toPlace: locs[-1].join(','),
+          # Warning, full english fashion date and time
+          time: datetime.strftime('%I:%M%p'),
+          date: datetime.strftime('%m-%d-%Y'),
+          arriveBy: arrive_by,
+          maxWalkDistance: 500,
+          wheelchair: false,
+          showIntermediateStops: false
+        }
+        request = String.new(RestClient.get(@url + '/otp/routers/' + @router_id + '/plan', {
+          accept: :json,
+          params: params
+        }))
+        @cache.write(key, request)
       end
 
       ret = {
@@ -53,13 +64,16 @@ module Wrappers
         features: []
       }
 
-      if json['status'] == 0
+      data = JSON.parse(request) if request
+      if data && !data['error'] && data['plan'] && data['plan']['itineraries']
+        i = data['plan']['itineraries'][0]
+
         ret[:features] = [{
           type: 'Feature',
           properties: {
             router: {
-              total_distance: json['route_summary']['total_distance'],
-              total_time: json['route_summary']['total_time'],
+              total_distance: i['walkDistance'] || 0, # FIXME walk onl
+              total_time: i['duration'],
               start_point: locs[0].reverse,
               end_point: locs[-1].reverse
             }
@@ -69,7 +83,9 @@ module Wrappers
         if with_geometry
           ret[:features][0][:geometry] = {
             type: 'LineString',
-            polylines: json['route_geometry']
+            coordinates: i['legs'].collect{ |leg| leg['legGeometry']['points'] }.collect{ |code|
+              Polylines::Decoder.decode_polyline(code)
+            }.flatten(1).collect(&:reverse)
           }
         end
       end

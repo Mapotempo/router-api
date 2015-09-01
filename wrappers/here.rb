@@ -34,6 +34,7 @@ module Wrappers
         mode: "fastest;#{@mode};traffic:disabled",
         alternatives: 0,
         resolution: 1,
+        language: language,
         representation: 'display',
         routeAttributes: 'summary,shape',
         truckType: @mode,

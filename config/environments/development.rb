@@ -20,13 +20,15 @@ require 'tmpdir'
 
 require './wrappers/demo'
 require './wrappers/osrm'
+require './wrappers/otp'
 require './wrappers/here'
 
 module RouterWrapper
   CACHE = ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*60*24*1)
 
   DEMO = Wrappers::Demo.new(CACHE)
-  OSRM = Wrappers::Osrm.new(CACHE, 'http://router.project-osrm.org')
+  OSRM = Wrappers::Osrm.new(CACHE, 'http://router.project-osrm.org', 'ODbL', '© OpenStreetMap contributors')
+  OTP_BORDEAUX = Wrappers::Otp.new(CACHE, 'http://localhost:8080', 'bordeaux', 'ODbL', 'Bordeaux Métropole')
   HERE_APP_ID = nil
   HERE_APP_CODE = nil
   HERE_TRUCK = Wrappers::HereTruck.new(CACHE, HERE_APP_ID, HERE_APP_CODE, 'truck')
@@ -39,6 +41,7 @@ module RouterWrapper
       route: {
         demo: [DEMO],
         osrm: [OSRM],
+        otp: [OTP_BORDEAUX],
         here: [HERE_TRUCK],
       },
       matrix: {},
