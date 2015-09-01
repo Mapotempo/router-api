@@ -19,17 +19,19 @@ require 'grape'
 require 'grape-swagger'
 require 'polylines'
 
+require './api/geojson_formatter'
 require './api/v01/entities/route_result'
 
 module Api
   module V01
     class Route < Grape::API
-      version '0.1', using: :path
-      format :json
       content_type :json, 'application/json; charset=UTF-8'
-      # content_type :geojson, 'application/vnd.geo+json; charset=UTF-8'
+      content_type :geojson, 'application/vnd.geo+json; charset=UTF-8'
+      formatter :geojson, GeoJsonFormatter
       # content_type :gpx, 'application/gpx+xml; charset=UTF-8'
+      # formatter :gpx, GpxFormatter
       default_format :json
+      version '0.1', using: :path
 
       rescue_from :all do |error|
         message = {error: error.class.name, detail: error.message}
@@ -64,9 +66,15 @@ module Api
             results[:router][:version] = 'draft'
             results[:features].each{ |feature|
               if feature[:geometry][:polylines]
-                feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6)
+                if @env["rack.routing_args"][:format] == "geojson"
+                  feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6)
+                  feature[:geometry].delete(:polylines)
+                end
               else
-                feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
+                if @env["rack.routing_args"][:format] == "json"
+                  feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
+                  feature[:geometry].delete(:coordinates)
+                end
               end
             }
             present results, with: RouteResult

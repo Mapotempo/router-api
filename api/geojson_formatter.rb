@@ -15,21 +15,11 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
-require 'grape'
-require 'grape-swagger'
-
-require './api/v01/route'
 
 module Api
-  module V01
-    class V01 < Grape::API
-      before do
-        if !::RouterWrapper::config[:api_keys].include?(params[:api_key])
-          error!('401 Unauthorized', 401)
-        end
-      end
-
-      mount Route
+  module GeoJsonFormatter
+    def self.call(object, env)
+      object.to_json
     end
   end
 end
