@@ -27,9 +27,16 @@ class Wrappers::HereTest < Minitest::Test
     assert 0 < result[:features].size
   end
 
-  def test_router_impassable
+  def test_router_disconnected
     here = RouterWrapper::HERE_TRUCK
     result = here.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], nil, nil, 'en', true)
     assert 0 == result[:features].size
+  end
+
+  def test_router_no_route_point
+    here = RouterWrapper::HERE_TRUCK
+    assert_raises Wrappers::UnreachablePointError do
+      result = here.route([[0, 0], [42.73295, 0.27685]], nil, nil, 'en', true)
+    end
   end
 end

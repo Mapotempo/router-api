@@ -39,6 +39,8 @@ GEM
     grape-swagger (0.10.2)
       grape (>= 0.8.0)
       grape-entity
+    grape_logging (1.1.2)
+      grape
     hashie (3.4.2)
     http-cookie (1.0.2)
       domain_name (~> 0.5)
@@ -98,10 +100,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activesupport
   border_patrol
   grape
   grape-entity
   grape-swagger
+  grape_logging
   minitest
   minitest-reporters
   polylines

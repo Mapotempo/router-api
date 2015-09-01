@@ -17,10 +17,11 @@
 #
 require './wrappers/wrapper'
 
+
 module Wrappers
   class Demo < Wrapper
-    def initialize(boundary = nil)
-      super(boundary)
+    def initialize(cache, boundary = nil)
+      super(cache, boundary)
     end
 
     def route(locs, departure, arrival, language, with_geometry)

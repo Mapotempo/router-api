@@ -24,19 +24,23 @@ require 'rest-client'
 
 module Wrappers
   class Osrm < Wrapper
-    def initialize(url, boundary = nil)
-      super(boundary)
+    def initialize(cache, url, boundary = nil)
+      super(cache, boundary)
       @url = url
     end
 
     def route(locs, departure, arrival, language, with_geometry)
-
-      resource = RestClient::Resource.new(@url)
       # Workaround, cause restcleint dosen't deals with array params
       query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, with_geometry]] + locs.collect{ |loc| [:loc, loc.join(',')] })
-      response = resource[query_params].get
-      json = JSON.parse(response)
 
+      key = [:osrm, :request, Digest::MD5.hexdigest(query_params)]
+      json = @cache.read(key)
+      if !json
+        resource = RestClient::Resource.new(@url)
+        response = resource[query_params].get
+        json = JSON.parse(response)
+        @cache.write(key, json)
+      end
 
       ret = {
         type: 'FeatureCollection',

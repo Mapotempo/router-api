@@ -56,19 +56,23 @@ module Api
         }
         get do
           params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
-          params[:loc].size >= 2 || raise('At least two couples of lat/lng are needed.')
-          params[:loc][-1].size == 2 || raise('Couples of lat/lng are needed.')
+          params[:loc].size >= 2 || error!('At least two couples of lat/lng are needed.', 400)
+          params[:loc][-1].size == 2 || error!('Couples of lat/lng are needed.', 400)
 
-          results = RouterWrapper::wrapper_route(params)
-          results[:router][:version] = 'draft'
-          results[:features].each{ |feature|
-            if feature[:geometry][:polylines]
-              feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6)
-            else
-              feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
-            end
-          }
-          present results, with: RouteResult
+          begin
+            results = RouterWrapper::wrapper_route(params)
+            results[:router][:version] = 'draft'
+            results[:features].each{ |feature|
+              if feature[:geometry][:polylines]
+                feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6)
+              else
+                feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
+              end
+            }
+            present results, with: RouteResult
+          rescue UnreachablePointError => e
+            error!(e.message, 400)
+          end
         end
       end
     end

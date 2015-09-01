@@ -21,8 +21,8 @@ require './wrappers/wrapper'
 module Wrappers
   class HereTruck < Wrapper
 
-    def initialize(app_id, app_code, mode)
-      super()
+    def initialize(cache, app_id, app_code, mode)
+      super(cache)
       @url = 'https://route.nlp.nokia.com/routing'
       @app_id = app_id
       @app_code = app_code
@@ -37,7 +37,7 @@ module Wrappers
         representation: 'display',
         routeAttributes: 'summary,shape',
         truckType: @mode,
-        #limitedWeight: # Truck routing only, vehicle weight including trailers and shipped goods, in tons..
+        #limitedWeight: # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
         #weightPerAxle: # Truck routing only, vehicle weight per axle in tons.
         #height: # Truck routing only, vehicle height in meters.
         #width: # Truck routing only, vehicle width in meters.
@@ -93,28 +93,36 @@ module Wrappers
       url = "#{@url}/#{object}.json"
       params = {app_id: @app_id, app_code: @app_code}.merge(params)
 
-      begin
-        response = RestClient.get(url, {params: params})
-      rescue => e
-        error = JSON.parse(e.response)
-        if error['type'] == 'ApplicationError'
-          additional_data = error['AdditionalData'] || error['additionalData']
-          if additional_data
-            if additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_START_POINT'})
-              raise 'Points are unreachable'
-            else
-              return
+      key = [:here, :request, Digest::MD5.hexdigest(Marshal.dump([url, params.to_a.sort_by{ |i| i[0].to_s }]))]
+      request = @cache.read(key)
+      if !request
+        begin
+          response = RestClient.get(url, {params: params})
+        rescue => e
+          error = JSON.parse(e.response)
+          if error['type'] == 'ApplicationError'
+            additional_data = error['AdditionalData'] || error['additionalData']
+            if additional_data
+              if additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED'})
+                return
+              elsif additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_START_POINT'})
+                raise UnreachablePointError
+              else
+                raise
+              end
             end
-          else
-            raise [error['subtype'], error['Details']].join(' ')
           end
-        else
-          Rails.logger.info [url, params]
-          Rails.logger.info error
+          Api::Root.logger.info [url, params]
+          Api::Root.logger.info error
+          error = error['response'] if error.key?('response')
+          raise ['Here', error['type'], error['subtype'], error['details'], error['Details']].compact.join(' ')
         end
-        raise ['Here', error['type']].join(' ')
+
+        request = JSON.parse(response)
+        @cache.write(key, request)
       end
-      JSON.parse(response)
+
+      request
     end
   end
 end

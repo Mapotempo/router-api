@@ -15,17 +15,21 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
+require 'active_support'
+require 'tmpdir'
+
 require './wrappers/demo'
 require './wrappers/osrm'
 require './wrappers/here'
 
-
 module RouterWrapper
-  DEMO = Wrappers::Demo.new
-  OSRM = Wrappers::Osrm.new('http://router.project-osrm.org')
+  CACHE = ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*60*24*1)
+
+  DEMO = Wrappers::Demo.new(CACHE)
+  OSRM = Wrappers::Osrm.new(CACHE, 'http://router.project-osrm.org')
   HERE_APP_ID = nil
   HERE_APP_CODE = nil
-  HERE_TRUCK = Wrappers::HereTruck.new(HERE_APP_ID, HERE_APP_CODE, 'truck')
+  HERE_TRUCK = Wrappers::HereTruck.new(CACHE, HERE_APP_ID, HERE_APP_CODE, 'truck')
 
   @@c = {
     product_title: 'Router Wrapper API',

@@ -18,6 +18,7 @@
 require 'grape'
 require 'grape-swagger'
 require 'grape-entity'
+require 'grape_logging'
 
 require './api/v01/v01'
 
@@ -35,6 +36,9 @@ module Api
       description: 'API access require an api_key.',
       contact: ::RouterWrapper::config[:product_contact]
     }
+
+    logger.formatter = GrapeLogging::Formatters::Default.new
+    use GrapeLogging::Middleware::RequestLogger, { logger: logger }
 
     desc 'Ping hook. Responds by "pong".'
     get '/ping' do
