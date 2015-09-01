@@ -54,7 +54,7 @@ module Api
           optional :departure, type: Date, desc: 'Departure date time.'
           optional :arrival, type: Date, desc: 'Arrival date time.'
           optional :lang, type: String, default: :en
-          requires :loc, type: String, desc: 'List of Latitudes and longitudes separated with comma.'
+          requires :loc, type: String, desc: 'List of Latitudes and longitudes separated with comma. Ex: lat1,lng1,lat2,lng2...'
         }
         get do
           params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
