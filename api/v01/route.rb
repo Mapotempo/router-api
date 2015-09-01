@@ -56,8 +56,8 @@ module Api
         }
         get do
           params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
-          raise 'At least two couples of lat/lng are needed.' if params[:loc].size < 2
-          raise 'Couples of lat/lng are needed.' if params[:loc][-1].size != 2
+          params[:loc].size >= 2 || raise('At least two couples of lat/lng are needed.')
+          params[:loc][-1].size == 2 || raise('Couples of lat/lng are needed.')
 
           results = RouterWrapper::wrapper_route(params)
           results[:router][:version] = 'draft'
@@ -65,7 +65,7 @@ module Api
             if feature[:geometry][:polylines]
               feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6)
             else
-              feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect{ |ll| ll.reverse }, 1e6)
+              feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
             end
           }
           present results, with: RouteResult

@@ -46,7 +46,7 @@ module Wrappers
       if with_geometry
         ret[:features][0][:geometry] = {
           type: 'LineString',
-          coordinates: locs.collect{ |loc| loc.reverse }
+          coordinates: locs.collect(&:reverse)
         }
       end
 

@@ -32,14 +32,12 @@ class Api::V01::RouteTest < Minitest::Test
   end
 
   def test_route_missing_loc
-    assert_raises do
-      get '/0.1/route', {api_key: 'demo', loc: '12.5,78,4'}
-    end
+    get '/0.1/route', {api_key: 'demo', loc: '12.5,78'}
+    assert !last_response.ok?, last_response.body
   end
 
   def test_route_odd_loc
-    assert_raises do
-      get '/0.1/route', {api_key: 'demo', loc: '12.5,78,4,7,8'}
-    end
+    get '/0.1/route', {api_key: 'demo', loc: '12.5,78,4'}
+    assert !last_response.ok?, last_response.body
   end
 end

@@ -29,7 +29,7 @@ class Wrappers::OsrmTest < Minitest::Test
 
   def test_router_impassable
     osrm = RouterWrapper::OSRM
-    result = osrm.route([[71.187754, -46.054687], [-25.165173, 135.351562]], nil, nil, 'en', true)
+    result = osrm.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], nil, nil, 'en', true)
     assert 0 == result[:features].size
   end
 end
