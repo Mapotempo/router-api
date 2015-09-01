@@ -15,31 +15,21 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
-require './wrappers/demo'
-require './wrappers/osrm'
+require './test/test_helper'
+
 require './wrappers/here'
 
+class Wrappers::HereTest < Minitest::Test
 
-module RouterWrapper
-  DEMO = Wrappers::Demo.new
-  OSRM = Wrappers::Osrm.new('http://router.project-osrm.org')
-  HERE_APP_ID = nil
-  HERE_APP_CODE = nil
-  HERE_TRUCK = Wrappers::HereTruck.new(HERE_APP_ID, HERE_APP_CODE, 'truck')
+  def test_router
+    here = RouterWrapper::HERE_TRUCK
+    result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], nil, nil, 'en', true)
+    assert 0 < result[:features].size
+  end
 
-  @@c = {
-    product_title: 'Router Wrapper API',
-    product_contact: 'frederic@mapotempo.com',
-    services: {
-      route_default: 'demo',
-      route: {
-        demo: [DEMO],
-        osrm: [OSRM],
-        here: [HERE_TRUCK],
-      },
-      matrix: {},
-      isoline: {}
-    },
-    api_keys: ['demo']
-  }
+  def test_router_impassable
+    here = RouterWrapper::HERE_TRUCK
+    result = here.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], nil, nil, 'en', true)
+    assert 0 == result[:features].size
+  end
 end

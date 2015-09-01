@@ -23,7 +23,9 @@ require './wrappers/here'
 module RouterWrapper
   DEMO = Wrappers::Demo.new
   OSRM = Wrappers::Osrm.new('http://router.project-osrm.org')
-  HERE = Wrappers::Here.new
+  HERE_APP_ID = nil
+  HERE_APP_CODE = nil
+  HERE_TRUCK = Wrappers::HereTruck.new(HERE_APP_ID, HERE_APP_CODE, 'truck')
 
   @@c = {
     product_title: 'Router Wrapper API',
@@ -33,7 +35,7 @@ module RouterWrapper
       route: {
         demo: [DEMO],
         osrm: [OSRM],
-        here: [HERE],
+        here: [HERE_TRUCK],
       },
       matrix: {},
       isoline: {}
