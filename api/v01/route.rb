@@ -22,6 +22,7 @@ require 'polylines'
 require './api/geojson_formatter'
 require './api/v01/entities/route_result'
 require './wrappers/wrapper'
+require './router_wrapper'
 
 module Api
   module V01
@@ -79,6 +80,8 @@ module Api
               end
             }
             present results, with: RouteResult
+          rescue RouterWrapper::OutOfSupportedAreaError => e
+            error!(e.message, 400)
           rescue Wrappers::UnreachablePointError => e
             error!(e.message, 400)
           end

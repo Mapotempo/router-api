@@ -24,6 +24,13 @@ module RouterWrapper
     router = @@c[:services][:route][params[:mode].to_sym].find{ |router|
       router.route?(params[:loc][0], params[:loc][-1])
     }
-    router.route(params[:loc], params[:departure], params[:arrival], params[:language], params[:geometry])
+    if !router
+      raise OutOfSupportedAreaError
+    else
+      router.route(params[:loc], params[:departure], params[:arrival], params[:language], params[:geometry])
+    end
+  end
+
+  class OutOfSupportedAreaError < StandardError
   end
 end
