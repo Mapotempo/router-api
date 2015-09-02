@@ -31,7 +31,7 @@ module RouterWrapper
   OTP_BORDEAUX = Wrappers::Otp.new(CACHE, 'http://localhost:8080', 'bordeaux', 'ODbL', 'Bordeaux Métropole')
   HERE_APP_ID = nil
   HERE_APP_CODE = nil
-  HERE_TRUCK = Wrappers::HereTruck.new(CACHE, HERE_APP_ID, HERE_APP_CODE, 'truck')
+  HERE_TRUCK = Wrappers::Here.new(CACHE, HERE_APP_ID, HERE_APP_CODE, 'truck')
 
   @@c = {
     product_title: 'Router Wrapper API',

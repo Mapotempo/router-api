@@ -27,11 +27,11 @@ module RouterWrapper
   CACHE = ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*60*24*1)
 
   DEMO = Wrappers::Demo.new(CACHE)
-  OSRM = Wrappers::Osrm.new(CACHE, 'http://router.project-osrm.org', 'ODbL', '© OpenStreetMap contributors')
-  OTP_BORDEAUX = Wrappers::Otp.new(CACHE, 'http://localhost:8080', 'bordeaux', 'ODbL', 'Bordeaux Métropole')
+  OSRM = Wrappers::Osrm.new(CACHE, url: 'http://router.project-osrm.org', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
+  OTP_BORDEAUX = Wrappers::Otp.new(CACHE, url: 'http://localhost:8080', router_id: 'bordeaux', licence: 'ODbL', attribution: 'Bordeaux Métropole', area: 'Bordeaux')
   HERE_APP_ID = nil
   HERE_APP_CODE = nil
-  HERE_TRUCK = Wrappers::HereTruck.new(CACHE, HERE_APP_ID, HERE_APP_CODE, 'truck')
+  HERE_TRUCK = Wrappers::Here.new(CACHE, app_id: HERE_APP_ID, app_code: HERE_APP_CODE, mode: 'truck')
 
   @@c = {
     product_title: 'Router Wrapper API',

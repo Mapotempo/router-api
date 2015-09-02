@@ -19,7 +19,7 @@ require './wrappers/wrapper'
 
 
 module Wrappers
-  class HereTruck < Wrapper
+  class Here < Wrapper
 
     def initialize(cache, app_id, app_code, mode)
       super(cache)
