@@ -15,33 +15,34 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
+require 'active_support'
+require 'tmpdir'
+
+require './wrappers/demo'
 require './wrappers/osrm'
-require './wrappers/ort'
+require './wrappers/otp'
 require './wrappers/here'
 
-
 module RouterWrapper
-  OSRM_CAR_EUROPE = Wrappers::Osrm.new('', '')
-  OSRM_CAR_URBAN_FRANCE = Wrappers::Osrm.new('', 'france.kml')
-  OSRM_CAR_SHORTEST_FRANCE = Wrappers::Osrm.new('', 'france.kml')
-  OSRM_PEDESTRIAN_FRANCE = Wrappers::Osrm.new('', 'france.kml')
-  OSRM_CYCLE_FRANCE = Wrappers::Osrm.new('', 'france.kml')
-  OTP_FRANCE_BORDEAUX = Wrappers::Here.new('', 'france-bordeaux.kml')
-  OTP_FRANCE_NANTES = Wrappers::Here.new('', 'france-bordeaux.kml')
-  HERE_TRUCK = Wrappers::Here.new('')
+  CACHE = ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*60*24*1)
+
+  DEMO = Wrappers::Demo.new(CACHE)
+  OSRM = Wrappers::Osrm.new(CACHE, 'http://router.project-osrm.org', 'ODbL', '© OpenStreetMap contributors')
+  OTP_BORDEAUX = Wrappers::Otp.new(CACHE, 'http://localhost:8080', 'bordeaux', 'ODbL', 'Bordeaux Métropole')
+  HERE_APP_ID = nil
+  HERE_APP_CODE = nil
+  HERE_TRUCK = Wrappers::Here.new(CACHE, HERE_APP_ID, HERE_APP_CODE, 'truck')
 
   @@c = {
     product_title: 'Router Wrapper API',
     product_contact: 'frederic@mapotempo.com',
     services: {
+      route_default: 'demo',
       route: {
-        car: [OSRM_CAR_EUROPE],
-        car_urban: [OSRM_CAR_URBAN_FRANCE],
-        car_shortest: [OSRM_CAR_SHORTEST_FRANCE],
-        pedestrian: [OSRM_PEDESTRIAN_FRANCE],
-        cycle: [OSRM_CYCLE_FRANCE],
-        public_transport: [OTP_FRANCE_BORDEAUX, OTP_FRANCE_NANTES],
-        truck: [HERE_TRUCK],
+        demo: [DEMO],
+        osrm: [OSRM],
+        otp: [OTP_BORDEAUX],
+        here: [HERE_TRUCK],
       },
       matrix: {},
       isoline: {}
