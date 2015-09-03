@@ -21,12 +21,12 @@ require './wrappers/wrapper'
 module Wrappers
   class Here < Wrapper
 
-    def initialize(cache, app_id, app_code, mode)
-      super(cache)
+    def initialize(cache, hash = {})
+      super(cache, hash)
       @url = 'https://route.nlp.nokia.com/routing'
-      @app_id = app_id
-      @app_code = app_code
-      @mode = mode
+      @app_id = hash[:app_id]
+      @app_code = hash[:app_code]
+      @mode = hash[:mode]
     end
 
     def route(locs, departure, arrival, language, with_geometry)

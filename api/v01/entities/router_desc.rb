@@ -15,21 +15,18 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
-ENV['APP_ENV'] ||= 'development'
-require File.expand_path('../config/environments/' + ENV['APP_ENV'], __FILE__)
-Dir[File.dirname(__FILE__) + '/config/initializers/*.rb'].each {|file| require file }
-require './router_wrapper'
-require './api/root'
-require 'rack/cors'
-require 'rack/contrib/locale'
 
-use Rack::Cors do
-  allow do
-    origins '*'
-    resource '*', headers: :any, methods: :get
+
+module Api
+  module V01
+    class RouterDesc < Grape::Entity
+      def self.entity_name
+        'RouterDesc'
+      end
+
+      expose(:mode, documentation: { type: String })
+      expose(:name, documentation: { type: String })
+      expose(:area, documentation: { type: String, is_array: true })
+    end
   end
 end
-
-use Rack::Locale
-
-run Api::Root

@@ -10,7 +10,8 @@ gem 'grape_logging'
 gem 'grape-entity'
 gem 'grape-swagger'
 
-
+gem 'i18n'
+gem 'rack-contrib'
 gem 'rest-client'
 gem 'border_patrol'
 gem 'activesupport'

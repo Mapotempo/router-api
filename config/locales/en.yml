@@ -15,21 +15,21 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
-ENV['APP_ENV'] ||= 'development'
-require File.expand_path('../config/environments/' + ENV['APP_ENV'], __FILE__)
-Dir[File.dirname(__FILE__) + '/config/initializers/*.rb'].each {|file| require file }
-require './router_wrapper'
-require './api/root'
-require 'rack/cors'
-require 'rack/contrib/locale'
 
-use Rack::Cors do
-  allow do
-    origins '*'
-    resource '*', headers: :any, methods: :get
-  end
-end
+en:
+  router:
+    car:
+      name: Car
+    car_urban:
+      name: Urban zone / car
+    car_shortest:
+      name: Shortest
+    pedestrian:
+      name: Pedestrian
+    cycle:
+      name: Cycle
+    public_transport:
+      name: Public transport
+    truck:
+      name: Truck
 
-use Rack::Locale
-
-run Api::Root

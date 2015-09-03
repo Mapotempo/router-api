@@ -24,12 +24,12 @@ require 'rest-client'
 
 module Wrappers
   class Otp < Wrapper
-    def initialize(cache, url, router_id, licence, attribution, boundary = nil)
-      super(cache, boundary)
-      @url = url
-      @router_id = router_id
-      @licence = licence
-      @attribution = attribution
+    def initialize(cache, hash = {})
+      super(cache, hash)
+      @url = hash[:url]
+      @router_id = hash[:router_id]
+      @licence = hash[:licence]
+      @attribution = hash[:attribution]
     end
 
     def route(locs, departure, arrival, language, with_geometry)

@@ -15,13 +15,28 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
+require 'i18n'
+
 module RouterWrapper
   def self.config
     @@c
   end
 
+  def self.desc()
+    Hash[config[:services].select{ |s, v| [:route, :matrix, :isoline].include?(s) }.collect do |service_key, service_value|
+      l = service_value.collect do |router_key, router_value|
+        {
+          mode: router_key,
+          name: I18n.translate('router.' + router_key.to_s + '.name', default: (I18n.translate('router.' + router_key.to_s + '.name', locale: :en))),
+          area: router_value.collect(&:area).compact
+        }
+      end
+      [service_key, l.flatten]
+    end]
+  end
+
   def self.wrapper_route(params)
-    router = @@c[:services][:route][params[:mode].to_sym].find{ |router|
+    router = config[:services][:route][params[:mode].to_sym].find{ |router|
       router.route?(params[:loc][0], params[:loc][-1])
     }
     if !router

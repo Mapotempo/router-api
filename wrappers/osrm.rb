@@ -24,11 +24,11 @@ require 'rest-client'
 
 module Wrappers
   class Osrm < Wrapper
-    def initialize(cache, url, licence, attribution, boundary = nil)
-      super(cache, boundary)
-      @url = url
-      @licence = licence
-      @attribution = attribution
+    def initialize(cache, hash = {})
+      super(cache, hash)
+      @url = hash[:url]
+      @licence = hash[:licence]
+      @attribution = hash[:attribution]
     end
 
     def route(locs, departure, arrival, language, with_geometry)

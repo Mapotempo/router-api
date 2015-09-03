@@ -20,8 +20,8 @@ require './wrappers/wrapper'
 
 module Wrappers
   class Demo < Wrapper
-    def initialize(cache, boundary = nil)
-      super(cache, boundary)
+    def initialize(cache, hash = {})
+      super(cache, hash)
     end
 
     def route(locs, departure, arrival, language, with_geometry)

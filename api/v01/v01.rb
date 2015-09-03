@@ -19,6 +19,7 @@ require 'grape'
 require 'grape-swagger'
 
 require './api/v01/route'
+require './api/v01/capability'
 
 module Api
   module V01
@@ -30,6 +31,7 @@ module Api
       end
 
       mount Route
+      mount Capability
     end
   end
 end

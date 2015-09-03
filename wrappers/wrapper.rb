@@ -21,11 +21,16 @@ require 'border_patrol'
 
 module Wrappers
   class Wrapper
-    def initialize(cache, boundary = nil)
+    def initialize(cache, hash = {})
       @cache = cache
-      if boundary
-        @boundary = BorderPatrol.parse_kml(File.read(boundary))
+      if hash[:boundary]
+        @boundary = BorderPatrol.parse_kml(File.read(hash[:boundary]))
       end
+      @area = hash[:area]
+    end
+
+    def area
+      @area
     end
 
     def route?(start, stop)
