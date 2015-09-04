@@ -32,7 +32,7 @@ module Wrappers
     end
 
     def route(locs, departure, arrival, language, with_geometry)
-      # Workaround, cause restcleint dosen't deals with array params
+      # Workaround, cause restclient dosen't deals with array params
       query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, with_geometry]] + locs.collect{ |loc| [:loc, loc.join(',')] })
 
       key = [:osrm, :request, Digest::MD5.hexdigest(Marshal.dump([query_params, language]))]
