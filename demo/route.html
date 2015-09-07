@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Map</title>
+  <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css" />
+</head>
+<body>
+  <div>
+    1/ Click some points on the map...<br>
+    2/ Select a router: 
+    <select id="mode" name="mode">
+      <option>demo</option>
+      <option>osrm</option>
+      <option>here</option>
+    </select>
+    <input type="button" id="submit" name="submit" value="Find route!"></input>
+  </div>
+  <div id="map" style="width: 600px; height: 400px"></div>
+  <div id="route-points">
+  </div>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="http://leafletjs.com/dist/leaflet.js"></script>
+  <script>
+  var map = L.map('map').setView([44.837778, -0.579197], 13);
+
+  var map_layer_url = 'http://{s}.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q';
+  var map_attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, Tiles by MapBox';
+  L.tileLayer(map_layer_url, {
+    maxZoom: 18,
+    attribution: map_attribution
+  }).addTo(map);
+
+  var markers = [];
+  var markersGroup = L.layerGroup();
+  markersGroup.addTo(map);
+
+  map.on('click', function(e) {
+    markers.push(L.marker(e.latlng).addTo(markersGroup))
+    $('#route-points').append('<div>Point #' + markers.length + ': ' + e.latlng.lat.toFixed(5) + ',' +  e.latlng.lng.toFixed(5) + '</div>');
+  });
+
+  $('#submit').click(function() {
+    $.ajax({
+      url: "http://localhost:4899/0.1/route.geojson?api_key=demo",
+      method: 'GET',
+      accepts: 'application/vnd.geo+json',
+      data: {
+        mode: $('#mode').val(),
+        geometry: 'true',
+        loc: markers.map(function(marker) {
+            return [marker.getLatLng().lat, marker.getLatLng().lng]
+          }).toString()
+      },
+      context: document.body
+    }).done(function(resp) {
+      if (resp.features.length) {
+        resp.features.forEach(function(feat) {
+          if (feat) {
+            L.geoJson(feat).addTo(map);
+          }
+        });
+        if (markers.length) {
+          markersGroup = L.layerGroup(markers);
+          markersGroup.addTo(map);
+          var bounds = new L.LatLngBounds(markers.map(function(marker) {
+            return marker.getLatLng()
+          }));
+          map.fitBounds(bounds);
+        }
+      }
+      else {
+        alert( "No result");
+      }
+    }).fail(function(resp) {
+      alert( "An error has occured: " + JSON.stringify(resp) );
+    });
+  });
+
+  </script>
+</body>
+</html>
