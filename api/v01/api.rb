@@ -23,7 +23,7 @@ require './api/v01/capability'
 
 module Api
   module V01
-    class V01 < Grape::API
+    class Api < Grape::API
       before do
         if !::RouterWrapper::config[:api_keys].include?(params[:api_key])
           error!('401 Unauthorized', 401)
