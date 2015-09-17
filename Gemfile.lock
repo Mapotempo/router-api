@@ -48,10 +48,10 @@ GEM
     i18n (0.7.0)
     ice_nine (0.11.1)
     json (1.8.3)
-    mime-types (2.6.1)
+    mime-types (2.6.2)
     mini_portile (0.6.2)
     minitest (5.8.0)
-    minitest-reporters (1.0.20)
+    minitest-reporters (1.1.0)
       ansi
       builder
       minitest (>= 5.0)
@@ -122,6 +122,3 @@ DEPENDENCIES
   rakeup
   rest-client
   simplecov
-
-BUNDLED WITH
-   1.10.6
