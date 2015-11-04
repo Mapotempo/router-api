@@ -29,6 +29,7 @@ module Api
     class Route < Grape::API
       content_type :json, 'application/json; charset=UTF-8'
       content_type :geojson, 'application/vnd.geo+json; charset=UTF-8'
+      content_type :xml, 'application/xml'
       formatter :geojson, GeoJsonFormatter
       # content_type :gpx, 'application/gpx+xml; charset=UTF-8'
       # formatter :gpx, GpxFormatter
