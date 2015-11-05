@@ -18,18 +18,11 @@
 
 en:
   router:
-    car:
-      name: Car
-    car_urban:
-      name: Urban zone / car
-    car_shortest:
-      name: Shortest
-    pedestrian:
-      name: Pedestrian
-    cycle:
-      name: Cycle
-    public_transport:
-      name: Public transport
-    truck:
-      name: Truck
-
+    demo:
+      name: Demo
+    osrm:
+      name: Open Source Routing
+    otp:
+      name: OpenTripPlanner
+    here:
+      name: HERE

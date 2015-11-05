@@ -18,17 +18,11 @@
 
 fr:
   router:
-    car:
-      name: Voiture
-    car_urban:
-      name: Zone urbaine / voiture
-    car_shortest:
-      name: 
-    pedestrian:
-      name: Piéton
-    cycle:
-      name: Vélo
-    public_transport:
-      name: Transports en commun
-    truck:
-      name: Camion
+    demo:
+      name: Demo
+    osrm:
+      name: Open Source Routing
+    otp:
+      name: OpenTripPlanner
+    here:
+      name: HERE
