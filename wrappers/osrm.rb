@@ -35,7 +35,7 @@ module Wrappers
       # Workaround, cause restclient dosen't deals with array params
       query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, with_geometry]] + locs.collect{ |loc| [:loc, loc.join(',')] })
 
-      key = [:osrm, :request, Digest::MD5.hexdigest(Marshal.dump([query_params, language]))]
+      key = [:osrm, :request, Digest::MD5.hexdigest(Marshal.dump([@url, query_params, language]))]
       json = @cache.read(key)
       if !json
         resource = RestClient::Resource.new(@url)
