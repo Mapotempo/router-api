@@ -24,7 +24,9 @@ require './api/v01/entities/services_desc'
 module Api
   module V01
     class Capability < Grape::API
-      format :json
+      content_type :xml, 'application/xml'
+      content_type :json, 'application/json; charset=UTF-8'
+      default_format :json
       version '0.1', using: :path
 
       rescue_from :all do |error|
@@ -40,14 +42,10 @@ module Api
       resource :capability do
         desc 'Capability of current api', {
           nickname: 'capability',
-          entity: Api::V01::ServicesDesc
+          entity: ServicesDesc
         }
         get do
-          begin
-            present RouterWrapper::desc, with: Api::V01::ServicesDesc
-          rescue UnreachablePointError => e
-            error!(e.message, 400)
-          end
+          present RouterWrapper::desc, with: ServicesDesc
         end
       end
     end
