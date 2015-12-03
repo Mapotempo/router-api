@@ -24,7 +24,7 @@ module Wrappers
       super(cache, hash)
     end
 
-    def route(locs, departure, arrival, language, with_geometry)
+    def route(locs, departure, arrival, language, with_geometry, options = {})
       ret = {
         type: 'FeatureCollection',
         router: {

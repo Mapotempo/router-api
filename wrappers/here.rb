@@ -29,7 +29,7 @@ module Wrappers
       @mode = hash[:mode]
     end
 
-    def route(locs, departure, arrival, language, with_geometry)
+    def route(locs, departure, arrival, language, with_geometry, options = {})
       params = {
         mode: "fastest;#{@mode};traffic:disabled",
         alternatives: 0,
@@ -68,7 +68,7 @@ module Wrappers
           properties: {
             router: {
               total_distance: s['distance'],
-              total_time: s['trafficTime'],
+              total_time: s['trafficTime'] * 1.0 / (options[:speed_multiplicator] || 1),
               start_point: locs[0].reverse,
               end_point: locs[-1].reverse
             }

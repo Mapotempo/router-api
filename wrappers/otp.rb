@@ -32,7 +32,7 @@ module Wrappers
       @attribution = hash[:attribution]
     end
 
-    def route(locs, departure, arrival, language, with_geometry)
+    def route(locs, departure, arrival, language, with_geometry, options = {})
       datetime, arrive_by = departure ? [departure, false] : arrival ? [arrival, true] : [Time.now, false]
       key = [:otp, :request, @router_id, Digest::MD5.hexdigest(Marshal.dump([@url, locs[0], locs[-1], datetime, arrive_by]))]
       request = @cache.read(key)

@@ -42,7 +42,8 @@ module RouterWrapper
     if !router
       raise OutOfSupportedAreaError
     else
-      router.route(params[:loc], params[:departure], params[:arrival], params[:language], params[:geometry])
+      options = { speed_multiplicator: (params[:speed_multiplicator] || 1) }
+      router.route(params[:loc], params[:departure], params[:arrival], params[:language], params[:geometry], options)
     end
   end
 

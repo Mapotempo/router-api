@@ -56,6 +56,7 @@ module Api
           optional :geometry, type: Boolean, default: true, desc: 'Return the route trace geometry.'
           optional :departure, type: Date, desc: 'Departure date time.'
           optional :arrival, type: Date, desc: 'Arrival date time.'
+          optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1.), not available for otp.'
           optional :lang, type: String, default: :en
           requires :loc, type: String, desc: 'List of Latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
         }

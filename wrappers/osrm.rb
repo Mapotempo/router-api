@@ -31,7 +31,7 @@ module Wrappers
       @attribution = hash[:attribution]
     end
 
-    def route(locs, departure, arrival, language, with_geometry)
+    def route(locs, departure, arrival, language, with_geometry, options = {})
       # Workaround, cause restclient dosen't deals with array params
       query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, with_geometry]] + locs.collect{ |loc| [:loc, loc.join(',')] })
 
@@ -59,7 +59,7 @@ module Wrappers
           properties: {
             router: {
               total_distance: json['route_summary']['total_distance'],
-              total_time: json['route_summary']['total_time'],
+              total_time: json['route_summary']['total_time'] * 1.0 / (options[:speed_multiplicator] || 1),
               start_point: locs[0].reverse,
               end_point: locs[-1].reverse
             }
