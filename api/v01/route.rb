@@ -69,15 +69,17 @@ module Api
             results = RouterWrapper::wrapper_route(params)
             results[:router][:version] = 'draft'
             results[:features].each{ |feature|
-              if @env['rack.routing_args'][:format] == 'geojson'
-                if feature[:geometry][:polylines]
-                  feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
-                  feature[:geometry].delete(:polylines)
-                end
-              elsif @env['rack.routing_args'][:format] == 'json'
-                if feature[:geometry][:coordinates]
-                  feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
-                  feature[:geometry].delete(:coordinates)
+              if feature[:geometry]
+                if @env['rack.routing_args'][:format] == 'geojson'
+                  if feature[:geometry][:polylines]
+                    feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
+                    feature[:geometry].delete(:polylines)
+                  end
+                else
+                  if feature[:geometry][:coordinates]
+                    feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
+                    feature[:geometry].delete(:coordinates)
+                  end
                 end
               end
             }
