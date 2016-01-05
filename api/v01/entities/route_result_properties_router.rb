@@ -25,7 +25,7 @@ module Api
       end
 
       # RECOMMENDED
-      expose_not_nil(:total_distance, documentation: { type: String, desc: 'Route total distance in meters.' })
+      expose_not_nil(:total_distance, documentation: { type: Integer, desc: 'Route total distance in meters.' })
       # RECOMMENDED
       expose_not_nil(:total_time, documentation: { type: Integer, desc: 'Route total time in seconds.' })
       # OPTIONAL
