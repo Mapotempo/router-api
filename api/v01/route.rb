@@ -85,9 +85,9 @@ module Api
             }
             present results, with: RouteResult
           rescue RouterWrapper::OutOfSupportedAreaError => e
-            error!(e.message, 400)
+            error!(e.message, 417)
           rescue Wrappers::UnreachablePointError => e
-            error!(e.message, 400)
+            error!(e.message, 417)
           end
         end
       end
