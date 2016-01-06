@@ -53,7 +53,7 @@ module Wrappers
         features: []
       }
 
-      if json['status'] == 0
+      if json['status'] == 200
         ret[:features] = [{
           type: 'Feature',
           properties: {
