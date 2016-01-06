@@ -32,4 +32,21 @@ class Wrappers::OsrmTest < Minitest::Test
     result = osrm.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], nil, nil, 'en', true)
     assert 0 == result[:features].size
   end
+
+  def test_matrix_square
+    osrm = RouterWrapper::OSRM
+    vector = [[49.610710, 18.237305], [47.010226, 2.900391]]
+    result = osrm.matrix(vector, vector, nil, nil, 'en')
+    assert vector.size, result[:matrix].size
+    assert vector.size, result[:matrix][0].size
+  end
+
+  def test_matrix_rectangular
+    osrm = RouterWrapper::OSRM
+    src = [[49.610710, 18.237305], [47.010226, 2.900391]]
+    dst = [[49.610710, 18.237305]]
+    result = osrm.matrix(src, dst, nil, nil, 'en')
+    assert dst.size, result[:matrix].size
+    assert src.size, result[:matrix][0].size
+  end
 end

@@ -41,6 +41,33 @@ module Wrappers
       end
     end
 
+    def matrix?(top_left, down_right)
+      if @boundary
+        contains?(top_left[0], top_left[1]) && contains?(down_right[0], down_right[1])
+      else
+        true
+      end
+    end
+
+    def matrix(srcs, dsts, departure, arrival, language, options = {})
+      m = dsts.collect{ |dst|
+        srcs.collect{ |src|
+          ret = route([src, dst], departure, arrival, language, options)
+          if ret.key?(:features) && ret[:features].size > 0
+            ret[:features][0][:properties][:router][:total_time]
+          end
+        }
+      }
+
+      {
+        router: {
+          licence: @licence,
+          attribution: @attribution,
+        },
+        matrix: m
+      }
+    end
+
     private
 
     def contains?(lat, lng)

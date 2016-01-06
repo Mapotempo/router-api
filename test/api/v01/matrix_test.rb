@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015-2016
+# Copyright © Mapotempo, 2016
 #
 # This file is part of Mapotempo.
 #
@@ -15,25 +15,29 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
-require 'grape'
-require 'grape-swagger'
+require './test/test_helper'
 
-require './api/v01/route'
-require './api/v01/matrix'
-require './api/v01/capability'
+require './api/root'
 
-module Api
-  module V01
-    class Api < Grape::API
-      before do
-        if !::RouterWrapper::config[:api_keys].include?(params[:api_key])
-          error!('401 Unauthorized', 401)
-        end
-      end
+class Api::V01::MatrixTest < Minitest::Test
+  include Rack::Test::Methods
 
-      mount Route
-      mount Matrix
-      mount Capability
-    end
+  def app
+    Api::Root
+  end
+
+  def test_matrix_square
+    get '/0.1/matrix', {api_key: 'demo', src: '1,0,0,1'}
+    assert last_response.ok?, last_response.body
+  end
+
+  def test_matrix_rectangular
+    get '/0.1/matrix', {api_key: 'demo', src: '1,0,0,1', dst: '2,3'}
+    assert last_response.ok?, last_response.body
+  end
+
+  def test_matrix_odd_loc
+    get '/0.1/matrix', {api_key: 'demo', src: '1,2,3'}
+    assert !last_response.ok?, last_response.body
   end
 end

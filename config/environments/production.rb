@@ -44,7 +44,11 @@ module RouterWrapper
         otp: [OTP_BORDEAUX],
         here: [HERE_TRUCK],
       },
-      matrix: {},
+      matrix: {
+        demo: [DEMO],
+        osrm: [OSRM],
+        otp: [OTP_BORDEAUX],
+      },
       isoline: {}
     },
     api_keys: ['demo']

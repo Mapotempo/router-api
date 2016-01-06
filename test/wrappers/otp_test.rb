@@ -23,7 +23,7 @@ class Wrappers::OtpTest < Minitest::Test
 
   def test_router
     otp = RouterWrapper::OTP_BORDEAUX
-    result = otp.route([[44.82641, -0.55674], [44.85284, -0.5393]], Time.new(2015, 8, 30, 12, 0, 0), nil, 'en', true)
+    result = otp.route([[44.82641, -0.55674], [44.85284, -0.5393]], nil, nil, 'en', true)
     assert 0 < result[:features].size
   end
 
@@ -31,5 +31,22 @@ class Wrappers::OtpTest < Minitest::Test
     otp = RouterWrapper::OTP_BORDEAUX
     result = otp.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], nil, nil, 'en', true)
     assert 0 == result[:features].size
+  end
+
+  def test_router_square
+    osrm = RouterWrapper::OTP_BORDEAUX
+    vector = [[49.610710, 18.237305], [47.010226, 2.900391]]
+    result = osrm.matrix(vector, vector, nil, nil, 'en')
+    assert vector.size, result[:matrix].size
+    assert vector.size, result[:matrix][0].size
+  end
+
+  def test_router_rectangular
+    osrm = RouterWrapper::OTP_BORDEAUX
+    src = [[49.610710, 18.237305], [47.010226, 2.900391]]
+    dst = [[49.610710, 18.237305]]
+    result = osrm.matrix(src, dst, nil, nil, 'en')
+    assert dst.size, result[:matrix].size
+    assert src.size, result[:matrix][0].size
   end
 end

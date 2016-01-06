@@ -47,6 +47,22 @@ module RouterWrapper
     end
   end
 
+  def self.wrapper_matrix(params)
+    top, bottom = (params[:src] + params[:dst]).minmax_by{ |loc| loc[0] }
+    left, right = (params[:src] + params[:dst]).minmax_by{ |loc| loc[1] }
+    top_left = [top, left]
+    bottom_right = [bottom, right]
+    router = config[:services][:route][params[:mode].to_sym].find{ |router|
+      router.matrix?(top_left, bottom_right)
+    }
+    if !router
+      raise OutOfSupportedAreaError
+    else
+      options = { speed_multiplicator: (params[:speed_multiplicator] || 1) }
+      router.matrix(params[:src], params[:dst], params[:departure], params[:arrival], params[:language], options)
+    end
+  end
+
   class OutOfSupportedAreaError < StandardError
   end
 end

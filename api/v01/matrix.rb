@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015-2016
+# Copyright © Mapotempo, 2016
 #
 # This file is part of Mapotempo.
 #
@@ -20,13 +20,13 @@ require 'grape-swagger'
 require 'polylines'
 
 require './api/geojson_formatter'
-require './api/v01/entities/route_result'
+require './api/v01/entities/matrix_result'
 require './wrappers/wrapper'
 require './router_wrapper'
 
 module Api
   module V01
-    class Route < Grape::API
+    class Matrix < Grape::API
       content_type :json, 'application/json; charset=UTF-8'
       content_type :geojson, 'application/vnd.geo+json; charset=UTF-8'
       content_type :xml, 'application/xml'
@@ -46,49 +46,34 @@ module Api
         error!(message, 500)
       end
 
-      resource :route do
-        desc 'Route via two points or more', {
-          nickname: 'route',
-          entity: RouteResult
+      resource :matrix do
+        desc 'Rectangular matrix between tws points set', {
+          nickname: 'matrix',
+          entity: MatrixResult
         }
         params {
           optional :mode, type: String, values: RouterWrapper.config[:services][:route].keys.collect(&:to_s), default: RouterWrapper.config[:services][:route_default], desc: 'Transportation mode.'
-          optional :geometry, type: Boolean, default: true, desc: 'Return the route trace geometry.'
           optional :departure, type: Date, desc: 'Departure date time.'
           optional :arrival, type: Date, desc: 'Arrival date time.'
           optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
           optional :lang, type: String, default: :en
-          requires :loc, type: String, desc: 'List of latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
+          requires :src, type: String, desc: 'List of sources of latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
+          optional :dst, type: String, desc: 'List of destination of latitudes and longitudes, if not present compute square matrix with sources points.'
         }
         get do
-          params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
-          params[:loc].size >= 2 || error!('At least two couples of lat/lng are needed.', 400)
-          params[:loc][-1].size == 2 || error!('Couples of lat/lng are needed.', 400)
+          params[:src] = params[:src].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
+          params[:src][-1].size == 2 || error!('Source couples of lat/lng are needed.', 400)
 
-          begin
-            results = RouterWrapper::wrapper_route(params)
-            results[:router][:version] = 'draft'
-            results[:features].each{ |feature|
-              if feature[:geometry]
-                if @env['rack.routing_args'][:format] == 'geojson'
-                  if feature[:geometry][:polylines]
-                    feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
-                    feature[:geometry].delete(:polylines)
-                  end
-                else
-                  if feature[:geometry][:coordinates]
-                    feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
-                    feature[:geometry].delete(:coordinates)
-                  end
-                end
-              end
-            }
-            present results, with: RouteResult
-          rescue RouterWrapper::OutOfSupportedAreaError => e
-            error!(e.message, 417)
-          rescue Wrappers::UnreachablePointError => e
-            error!(e.message, 417)
+          if params.key?(:dst)
+            params[:dst] = params[:dst].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
+            params[:dst][-1].size == 2 || error!('Destination couples of lat/lng are needed.', 400)
+          else
+            params[:dst] =  params[:src]
           end
+
+          results = RouterWrapper::wrapper_matrix(params)
+          results[:router][:version] = 'draft'
+          present results, with: MatrixResult
         end
       end
     end

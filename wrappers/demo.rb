@@ -53,5 +53,19 @@ module Wrappers
 
       ret
     end
+
+    def matrix(src, dst, departure, arrival, language, options = {})
+      {
+        router: {
+          licence: 'demo',
+          attribution: 'demo',
+        },
+        matrix: src.collect{ |s|
+          dst.collect{ |d|
+            1
+          }
+        }
+      }
+    end
   end
 end

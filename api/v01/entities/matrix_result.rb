@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015-2016
+# Copyright © Mapotempo, 2016
 #
 # This file is part of Mapotempo.
 #
@@ -15,25 +15,18 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
-require 'grape'
-require 'grape-swagger'
+require './api/v01/entities/route_result_feature'
 
-require './api/v01/route'
-require './api/v01/matrix'
-require './api/v01/capability'
 
 module Api
   module V01
-    class Api < Grape::API
-      before do
-        if !::RouterWrapper::config[:api_keys].include?(params[:api_key])
-          error!('401 Unauthorized', 401)
-        end
+    class MatrixResult < Grape::Entity
+      def self.entity_name
+        'MatrixResult'
       end
 
-      mount Route
-      mount Matrix
-      mount Capability
+      expose(:router, using: RouteResultRouter, documentation: { type: RouteResultRouter, desc: 'Namespace.' })
+#      expose(:matrix, using: RouteResultFeature, documentation: { type: RouteResultFeature, desc: 'As per GeoJSON spec.', is_array: true })
     end
   end
 end

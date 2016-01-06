@@ -76,5 +76,31 @@ module Wrappers
 
       ret
     end
+
+    def matrix(srcs, dsts, departure, arrival, language, options = {})
+      # Workaround, cause restclient dosen't deals with array params
+      query_params = 'table?' + URI::encode_www_form([[:alt, false]] + srcs.collect{ |src| [:src, src.join(',')] } + dsts.collect{ |dst| [:dst, dst.join(',')] })
+
+      key = [:osrm, :request, Digest::MD5.hexdigest(Marshal.dump([@url, query_params, language]))]
+      json = @cache.read(key)
+      if !json
+        resource = RestClient::Resource.new(@url)
+        response = resource[query_params].get
+        json = JSON.parse(response)
+        @cache.write(key, json)
+      end
+
+      {
+        router: {
+          licence: @licence,
+          attribution: @attribution,
+        },
+        matrix: json['distance_table'].collect { |r|
+          r.collect { |rr|
+            rr >= 2147483647 ? nil : (rr / 10.0 / (options[:speed_multiplicator] || 1)).round
+          }
+        }
+      }
+    end
   end
 end
