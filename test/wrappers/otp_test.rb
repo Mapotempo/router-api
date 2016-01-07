@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015
+# Copyright © Mapotempo, 2015-2016
 #
 # This file is part of Mapotempo.
 #
@@ -35,18 +35,24 @@ class Wrappers::OtpTest < Minitest::Test
 
   def test_router_square
     osrm = RouterWrapper::OTP_BORDEAUX
-    vector = [[49.610710, 18.237305], [47.010226, 2.900391]]
+    vector = [[44.82641, -0.55674], [44.85284, -0.5393]]
     result = osrm.matrix(vector, vector, nil, nil, 'en')
-    assert vector.size, result[:matrix].size
-    assert vector.size, result[:matrix][0].size
+    assert_equal vector.size, result[:matrix].size
+    assert_equal vector.size, result[:matrix][0].size
   end
 
   def test_router_rectangular
     osrm = RouterWrapper::OTP_BORDEAUX
-    src = [[49.610710, 18.237305], [47.010226, 2.900391]]
-    dst = [[49.610710, 18.237305]]
+    src = [[44.82641, -0.55674], [44.85284, -0.5393]]
+    dst = [[44.82641, -0.55674]]
     result = osrm.matrix(src, dst, nil, nil, 'en')
-    assert dst.size, result[:matrix].size
-    assert src.size, result[:matrix][0].size
+    assert_equal dst.size, result[:matrix].size
+    assert_equal src.size, result[:matrix][0].size
+  end
+
+  def test_isoline
+    osrm = RouterWrapper::OTP_BORDEAUX
+    result = osrm.isoline([44.82641, -0.55674], 160, Time.now, 'en')
+    assert 0 < result['features'].size
   end
 end

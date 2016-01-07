@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015
+# Copyright © Mapotempo, 2015-2016
 #
 # This file is part of Mapotempo.
 #
@@ -30,11 +30,12 @@ module Wrappers
       @router_id = hash[:router_id]
       @licence = hash[:licence]
       @attribution = hash[:attribution]
+      @crs = hash[:crs]
     end
 
     def route(locs, departure, arrival, language, with_geometry, options = {})
       datetime, arrive_by = departure ? [departure, false] : arrival ? [arrival, true] : [Time.now, false]
-      key = [:otp, :request, @router_id, Digest::MD5.hexdigest(Marshal.dump([@url, locs[0], locs[-1], datetime, arrive_by]))]
+      key = [:otp, :route, @router_id, Digest::MD5.hexdigest(Marshal.dump([@url, locs[0], locs[-1], datetime, arrive_by]))]
       request = @cache.read(key)
       if !request
         params = {
@@ -91,6 +92,43 @@ module Wrappers
       end
 
       ret
+    end
+
+    def isoline(loc, size, departure, language, options = {})
+      key = [:opt, :isoline, @router_id, loc, size, departure]
+
+      request = @cache.read(key)
+      if !request
+        params = {
+          requestTimespanHours: 2,
+          radiusMeters: 500,
+          nContours: 1,
+          contourSpacingMinutes: size / 60,
+          crs: @crs,
+          fromPlace: loc.join(','),
+          maxTransfers: 2,
+          batch: true,
+          # Warning, full english fashion date and time
+          time: departure && departure.strftime('%I:%M%p'),
+          date: departure && departure.strftime('%m-%d-%Y'),
+          wheelchair: false,
+        }
+        request = String.new(RestClient.get(@url + '/otp/routers/' + @router_id + '/simpleIsochrone', {
+          timeout: nil,
+          accept: :json,
+          params: params
+        }))
+        @cache.write(key, request)
+      end
+
+      if request
+        data = JSON.parse(request)
+        data[:router] = {
+          licence: @licence,
+          attribution: @attribution,
+        }
+        data
+      end
     end
   end
 end

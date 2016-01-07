@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015
+# Copyright © Mapotempo, 2016
 #
 # This file is part of Mapotempo.
 #
@@ -30,15 +30,15 @@ class Wrappers::OsrmTest < Minitest::Test
   def test_router_no_route
     osrm = RouterWrapper::OSRM
     result = osrm.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], nil, nil, 'en', true)
-    assert 0 == result[:features].size
+    assert_equal 0, result[:features].size
   end
 
   def test_matrix_square
     osrm = RouterWrapper::OSRM
     vector = [[49.610710, 18.237305], [47.010226, 2.900391]]
     result = osrm.matrix(vector, vector, nil, nil, 'en')
-    assert vector.size, result[:matrix].size
-    assert vector.size, result[:matrix][0].size
+    assert_equal vector.size, result[:matrix].size
+    assert_equal vector.size, result[:matrix][0].size
   end
 
   def test_matrix_rectangular
@@ -46,7 +46,13 @@ class Wrappers::OsrmTest < Minitest::Test
     src = [[49.610710, 18.237305], [47.010226, 2.900391]]
     dst = [[49.610710, 18.237305]]
     result = osrm.matrix(src, dst, nil, nil, 'en')
-    assert dst.size, result[:matrix].size
-    assert src.size, result[:matrix][0].size
+    assert_equal dst.size, result[:matrix].size
+    assert_equal src.size, result[:matrix][0].size
+  end
+
+  def test_isoline
+    osrm = RouterWrapper::OSRM
+    result = osrm.isoline([49.610710, 18.237305], 100, nil, 'en')
+    assert 0 < result['features'].size
   end
 end

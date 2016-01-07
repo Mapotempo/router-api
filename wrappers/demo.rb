@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015
+# Copyright © Mapotempo, 2015-2016
 #
 # This file is part of Mapotempo.
 #
@@ -65,6 +65,38 @@ module Wrappers
             1
           }
         }
+      }
+    end
+
+    def isoline(loc, size, departure, language, options = {})
+      ret = {
+        type: 'FeatureCollection',
+        router: {
+          licence: 'demo',
+          attribution: 'demo',
+        },
+        features: [{
+          type: 'Feature',
+          properties: {
+            router: {
+              total_distance: 1,
+              total_time: size,
+              start_point: loc,
+            }
+          },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [-51.67968749999999, 68.13885164925573],
+              [-50.625, 62.2679226294176],
+              [-44.29687499999999, 60.06484046010452],
+              [-40.078125, 65.36683689226321],
+              [-23.5546875, 70.02058730174062],
+              [-51.328125, 70.72897946208789],
+              [-51.67968749999999, 68.13885164925573]
+            ]
+          }
+        }]
       }
     end
   end

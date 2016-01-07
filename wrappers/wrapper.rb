@@ -68,6 +68,14 @@ module Wrappers
       }
     end
 
+    def isoline?(loc)
+      if @boundary
+        contains?(loc[0], loc[1])
+      else
+        true
+      end
+    end
+
     private
 
     def contains?(lat, lng)

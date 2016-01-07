@@ -63,6 +63,18 @@ module RouterWrapper
     end
   end
 
+  def self.wrapper_isoline(params)
+    router = config[:services][:route][params[:mode].to_sym].find{ |router|
+      router.isoline?(params[:loc])
+    }
+    if !router
+      raise OutOfSupportedAreaError
+    else
+      options = { speed_multiplicator: (params[:speed_multiplicator] || 1) }
+      router.isoline(params[:loc], params[:size], params[:departure], params[:language], options)
+    end
+  end
+
   class OutOfSupportedAreaError < StandardError
   end
 end
