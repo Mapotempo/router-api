@@ -36,18 +36,8 @@ module Api
       default_format :json
       version '0.1', using: :path
 
-      rescue_from :all do |error|
-        message = {error: error.class.name, detail: error.message}
-        if ['test', 'development'].include?(ENV['APP_ENV'])
-          message[:trace] = error.backtrace
-          STDERR.puts error.message
-          STDERR.puts error.backtrace
-        end
-        error!(message, 500)
-      end
-
       resource :matrix do
-        desc 'Rectangular matrix between tws points set', {
+        desc 'Rectangular matrix between two points set', {
           nickname: 'matrix',
           entity: MatrixResult
         }

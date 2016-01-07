@@ -32,6 +32,20 @@ module Api
         end
       end
 
+      rescue_from :all do |error|
+        if error.is_a?(Grape::Exceptions::ValidationErrors)
+          rack_response({error: error.message}.to_json, 400)
+        else
+          message = {error: error.class.name, detail: error.message}
+          if ['development'].include?(ENV['APP_ENV'])
+            message[:trace] = error.backtrace
+            STDERR.puts error.message
+            STDERR.puts error.backtrace
+          end
+          error!(message, 500)
+        end
+      end
+
       mount Route
       mount Matrix
       mount Isoline
