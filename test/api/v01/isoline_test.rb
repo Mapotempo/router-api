@@ -30,4 +30,9 @@ class Api::V01::IsolineTest < Minitest::Test
     get '/0.1/isoline', {api_key: 'demo', loc: '12.5,78', size: 33, departure: Time.now}
     assert last_response.ok?, last_response.body
   end
+
+  def test_route_none_loc
+    get '/0.1/isoline', {api_key: 'demo'}
+    assert !last_response.ok?, last_response.body
+  end
 end

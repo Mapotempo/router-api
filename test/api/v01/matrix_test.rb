@@ -36,6 +36,11 @@ class Api::V01::MatrixTest < Minitest::Test
     assert last_response.ok?, last_response.body
   end
 
+  def test_route_none_loc
+    get '/0.1/matrix', {api_key: 'demo'}
+    assert !last_response.ok?, last_response.body
+  end
+
   def test_matrix_odd_loc
     get '/0.1/matrix', {api_key: 'demo', src: '1,2,3'}
     assert !last_response.ok?, last_response.body
