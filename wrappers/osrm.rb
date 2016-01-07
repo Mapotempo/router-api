@@ -121,7 +121,7 @@ module Wrappers
       end
 
       if request
-        data = JSON.parse(request)
+        data = JSON.parse(request).with_indifferent_access
         data[:router] = {
           licence: @licence,
           attribution: @attribution,

@@ -26,7 +26,7 @@ module Api
       end
 
       expose(:router, using: RouteResultRouter, documentation: { type: RouteResultRouter, desc: 'Namespace.' })
-#      expose(:matrix, using: RouteResultFeature, documentation: { type: RouteResultFeature, desc: 'As per GeoJSON spec.', is_array: true })
+      expose(:matrix)
     end
   end
 end

@@ -77,13 +77,6 @@ module Wrappers
         },
         features: [{
           type: 'Feature',
-          properties: {
-            router: {
-              total_distance: 1,
-              total_time: size,
-              start_point: loc,
-            }
-          },
           geometry: {
             type: 'Polygon',
             coordinates: [
