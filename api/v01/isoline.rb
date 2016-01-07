@@ -55,7 +55,6 @@ module Api
 
           results = RouterWrapper::wrapper_isoline(params)
           results[:router][:version] = 'draft'
-puts results.inspect
           present results, with: IsolineResult
         end
       end
