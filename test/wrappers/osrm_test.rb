@@ -46,8 +46,8 @@ class Wrappers::OsrmTest < Minitest::Test
     src = [[49.610710, 18.237305], [47.010226, 2.900391]]
     dst = [[49.610710, 18.237305]]
     result = osrm.matrix(src, dst, nil, nil, 'en')
-    assert_equal dst.size, result[:matrix].size
-    assert_equal src.size, result[:matrix][0].size
+    assert_equal src.size, result[:matrix].size
+    assert_equal dst.size, result[:matrix][0].size
   end
 
   def test_isoline
