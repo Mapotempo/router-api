@@ -95,7 +95,6 @@ module RouterWrapper
       raise OutOfSupportedAreaError
     else
       options = { speed_multiplicator: (params[:speed_multiplicator] || 1) }
-      params[:departure] ||= Time.now
       router.isoline(params[:loc], params[:size], params[:departure], params[:language], options)
     end
   end

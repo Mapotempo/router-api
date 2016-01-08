@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015
+# Copyright © Mapotempo, 2015-2016
 #
 # This file is part of Mapotempo.
 #
@@ -35,7 +35,7 @@ module Wrappers
 
     def route?(start, stop)
       if @boundary
-        contains?(start[0], start[1]) && contains?(stop[0], stop[1])
+        contains?(*start) && contains?(*stop)
       else
         true
       end
@@ -43,7 +43,7 @@ module Wrappers
 
     def matrix?(top_left, down_right)
       if @boundary
-        contains?(top_left[0], top_left[1]) && contains?(down_right[0], down_right[1])
+        contains?(*top_left[0]) && contains?(*top_left[1]) && contains?(*down_right[0]) && contains?(*down_right[1])
       else
         true
       end
@@ -70,7 +70,7 @@ module Wrappers
 
     def isoline?(loc)
       if @boundary
-        contains?(loc[0], loc[1])
+        contains?(*loc)
       else
         true
       end
