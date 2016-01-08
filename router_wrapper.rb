@@ -52,7 +52,7 @@ module RouterWrapper
     left, right = (params[:src] + params[:dst]).minmax_by{ |loc| loc[1] }
     top_left = [top, left]
     bottom_right = [bottom, right]
-    router = config[:services][:route][params[:mode].to_sym].find{ |router|
+    router = config[:services][:matrix][params[:mode].to_sym].find{ |router|
       router.matrix?(top_left, bottom_right)
     }
     if !router
@@ -64,7 +64,7 @@ module RouterWrapper
   end
 
   def self.wrapper_isoline(params)
-    router = config[:services][:route][params[:mode].to_sym].find{ |router|
+    router = config[:services][:isoline][params[:mode].to_sym].find{ |router|
       router.isoline?(params[:loc])
     }
     if !router
