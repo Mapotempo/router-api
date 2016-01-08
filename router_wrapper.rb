@@ -41,6 +41,30 @@ module RouterWrapper
     }
     if !router
       raise OutOfSupportedAreaError
+    elsif params[:loc].size == 2 && params[:loc][0] == params[:loc][1]
+      feature = {
+        type: 'Feature',
+        properties: {
+          router: {
+            total_distance: 0,
+            total_time: 0,
+            start_point: params[:loc][0].reverse,
+            end_point: params[:loc][1].reverse
+          }
+        }
+      }
+      feature[:geometry] = {
+        type: 'LineString',
+        coordinates: [params[:loc][0].reverse, params[:loc][1].reverse]
+      } if params[:geometry]
+      {
+        type: 'FeatureCollection',
+        router: {
+          licence: nil,
+          attribution: nil,
+        },
+        features: [feature]
+      }
     else
       options = { speed_multiplicator: (params[:speed_multiplicator] || 1) }
       router.route(params[:loc], params[:departure], params[:arrival], params[:language], params[:geometry], options)
