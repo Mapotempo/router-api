@@ -88,6 +88,78 @@ module Wrappers
       ret
     end
 
+    def matrix(srcs, dsts, departure, arrival, language, options = {})
+      raise 'More than 100x100 matrix, not possible with Here' if srcs.size > 100 || dsts.size > 100
+
+      srcs = srcs.collect{ |r| [r[0].round(5), r[1].round(5)] }
+      dsts = dsts.collect{ |c| [c[0].round(5), c[1].round(5)] }
+
+      key = Digest::MD5.hexdigest(Marshal.dump([srcs, dsts, options]))
+
+      result = @cache.read(key)
+      if !result
+
+        # From Here "Matrix Routing API Developer's Guide"
+        # Recommendations for Splitting Matrixes
+        # The best way to split a matrix request is to split it into parts with only few start positions and many
+        # destinations. The number of the start positions should be between 3 and 15, depending on the size
+        # of the area covered by the matrix. The matrices should be split into requests sufficiently small to
+        # ensure a response time of 30 seconds each. The number of the destinations in one request is limited
+        # to 100.
+
+        # Request should not contain more than 15 starts per request
+        # 500 to get response before 30 seconds timeout
+        split_size = [5, (1000 / srcs.size).round].min
+
+        result = Array.new(srcs.size) { Array.new(dsts.size) }
+
+        commons_param = {
+          mode: 'fastest;truck;traffic:disabled',
+          truckType: 'truck',
+          summaryAttributes: 'traveltime', # TODO: manage distance here (dimension)
+          #limitedWeight: # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
+          #weightPerAxle: # Truck routing only, vehicle weight per axle in tons.
+          #height: # Truck routing only, vehicle height in meters.
+          #width: # Truck routing only, vehicle width in meters.
+          #length: # Truck routing only, vehicle length in meters.
+        }
+        0.upto(dsts.size - 1).each{ |i|
+          commons_param["destination#{i}"] = dsts[i].join(',')
+        }
+
+        total = srcs.size * dsts.size
+        srcs_start = 0
+        while srcs_start < srcs.size do
+          param = commons_param.dup
+          srcs_start.upto([srcs_start + split_size - 1, srcs.size - 1].min).each{ |i|
+            param["start#{i - srcs_start}"] = srcs[i].join(',')
+          }
+          request = get('7.2/calculatematrix', param)
+
+          request['response']['matrixEntry'].each{ |e|
+            s = e['summary']
+            result[srcs_start + e['startIndex']][e['destinationIndex']] = s ? s['travelTime'].round : nil # TODO: return distance in addition
+          }
+
+          srcs_start += split_size
+        end
+
+        @cache.write(key, result)
+      end
+
+      {
+        router: {
+          licence: 'HERE',
+          attribution: 'HERE',
+        },
+        matrix: result.collect { |r|
+          r.collect { |rr|
+            rr ? (rr / (options[:speed_multiplicator] || 1)).round : nil
+          }
+        }
+      }
+    end
+
     private
 
     def get(object, params = {})

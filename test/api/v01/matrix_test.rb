@@ -45,4 +45,9 @@ class Api::V01::MatrixTest < Minitest::Test
     get '/0.1/matrix', {api_key: 'demo', src: '1,2,3'}
     assert !last_response.ok?, last_response.body
   end
+
+  def test_matrix_error
+    get '/0.1/matrix', {api_key: 'demo', mode: 'here', src: (0..100).collect{ |i| [i, i] }.join(',')}
+    assert !last_response.ok?, last_response.body
+  end
 end

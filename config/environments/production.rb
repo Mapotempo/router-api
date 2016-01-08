@@ -48,6 +48,7 @@ module RouterWrapper
         demo: [DEMO],
         osrm: [OSRM],
         otp: [OTP_BORDEAUX],
+        here: [HERE_TRUCK],
       },
       isoline: {
         demo: [DEMO],
