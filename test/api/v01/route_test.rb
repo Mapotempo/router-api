@@ -27,17 +27,17 @@ class Api::V01::RouteTest < Minitest::Test
   end
 
   def test_route
-    get '/0.1/route', {api_key: 'demo', loc: '12.5,78,4,45'}
+    get '/0.1/route', {api_key: 'demo', loc: '43.2804,5.3806,43.291576,5.355835'}
     assert last_response.ok?, last_response.body
   end
 
   def test_route_same_start_end_geojson
-    get '/0.1/route.geojson', {api_key: 'demo', loc: '1,1,1,1'}
+    get '/0.1/route.geojson', {api_key: 'demo', loc: '43.2804,5.3806,43.2804,5.3806'}
     assert last_response.ok?, last_response.body
     f = JSON.parse(last_response.body)['features'][0]
     assert_equal 0, f['properties']['router']['total_distance']
     assert_equal 0, f['properties']['router']['total_time']
-    assert_equal [[1.0, 1.0], [1.0, 1.0]], f['geometry']['coordinates']
+    assert_equal [[5.3806, 43.2804], [5.3806, 43.2804]], f['geometry']['coordinates']
   end
 
   def test_route_none_loc
@@ -46,12 +46,17 @@ class Api::V01::RouteTest < Minitest::Test
   end
 
   def test_route_missing_loc
-    get '/0.1/route', {api_key: 'demo', loc: '12.5,78'}
+    get '/0.1/route', {api_key: 'demo', loc: '43.2804,5.3806'}
     assert !last_response.ok?, last_response.body
   end
 
   def test_route_odd_loc
-    get '/0.1/route', {api_key: 'demo', loc: '12.5,78,4'}
+    get '/0.1/route', {api_key: 'demo', loc: '43.2804,5.3806,43.291576'}
     assert !last_response.ok?, last_response.body
+  end
+
+  def test_route_outside_area
+    get '/0.1/route', {api_key: 'demo', loc: '1,1,2,2'}
+    assert_equal 417, last_response.status, 'Bad response: ' + last_response.body
   end
 end

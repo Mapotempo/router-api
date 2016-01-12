@@ -27,12 +27,17 @@ class Api::V01::IsolineTest < Minitest::Test
   end
 
   def test_isoline
-    get '/0.1/isoline', {api_key: 'demo', loc: '12.5,78', size: 33, departure: Time.now}
+    get '/0.1/isoline', {api_key: 'demo', loc: '43.2804,5.3806', size: 33, departure: Time.now}
     assert last_response.ok?, last_response.body
   end
 
-  def test_route_none_loc
+  def test_isoline_none_loc
     get '/0.1/isoline', {api_key: 'demo'}
     assert !last_response.ok?, last_response.body
+  end
+
+  def test_isoline_outside_area
+    get '/0.1/isoline', {api_key: 'demo', loc: '1,1', size: 1, departure: Time.now}
+    assert_equal 417, last_response.status, 'Bad response: ' + last_response.body
   end
 end

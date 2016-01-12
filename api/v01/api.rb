@@ -33,8 +33,13 @@ module Api
       end
 
       rescue_from :all do |error|
-        if error.is_a?(Grape::Exceptions::ValidationErrors)
-          rack_response({error: error.message}.to_json, 400)
+        case error
+        when Grape::Exceptions::ValidationErrors
+          error!(error.message, 400)
+        when RouterWrapper::OutOfSupportedAreaError
+          error!(error.message, 417)
+        when Wrappers::UnreachablePointError
+          error!(error.message, 417)
         else
           message = {error: error.class.name, detail: error.message}
           if ['development'].include?(ENV['APP_ENV'])

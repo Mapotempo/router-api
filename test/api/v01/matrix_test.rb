@@ -27,12 +27,12 @@ class Api::V01::MatrixTest < Minitest::Test
   end
 
   def test_matrix_square
-    get '/0.1/matrix', {api_key: 'demo', src: '1,0,0,1'}
+    get '/0.1/matrix', {api_key: 'demo', src: '43.2804,5.3806,43.291576,5.355835'}
     assert last_response.ok?, last_response.body
   end
 
   def test_matrix_rectangular
-    get '/0.1/matrix', {api_key: 'demo', src: '1,0,0,1', dst: '2,3'}
+    get '/0.1/matrix', {api_key: 'demo', src: '43.2804,5.3806,43.291576,5.355835', dst: '43.290014,5.425873'}
     assert last_response.ok?, last_response.body
   end
 
@@ -42,12 +42,18 @@ class Api::V01::MatrixTest < Minitest::Test
   end
 
   def test_matrix_odd_loc
-    get '/0.1/matrix', {api_key: 'demo', src: '1,2,3'}
+    get '/0.1/matrix', {api_key: 'demo', src: '43.2804,5.3806,43.291576'}
     assert !last_response.ok?, last_response.body
+  end
+
+  def test_matrix_outside_area
+    get '/0.1/matrix', {api_key: 'demo', src: '1,1,2,2'}
+    assert_equal 417, last_response.status, 'Bad response: ' + last_response.body
   end
 
   def test_matrix_error
     get '/0.1/matrix', {api_key: 'demo', mode: 'here', src: (0..100).collect{ |i| [i, i] }.join(',')}
     assert !last_response.ok?, last_response.body
+    assert last_response.body.include? 'More than 100x100 matrix'
   end
 end

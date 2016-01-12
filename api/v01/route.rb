@@ -55,30 +55,24 @@ module Api
           params[:loc].size >= 2 || error!('At least two couples of lat/lng are needed.', 400)
           params[:loc][-1].size == 2 || error!('Couples of lat/lng are needed.', 400)
 
-          begin
-            results = RouterWrapper::wrapper_route(params)
-            results[:router][:version] = 'draft'
-            results[:features].each{ |feature|
-              if feature[:geometry]
-                if @env['rack.routing_args'][:format] == 'geojson'
-                  if feature[:geometry][:polylines]
-                    feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
-                    feature[:geometry].delete(:polylines)
-                  end
-                else
-                  if feature[:geometry][:coordinates]
-                    feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
-                    feature[:geometry].delete(:coordinates)
-                  end
+          results = RouterWrapper::wrapper_route(params)
+          results[:router][:version] = 'draft'
+          results[:features].each{ |feature|
+            if feature[:geometry]
+              if @env['rack.routing_args'][:format] == 'geojson'
+                if feature[:geometry][:polylines]
+                  feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
+                  feature[:geometry].delete(:polylines)
+                end
+              else
+                if feature[:geometry][:coordinates]
+                  feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
+                  feature[:geometry].delete(:coordinates)
                 end
               end
-            }
-            present results, with: RouteResult
-          rescue RouterWrapper::OutOfSupportedAreaError => e
-            error!(e.message, 417)
-          rescue Wrappers::UnreachablePointError => e
-            error!(e.message, 417)
-          end
+            end
+          }
+          present results, with: RouteResult
         end
       end
     end
