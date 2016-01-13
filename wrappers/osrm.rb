@@ -54,7 +54,7 @@ module Wrappers
         features: []
       }
 
-      if json['status'] == 200
+      if [0, 200].include?(json['status'])
         ret[:features] = [{
           type: 'Feature',
           properties: {
