@@ -115,11 +115,13 @@ module Wrappers
           date: departure && departure.strftime('%m-%d-%Y'),
           wheelchair: false,
         }
-        request = String.new(RestClient.get(@url + '/otp/routers/' + @router_id + '/simpleIsochrone', {
+        request = String.new(RestClient::Request.execute(method: :get, url: @url + '/otp/routers/' + @router_id + '/simpleIsochrone',
           timeout: nil,
-          accept: :json,
-          params: params
-        }))
+          headers: {
+            accept: :json,
+            params: params
+          }
+        ))
         @cache.write(key, request)
       end
 
