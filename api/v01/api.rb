@@ -39,7 +39,7 @@ module Api
         when RouterWrapper::OutOfSupportedAreaError
           error!(error.message, 417)
         when Wrappers::UnreachablePointError
-          error!(error.message, 417)
+          error!(error.message, 204)
         else
           message = {error: error.class.name, detail: error.message}
           if ['development'].include?(ENV['APP_ENV'])
