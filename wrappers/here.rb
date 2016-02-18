@@ -59,7 +59,7 @@ module Wrappers
         features: []
       }
 
-      if request
+      if request && request['response'] && request['response']['route']
         r = request['response']['route'][0]
         s = r['summary']
 
