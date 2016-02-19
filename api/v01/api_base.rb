@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015
+# Copyright © Mapotempo, 2016
 #
 # This file is part of Mapotempo.
 #
@@ -17,27 +17,15 @@
 #
 require 'grape'
 require 'grape-swagger'
-require 'polylines'
-
-require './api/v01/api_base'
-require './api/v01/entities/services_desc'
 
 module Api
   module V01
-    class Capability < APIBase
-      content_type :xml, 'application/xml'
-      content_type :json, 'application/json; charset=UTF-8'
-      default_format :json
-      version '0.1', using: :path
+    class APIBase < Grape::API
 
-      resource :capability do
-        desc 'Capability of current api', {
-          nickname: 'capability',
-          entity: ServicesDesc
-        }
-        get do
-          present RouterWrapper::desc(services), with: ServicesDesc
-        end
+      private
+
+      def self.services(api_key)
+        ::RouterWrapper::config[:api_keys][api_key]
       end
     end
   end

@@ -19,6 +19,7 @@ require 'grape'
 require 'grape-swagger'
 require 'polylines'
 
+require './api/v01/api_base'
 require './api/geojson_formatter'
 require './api/v01/entities/matrix_result'
 require './wrappers/wrapper'
@@ -26,7 +27,7 @@ require './router_wrapper'
 
 module Api
   module V01
-    class Matrix < Grape::API
+    class Matrix < APIBase
       content_type :json, 'application/json; charset=UTF-8'
       content_type :geojson, 'application/vnd.geo+json; charset=UTF-8'
       content_type :xml, 'application/xml'
@@ -42,7 +43,7 @@ module Api
           entity: MatrixResult
         }
         params {
-          optional :mode, type: String, values: RouterWrapper.config[:services][:route].keys.collect(&:to_s), default: RouterWrapper.config[:services][:route_default], desc: 'Transportation mode.'
+          optional :mode, type: String, desc: 'Transportation mode.'
           optional :departure, type: Date, desc: 'Departure date time.'
           optional :arrival, type: Date, desc: 'Arrival date time.'
           optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
@@ -51,6 +52,7 @@ module Api
           optional :dst, type: String, desc: 'List of destination of latitudes and longitudes, if not present compute square matrix with sources points.'
         }
         get do
+          params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           params[:src] = params[:src].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
           params[:src][-1].size == 2 || error!('Source couples of lat/lng are needed.', 400)
 
@@ -61,7 +63,7 @@ module Api
             params[:dst] =  params[:src]
           end
 
-          results = RouterWrapper::wrapper_matrix(params)
+          results = RouterWrapper::wrapper_matrix(APIBase.services(params[:api_key]), params)
           results[:router][:version] = 'draft'
           present results, with: MatrixResult
         end

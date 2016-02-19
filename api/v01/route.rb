@@ -19,6 +19,7 @@ require 'grape'
 require 'grape-swagger'
 require 'polylines'
 
+require './api/v01/api_base'
 require './api/geojson_formatter'
 require './api/v01/entities/route_result'
 require './wrappers/wrapper'
@@ -26,7 +27,7 @@ require './router_wrapper'
 
 module Api
   module V01
-    class Route < Grape::API
+    class Route < APIBase
       content_type :json, 'application/json; charset=UTF-8'
       content_type :geojson, 'application/vnd.geo+json; charset=UTF-8'
       content_type :xml, 'application/xml'
@@ -42,7 +43,7 @@ module Api
           entity: RouteResult
         }
         params {
-          optional :mode, type: String, values: RouterWrapper.config[:services][:route].keys.collect(&:to_s), default: RouterWrapper.config[:services][:route_default], desc: 'Transportation mode.'
+          optional :mode, type: String, desc: 'Transportation mode.'
           optional :geometry, type: Boolean, default: true, desc: 'Return the route trace geometry.'
           optional :departure, type: Date, desc: 'Departure date time.'
           optional :arrival, type: Date, desc: 'Arrival date time.'
@@ -51,11 +52,12 @@ module Api
           requires :loc, type: String, desc: 'List of latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
         }
         get do
+          params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
           params[:loc].size >= 2 || error!('At least two couples of lat/lng are needed.', 400)
           params[:loc][-1].size == 2 || error!('Couples of lat/lng are needed.', 400)
 
-          results = RouterWrapper::wrapper_route(params)
+          results = RouterWrapper::wrapper_route(APIBase.services(params[:api_key]), params)
           results[:router][:version] = 'draft'
           results[:features].each{ |feature|
             if feature[:geometry]

@@ -55,6 +55,12 @@ module Api
       mount Matrix
       mount Isoline
       mount Capability
+
+      private
+
+      def services
+        ::RouterWrapper::config[:api_keys][params[:api_key]]
+      end
     end
   end
 end

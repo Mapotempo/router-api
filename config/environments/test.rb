@@ -36,26 +36,51 @@ module RouterWrapper
   @@c = {
     product_title: 'Router Wrapper API',
     product_contact: 'frederic@mapotempo.com',
-    services: {
-      route_default: 'demo',
-      route: {
-        demo: [DEMO],
-        osrm: [OSRM],
-        otp: [OTP_BORDEAUX],
-        here: [HERE_TRUCK],
-      },
-      matrix: {
-        demo: [DEMO],
-        osrm: [OSRM],
-        otp: [OTP_BORDEAUX],
-        here: [HERE_TRUCK],
-      },
-      isoline: {
-        demo: [DEMO],
-        osrm: [OSRM],
-        otp: [OTP_BORDEAUX],
+
+    services: {},
+
+    profiles: [{
+      api_keys: ['light'],
+      services: {
+        route_default: 'demo',
+        route: {
+          demo: [DEMO],
+        },
+        matrix: {
+          demo: [DEMO],
+        },
+        isoline: {
+          demo: [DEMO],
+        }
       }
-    },
-    api_keys: ['demo']
+    }, {
+      api_keys: ['demo'],
+      services: {
+        route_default: 'demo',
+        route: {
+          demo: [DEMO],
+          osrm: [OSRM],
+          otp: [OTP_BORDEAUX],
+          here: [HERE_TRUCK],
+        },
+        matrix: {
+          demo: [DEMO],
+          osrm: [OSRM],
+          otp: [OTP_BORDEAUX],
+          here: [HERE_TRUCK],
+        },
+        isoline: {
+          demo: [DEMO],
+          osrm: [OSRM],
+          otp: [OTP_BORDEAUX],
+        }
+      }
+    }]
   }
+
+  @@c[:api_keys] = Hash[@@c[:profiles].collect{ |profile|
+    profile[:api_keys].collect{ |api_key|
+      [api_key, profile[:services]]
+    }
+  }.flatten(1)]
 end

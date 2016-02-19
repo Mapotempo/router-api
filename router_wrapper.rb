@@ -22,8 +22,8 @@ module RouterWrapper
     @@c
   end
 
-  def self.desc()
-    Hash[config[:services].select{ |s, v| [:route, :matrix, :isoline].include?(s) }.collect do |service_key, service_value|
+  def self.desc(services)
+    Hash[services.select{ |s, v| [:route, :matrix, :isoline].include?(s) }.collect do |service_key, service_value|
       l = service_value.collect do |router_key, router_value|
         {
           mode: router_key,
@@ -35,8 +35,8 @@ module RouterWrapper
     end]
   end
 
-  def self.wrapper_route(params)
-    router = config[:services][:route][params[:mode].to_sym].find{ |router|
+  def self.wrapper_route(services, params)
+    router = services[:route][params[:mode].to_sym].find{ |router|
       router.route?(params[:loc][0], params[:loc][-1])
     }
     if !router
@@ -71,12 +71,12 @@ module RouterWrapper
     end
   end
 
-  def self.wrapper_matrix(params)
+  def self.wrapper_matrix(services, params)
     top, bottom = (params[:src] + params[:dst]).minmax_by{ |loc| loc[0] }
     left, right = (params[:src] + params[:dst]).minmax_by{ |loc| loc[1] }
     top_left = [top, left]
     bottom_right = [bottom, right]
-    router = config[:services][:matrix][params[:mode].to_sym].find{ |router|
+    router = services[:matrix][params[:mode].to_sym].find{ |router|
       router.matrix?(top_left, bottom_right)
     }
     if !router
@@ -87,8 +87,8 @@ module RouterWrapper
     end
   end
 
-  def self.wrapper_isoline(params)
-    router = config[:services][:isoline][params[:mode].to_sym].find{ |router|
+  def self.wrapper_isoline(services, params)
+    router = services[:isoline][params[:mode].to_sym].find{ |router|
       router.isoline?(params[:loc])
     }
     if !router

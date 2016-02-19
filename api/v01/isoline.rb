@@ -19,6 +19,7 @@ require 'grape'
 require 'grape-swagger'
 require 'polylines'
 
+require './api/v01/api_base'
 require './api/geojson_formatter'
 require './api/v01/entities/isoline_result'
 require './wrappers/wrapper'
@@ -26,7 +27,7 @@ require './router_wrapper'
 
 module Api
   module V01
-    class Isoline < Grape::API
+    class Isoline < APIBase
       content_type :json, 'application/json; charset=UTF-8'
       content_type :geojson, 'application/vnd.geo+json; charset=UTF-8'
       content_type :xml, 'application/xml'
@@ -42,7 +43,7 @@ module Api
           entity: IsolineResult
         }
         params {
-          optional :mode, type: String, values: RouterWrapper.config[:services][:route].keys.collect(&:to_s), default: RouterWrapper.config[:services][:route_default], desc: 'Transportation mode.'
+          optional :mode, type: String, desc: 'Transportation mode.'
           optional :departure, type: Date, desc: 'Departure date time.'
           optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
           optional :lang, type: String, default: :en
@@ -50,10 +51,11 @@ module Api
           requires :size, type: Integer, desc: 'Size of isoline.'
         }
         get do
+          params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }
           params[:loc].size == 2 || error!('Start lat/lng is needed.', 400)
 
-          results = RouterWrapper::wrapper_isoline(params)
+          results = RouterWrapper::wrapper_isoline(APIBase.services(params[:api_key]), params)
           results[:router][:version] = 'draft'
           present results, with: IsolineResult
         end
