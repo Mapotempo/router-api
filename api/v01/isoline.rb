@@ -46,7 +46,7 @@ module Api
           optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
           optional :lang, type: String, default: :en
           requires :loc, type: String, desc: 'Start latitude and longitude separated with a comma, e.g. lat1,lng1.'
-          requires :size, type: Integer, desc: 'Size of isoline.'
+          requires :size, type: Integer, desc: 'Size of isoline. Time in second, distance in meters.'
         }
         get do
           params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
