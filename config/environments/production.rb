@@ -27,7 +27,7 @@ module RouterWrapper
   CACHE = ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*60*24*1)
 
   DEMO = Wrappers::Demo.new(CACHE)
-  OSRM = Wrappers::Osrm.new(CACHE, url_osrm: 'http://router.project-osrm.org', url_isochrone: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
+  OSRM = Wrappers::Osrm.new(CACHE, url_time: 'http://router.project-osrm.org', url_isochrone: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
   OTP_BORDEAUX = Wrappers::Otp.new(CACHE, url: 'http://localhost:8080', router_id: 'bordeaux', licence: 'ODbL', attribution: 'Bordeaux Métropole', area: 'Bordeaux', crs: 'EPSG:2154')
   HERE_APP_ID = nil
   HERE_APP_CODE = nil
