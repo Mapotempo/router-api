@@ -49,10 +49,10 @@ module Wrappers
       end
     end
 
-    def matrix(srcs, dsts, departure, arrival, language, options = {})
+    def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
       m = srcs.collect{ |src|
         dsts.collect{ |dst|
-          ret = route([src, dst], departure, arrival, language, options)
+          ret = route([src, dst], dimension, departure, arrival, language, options)
           if ret.key?(:features) && ret[:features].size > 0
             ret[:features][0][:properties][:router][:total_time]
           end

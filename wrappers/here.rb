@@ -29,7 +29,7 @@ module Wrappers
       @mode = hash[:mode]
     end
 
-    def route(locs, departure, arrival, language, with_geometry, options = {})
+    def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       params = {
         mode: "fastest;#{@mode};traffic:disabled",
         alternatives: 0,
@@ -88,7 +88,7 @@ module Wrappers
       ret
     end
 
-    def matrix(srcs, dsts, departure, arrival, language, options = {})
+    def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
       raise 'More than 100x100 matrix, not possible with Here' if srcs.size > 100 || dsts.size > 100
 
       srcs = srcs.collect{ |r| [r[0].round(5), r[1].round(5)] }

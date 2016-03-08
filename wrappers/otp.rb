@@ -33,7 +33,7 @@ module Wrappers
       @crs = hash[:crs]
     end
 
-    def route(locs, departure, arrival, language, with_geometry, options = {})
+    def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       datetime, arrive_by = departure ? [departure, false] : arrival ? [arrival, true] : [monday_morning, false]
       key = [:otp, :route, @router_id, Digest::MD5.hexdigest(Marshal.dump([@url, locs[0], locs[-1], datetime, arrive_by]))]
       request = @cache.read(key)
@@ -94,7 +94,7 @@ module Wrappers
       ret
     end
 
-    def isoline(loc, size, departure, language, options = {})
+    def isoline(loc, dimension, size, departure, language, options = {})
       key = [:opt, :isoline, @router_id, loc, size, departure]
 
       departure ||= monday_morning

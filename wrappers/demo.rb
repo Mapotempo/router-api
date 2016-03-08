@@ -24,7 +24,7 @@ module Wrappers
       super(cache, hash)
     end
 
-    def route(locs, departure, arrival, language, with_geometry, options = {})
+    def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       ret = {
         type: 'FeatureCollection',
         router: {
@@ -54,7 +54,7 @@ module Wrappers
       ret
     end
 
-    def matrix(src, dst, departure, arrival, language, options = {})
+    def matrix(src, dst, dimension, departure, arrival, language, options = {})
       {
         router: {
           licence: 'demo',
@@ -68,7 +68,7 @@ module Wrappers
       }
     end
 
-    def isoline(loc, size, departure, language, options = {})
+    def isoline(loc, dimension, size, departure, language, options = {})
       ret = {
         type: 'FeatureCollection',
         router: {

@@ -32,7 +32,7 @@ module Wrappers
       @attribution = hash[:attribution]
     end
 
-    def route(locs, departure, arrival, language, with_geometry, options = {})
+    def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       # Workaround, cause restclient dosen't deals with array params
       query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, with_geometry]] + locs.collect{ |loc| [:loc, loc.join(',')] })
 
@@ -78,7 +78,7 @@ module Wrappers
       ret
     end
 
-    def matrix(srcs, dsts, departure, arrival, language, options = {})
+    def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
       # Workaround, cause restclient dosen't deals with array params
       query_params = 'table?' + URI::encode_www_form([[:alt, false]] + srcs.collect{ |src| [:src, src.join(',')] } + dsts.collect{ |dst| [:dst, dst.join(',')] })
 
@@ -104,7 +104,7 @@ module Wrappers
       }
     end
 
-    def isoline(loc, size, departure, language, options = {})
+    def isoline(loc, dimension, size, departure, language, options = {})
       key = [:osrm, :isoline, Digest::MD5.hexdigest(Marshal.dump([@url_isochrone, loc, size]))]
       request = @cache.read(key)
       if !request
