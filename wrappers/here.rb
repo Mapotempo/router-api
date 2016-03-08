@@ -160,6 +160,10 @@ module Wrappers
       }
     end
 
+    def isoline?(loc, dimension)
+      false
+    end
+
     private
 
     def here_mode(dimension, mode)
