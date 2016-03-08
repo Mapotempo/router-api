@@ -36,7 +36,7 @@ module Api
         case error
         when Grape::Exceptions::ValidationErrors
           error!(error.message, 400)
-        when RouterWrapper::OutOfSupportedAreaError
+        when RouterWrapper::RouterWrapperError
           error!(error.message, 417)
         when Wrappers::UnreachablePointError
           error!(error.message, 204)

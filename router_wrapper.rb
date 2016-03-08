@@ -36,7 +36,11 @@ module RouterWrapper
   end
 
   def self.wrapper_route(services, params)
-    router = services[:route][params[:mode].to_sym].find{ |router|
+    modes = services[:route][params[:mode]]
+    if !modes
+      raise NotSupportedTransportationMode
+    end
+    router = modes.find{ |router|
       router.route?(params[:loc][0], params[:loc][-1], params[:dimension])
     }
     if !router
@@ -72,11 +76,15 @@ module RouterWrapper
   end
 
   def self.wrapper_matrix(services, params)
+    modes = services[:matrix][params[:mode]]
+    if !modes
+      raise NotSupportedTransportationMode
+    end
     top, bottom = (params[:src] + params[:dst]).minmax_by{ |loc| loc[0] }
     left, right = (params[:src] + params[:dst]).minmax_by{ |loc| loc[1] }
     top_left = [top, left]
     bottom_right = [bottom, right]
-    router = services[:matrix][params[:mode].to_sym].find{ |router|
+    router = modes.find{ |router|
       router.matrix?(top_left, bottom_right, params[:dimension])
     }
     if !router
@@ -88,7 +96,11 @@ module RouterWrapper
   end
 
   def self.wrapper_isoline(services, params)
-    router = services[:isoline][params[:mode].to_sym].find{ |router|
+    modes = services[:isoline][params[:mode]]
+    if !modes
+      raise NotSupportedTransportationMode
+    end
+    router = modes.find{ |router|
       router.isoline?(params[:loc], params[:dimension])
     }
     if !router
@@ -99,6 +111,12 @@ module RouterWrapper
     end
   end
 
-  class OutOfSupportedAreaError < StandardError
+  class RouterWrapperError < StandardError
+  end
+
+  class NotSupportedTransportationMode < RouterWrapperError
+  end
+
+  class OutOfSupportedAreaError < RouterWrapperError
   end
 end

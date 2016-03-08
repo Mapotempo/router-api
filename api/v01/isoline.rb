@@ -41,7 +41,7 @@ module Api
           entity: IsolineResult
         }
         params {
-          optional :mode, type: String, desc: 'Transportation mode.'
+          optional :mode, type: Symbol, desc: 'Transportation mode.'
           optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute isochrone or isodistance (default on time.)'
           optional :departure, type: Date, desc: 'Departure date time.'
           optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
