@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.2.5)
+    activesupport (4.2.6)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
@@ -20,7 +20,7 @@ GEM
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     docile (1.1.5)
-    domain_name (0.5.25)
+    domain_name (0.5.20160216)
       unf (>= 0.0.5, < 1.0.0)
     equalizer (0.0.11)
     git-version-bump (0.15.1)
@@ -46,12 +46,12 @@ GEM
     http-cookie (1.0.2)
       domain_name (~> 0.5)
     i18n (0.7.0)
-    ice_nine (0.11.1)
+    ice_nine (0.11.2)
     json (1.8.3)
-    mime-types (2.99)
+    mime-types (2.99.1)
     mini_portile2 (2.0.0)
-    minitest (5.8.3)
-    minitest-reporters (1.1.7)
+    minitest (5.8.4)
+    minitest-reporters (1.1.8)
       ansi
       builder
       minitest (>= 5.0)
@@ -59,10 +59,10 @@ GEM
     multi_json (1.11.2)
     multi_xml (0.5.5)
     netrc (0.11.0)
-    nokogiri (1.6.7)
+    nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
     polylines (0.3.0)
-    puma (2.15.3)
+    puma (3.1.0)
     rack (1.5.5)
     rack-accept (0.4.5)
       rack (>= 0.4)
@@ -83,7 +83,7 @@ GEM
       mime-types (>= 1.16, < 3.0)
       netrc (~> 0.7)
     ruby-progressbar (1.7.5)
-    simplecov (0.11.1)
+    simplecov (0.11.2)
       docile (~> 1.1.0)
       json (~> 1.8)
       simplecov-html (~> 0.10.0)
@@ -93,7 +93,7 @@ GEM
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.1)
+    unf_ext (0.0.7.2)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -122,3 +122,6 @@ DEPENDENCIES
   rakeup
   rest-client
   simplecov
+
+BUNDLED WITH
+   1.11.2
