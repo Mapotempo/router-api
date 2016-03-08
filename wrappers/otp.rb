@@ -33,6 +33,10 @@ module Wrappers
       @crs = hash[:crs]
     end
 
+    def route?(start, stop, dimension)
+      dimension == :time && super(start, stop, dimension)
+    end
+
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       datetime, arrive_by = departure ? [departure, false] : arrival ? [arrival, true] : [monday_morning, false]
       key = [:otp, :route, @router_id, Digest::MD5.hexdigest(Marshal.dump([@url, locs[0], locs[-1], datetime, arrive_by]))]
@@ -92,6 +96,14 @@ module Wrappers
       end
 
       ret
+    end
+
+    def matrix?(top_left, down_right, dimension)
+      dimension == :time && super(top_left, down_right, dimension)
+    end
+
+    def isoline?(loc, dimension)
+      dimension == :time && super(loc, dimension)
     end
 
     def isoline(loc, dimension, size, departure, language, options = {})

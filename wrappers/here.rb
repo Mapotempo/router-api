@@ -31,7 +31,7 @@ module Wrappers
 
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       params = {
-        mode: "fastest;#{@mode};traffic:disabled",
+        mode: here_mode(dimension, @mode),
         alternatives: 0,
         resolution: 1,
         language: language,
@@ -114,8 +114,8 @@ module Wrappers
         result = Array.new(srcs.size) { Array.new(dsts.size) }
 
         commons_param = {
-          mode: 'fastest;truck;traffic:disabled',
-          truckType: 'truck',
+          mode: here_mode(dimension, @mode),
+          truckType: @mode,
           summaryAttributes: 'traveltime', # TODO: manage distance here (dimension)
           #limitedWeight: # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
           #weightPerAxle: # Truck routing only, vehicle weight per axle in tons.
@@ -161,6 +161,10 @@ module Wrappers
     end
 
     private
+
+    def here_mode(dimension, mode)
+      "#{dimension == :time ? 'fastest' : 'shortest'};#{@mode};traffic:disabled"
+    end
 
     def get(object, params = {})
       url = "#{@url}/#{object}.json"

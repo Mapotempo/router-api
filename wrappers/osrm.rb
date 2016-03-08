@@ -26,20 +26,30 @@ module Wrappers
   class Osrm < Wrapper
     def initialize(cache, hash = {})
       super(cache, hash)
-      @url_time = hash[:url_time]
-      @url_isochrone = hash[:url_isochrone]
+      @url_trace = {
+        time: hash[:url_time],
+        distance: hash[:url_distance]
+      }
+      @url_isoline = {
+        time: hash[:url_isochrone],
+        distance: hash[:url_isodistance]
+      }
       @licence = hash[:licence]
       @attribution = hash[:attribution]
+    end
+
+    def route?(start, stop, dimension)
+      @url_trace[dimension] && super(start, stop, dimension)
     end
 
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       # Workaround, cause restclient dosen't deals with array params
       query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, with_geometry]] + locs.collect{ |loc| [:loc, loc.join(',')] })
 
-      key = [:osrm, :route, Digest::MD5.hexdigest(Marshal.dump([@url_time, query_params, language]))]
+      key = [:osrm, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dimension], query_params, language]))]
       json = @cache.read(key)
       if !json
-        resource = RestClient::Resource.new(@url_time)
+        resource = RestClient::Resource.new(@url_trace[dimension])
         response = resource[query_params].get
         json = JSON.parse(response)
         @cache.write(key, json)
@@ -78,14 +88,18 @@ module Wrappers
       ret
     end
 
+    def matrix?(top_left, down_right, dimension)
+      @url_trace[dimension] && super(top_left, down_right, dimension)
+    end
+
     def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
       # Workaround, cause restclient dosen't deals with array params
       query_params = 'table?' + URI::encode_www_form([[:alt, false]] + srcs.collect{ |src| [:src, src.join(',')] } + dsts.collect{ |dst| [:dst, dst.join(',')] })
 
-      key = [:osrm, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_time, query_params, language]))]
+      key = [:osrm, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dimension], query_params, language]))]
       json = @cache.read(key)
       if !json
-        resource = RestClient::Resource.new(@url_time)
+        resource = RestClient::Resource.new(@url_trace[dimension])
         response = resource[query_params].get
         json = JSON.parse(response)
         @cache.write(key, json)
@@ -104,8 +118,12 @@ module Wrappers
       }
     end
 
+    def isoline?(loc, dimension)
+      @url_isoline[dimension] && super(loc, dimension)
+    end
+
     def isoline(loc, dimension, size, departure, language, options = {})
-      key = [:osrm, :isoline, Digest::MD5.hexdigest(Marshal.dump([@url_isochrone, loc, size]))]
+      key = [:osrm, :isoline, Digest::MD5.hexdigest(Marshal.dump([@url_isoline[dimension], loc, size]))]
       request = @cache.read(key)
       if !request
         params = {
@@ -113,7 +131,7 @@ module Wrappers
           lng: loc[1],
           time: size * (options[:speed_multiplicator] || 1)
         }
-        request = String.new(RestClient.get(@url_isochrone + '/0.1/isochrone', {
+        request = String.new(RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
           accept: :json,
           params: params
         }))

@@ -37,7 +37,7 @@ module RouterWrapper
 
   def self.wrapper_route(services, params)
     router = services[:route][params[:mode].to_sym].find{ |router|
-      router.route?(params[:loc][0], params[:loc][-1])
+      router.route?(params[:loc][0], params[:loc][-1], params[:dimension])
     }
     if !router
       raise OutOfSupportedAreaError
@@ -77,7 +77,7 @@ module RouterWrapper
     top_left = [top, left]
     bottom_right = [bottom, right]
     router = services[:matrix][params[:mode].to_sym].find{ |router|
-      router.matrix?(top_left, bottom_right)
+      router.matrix?(top_left, bottom_right, params[:dimension])
     }
     if !router
       raise OutOfSupportedAreaError
@@ -89,7 +89,7 @@ module RouterWrapper
 
   def self.wrapper_isoline(services, params)
     router = services[:isoline][params[:mode].to_sym].find{ |router|
-      router.isoline?(params[:loc])
+      router.isoline?(params[:loc], params[:dimension])
     }
     if !router
       raise OutOfSupportedAreaError
