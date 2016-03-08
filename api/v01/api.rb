@@ -42,7 +42,7 @@ module Api
           error!(error.message, 204)
         else
           message = {error: error.class.name, detail: error.message}
-          if ['development'].include?(ENV['APP_ENV'])
+          if ['development', 'production'].include?(ENV['APP_ENV'])
             message[:trace] = error.backtrace
             STDERR.puts error.message
             STDERR.puts error.backtrace
