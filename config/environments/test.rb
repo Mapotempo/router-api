@@ -42,7 +42,7 @@ module RouterWrapper
     profiles: [{
       api_keys: ['light'],
       services: {
-        route_default: 'demo',
+        route_default: :demo,
         route: {
           demo: [DEMO],
         },
@@ -56,7 +56,7 @@ module RouterWrapper
     }, {
       api_keys: ['demo'],
       services: {
-        route_default: 'demo',
+        route_default: :demo,
         route: {
           demo: [DEMO],
           osrm: [OSRM],
