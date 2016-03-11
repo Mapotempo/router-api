@@ -73,7 +73,7 @@ module RouterWrapper
         features: [feature]
       }
     else
-      options = { speed_multiplicator: (params[:speed_multiplicator] || 1) }
+      options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
       router.route(params[:loc], params[:dimension], params[:departure], params[:arrival], params[:language], params[:geometry], options)
     end
   end
@@ -93,7 +93,7 @@ module RouterWrapper
     if !router
       raise OutOfSupportedAreaError
     else
-      options = { speed_multiplicator: (params[:speed_multiplicator] || 1) }
+      options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
       router.matrix(params[:src], params[:dst], params[:dimension], params[:departure], params[:arrival], params[:language], options)
     end
   end
@@ -109,7 +109,7 @@ module RouterWrapper
     if !router
       raise OutOfSupportedAreaError
     else
-      options = { speed_multiplicator: (params[:speed_multiplicator] || 1) }
+      options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
       router.isoline(params[:loc], params[:dimension], params[:size], params[:departure], params[:language], options)
     end
   end
@@ -121,5 +121,11 @@ module RouterWrapper
   end
 
   class OutOfSupportedAreaError < RouterWrapperError
+  end
+
+  private
+
+  def self.speed_multiplicator_area(params)
+    Hash[params[:area].zip(params[:speed_multiplicator_area])] if params[:area]
   end
 end

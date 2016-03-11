@@ -33,9 +33,14 @@ module Wrappers
       true
     end
 
+    def avoid_area?
+      true
+    end
+
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       params = {
         mode: here_mode(dimension, @mode),
+        avoidAreas: here_avoid_areas(options[:speed_multiplicator_area]),
         alternatives: 0,
         resolution: 1,
         language: language,
@@ -119,6 +124,7 @@ module Wrappers
 
         commons_param = {
           mode: here_mode(dimension, @mode),
+          avoidAreas: here_avoid_areas(options[:speed_multiplicator_area]),
           truckType: @mode,
           summaryAttributes: 'traveltime', # TODO: manage distance here (dimension)
           #limitedWeight: # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
@@ -172,6 +178,15 @@ module Wrappers
 
     def here_mode(dimension, mode)
       "#{dimension == :time ? 'fastest' : 'shortest'};#{@mode};traffic:disabled"
+    end
+
+    def here_avoid_areas(areas)
+      # Keep only avoid area
+      areas.select{ |k, v| v == 0 }.collect{ |area, _v|
+        lats = area.minmax{ |p| p[0] }
+        lons = area.minmax{ |p| p[1] }
+        "#{lats[1][0]},#{lons[1][1]};#{lats[0][0]},#{lons[0][1]}"
+      }.join('!') if areas
     end
 
     def get(object, params = {})

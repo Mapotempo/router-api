@@ -47,14 +47,19 @@ module Api
           optional :departure, type: Date, desc: 'Departure date time.'
           optional :arrival, type: Date, desc: 'Arrival date time.'
           optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
+          optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons.'
+          optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons.'
           optional :lang, type: String, default: :en
-          requires :loc, type: String, desc: 'List of latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
+          requires :loc, type: Array, coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
         }
         get do
           params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
-          params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
+          if params[:area]
+            params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng are needed.', 400)
+            params[:area].collect{ |area| area.each_slice(2).to_a }
+          end
           params[:loc].size >= 2 || error!('At least two couples of lat/lng are needed.', 400)
-          params[:loc][-1].size == 2 || error!('Couples of lat/lng are needed.', 400)
+          params[:loc][-1].size == 2 || error!('loc: couples of lat/lng are needed.', 400)
 
           results = RouterWrapper::wrapper_route(APIBase.services(params[:api_key]), params)
           results[:router][:version] = 'draft'

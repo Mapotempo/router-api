@@ -40,6 +40,13 @@ class Wrappers::HereTest < Minitest::Test
     end
   end
 
+  def test_router_avoid_area
+    here = RouterWrapper::HERE_TRUCK
+    options = {speed_multiplicator_area: {[[52, 14], [42, 5]] => 0}}
+    result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, options)
+    assert 1900000 < result[:features][0][:properties][:router][:total_distance]
+  end
+
   def test_matrix_square
     here = RouterWrapper::HERE_TRUCK
     vector = [[49.610710, 18.237305], [47.010226, 2.900391]]
