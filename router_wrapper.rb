@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015
+# Copyright © Mapotempo, 2015-2016
 #
 # This file is part of Mapotempo.
 #
@@ -24,11 +24,14 @@ module RouterWrapper
 
   def self.desc(services)
     Hash[services.select{ |s, v| [:route, :matrix, :isoline].include?(s) }.collect do |service_key, service_value|
-      l = service_value.collect do |router_key, router_value|
+      l = service_value.collect do |router_key, router_values|
         {
           mode: router_key,
           name: I18n.translate('router.' + router_key.to_s + '.name', default: (I18n.translate('router.' + router_key.to_s + '.name', locale: :en))),
-          area: router_value.collect(&:area).compact
+          dimensions: [router_values.all?(&:dimension_time?) ? 'time' : nil, router_values.all?(&:dimension_distance?) ? 'distance' : nil].compact,
+          support_avoid_area: router_values.all?(&:avoid_area?),
+          support_speed_multiplicator_area: router_values.all?(&:speed_multiplicator_area?),
+          area: router_values.collect(&:area).compact
         }
       end
       [service_key, l.flatten]

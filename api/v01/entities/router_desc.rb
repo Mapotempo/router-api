@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2015
+# Copyright © Mapotempo, 2015-2016
 #
 # This file is part of Mapotempo.
 #
@@ -26,6 +26,9 @@ module Api
 
       expose(:mode, documentation: { type: String })
       expose(:name, documentation: { type: String })
+      expose(:dimensions, documentation: { type: String, values: ['time', 'distance'] })
+      expose(:support_avoid_area, documentation: { type: 'Boolean' })
+      expose(:support_speed_multiplicator_area, documentation: { type: 'Boolean' })
       expose(:area, documentation: { type: String, is_array: true })
     end
   end

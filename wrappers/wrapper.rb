@@ -33,6 +33,22 @@ module Wrappers
       @area
     end
 
+    def dimension_time?
+      true
+    end
+
+    def dimension_distance?
+      false
+    end
+
+    def avoid_area?
+      false
+    end
+
+    def speed_multiplicator_area?
+      false
+    end
+
     def route?(start, stop, dimension)
       if @boundary
         contains?(*start) && contains?(*stop)

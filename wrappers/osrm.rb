@@ -42,6 +42,14 @@ module Wrappers
       @url_trace[dimension] && super(start, stop, dimension)
     end
 
+    def dimension_time?
+      !!@url_trace[:time]
+    end
+
+    def dimension_distance?
+      !!@url_trace[:distance]
+    end
+
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       # Workaround, cause restclient dosen't deals with array params
       query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, with_geometry]] + locs.collect{ |loc| [:loc, loc.join(',')] })

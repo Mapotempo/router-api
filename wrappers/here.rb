@@ -29,6 +29,10 @@ module Wrappers
       @mode = hash[:mode]
     end
 
+    def dimension_distance?
+      true
+    end
+
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       params = {
         mode: here_mode(dimension, @mode),
