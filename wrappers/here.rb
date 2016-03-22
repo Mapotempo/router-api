@@ -89,7 +89,7 @@ module Wrappers
             type: 'LineString',
             coordinates: r['shape'].collect{ |p|
               p.split(',').collect(&:to_f)
-            }.each(&:reverse)
+            }.collect(&:reverse)
           }
         end
       end
@@ -183,8 +183,8 @@ module Wrappers
     def here_avoid_areas(areas)
       # Keep only avoid area
       areas.select{ |k, v| v == 0 }.collect{ |area, _v|
-        lats = area.minmax{ |p| p[0] }
-        lons = area.minmax{ |p| p[1] }
+        lats = area.minmax_by{ |p| p[0] }
+        lons = area.minmax_by{ |p| p[1] }
         "#{lats[1][0]},#{lons[1][1]};#{lats[0][0]},#{lons[0][1]}"
       }.join('!') if areas
     end
