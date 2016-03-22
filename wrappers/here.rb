@@ -89,7 +89,7 @@ module Wrappers
             type: 'LineString',
             coordinates: r['shape'].collect{ |p|
               p.split(',').collect(&:to_f)
-            }.each_slice(2).each(&:reverse)
+            }.each(&:reverse)
           }
         end
       end

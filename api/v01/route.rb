@@ -65,7 +65,7 @@ module Api
           results[:router][:version] = 'draft'
           results[:features].each{ |feature|
             if feature[:geometry]
-              if @env['rack.routing_args'][:format] == 'geojson'
+              if params[:format] == 'geojson'
                 if feature[:geometry][:polylines]
                   feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
                   feature[:geometry].delete(:polylines)
