@@ -30,7 +30,11 @@ module Wrappers
     end
 
     def dimension_distance?
-      true
+      if @mode == 'truck'
+        false # not supported in 7.2 for truck
+      else
+        true
+      end
     end
 
     def avoid_area?
