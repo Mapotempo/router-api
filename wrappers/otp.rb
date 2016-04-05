@@ -39,7 +39,7 @@ module Wrappers
 
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       datetime, arrive_by = departure ? [departure, false] : arrival ? [arrival, true] : [monday_morning, false]
-      key = [:otp, :route, @router_id, Digest::MD5.hexdigest(Marshal.dump([@url, locs[0], locs[-1], datetime, arrive_by]))]
+      key = [:otp, :route, @router_id, Digest::MD5.hexdigest(Marshal.dump([@url, locs[0], locs[-1], datetime, arrive_by, language, options]))]
       request = @cache.read(key)
       if !request
         params = {
@@ -107,7 +107,7 @@ module Wrappers
     end
 
     def isoline(loc, dimension, size, departure, language, options = {})
-      key = [:opt, :isoline, @router_id, loc, size, departure]
+      key = [:opt, :isoline, @router_id, loc, size, departure, options]
 
       departure ||= monday_morning
 
