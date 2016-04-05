@@ -55,7 +55,7 @@ module Api
           params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           if params[:area]
             params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng are needed.', 400)
-            params[:area].collect{ |area| area.each_slice(2).to_a }
+            params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }
           params[:loc].size == 2 || error!('Start lat/lng is needed.', 400)
