@@ -64,4 +64,26 @@ class Api::V01::RouteTest < Minitest::Test
     get '/0.1/route', {api_key: 'demo', loc: '43.2804,5.3806,43.291576,5.355835', speed_multiplicator_area: '0', area: '52,14,42,5'}
     assert last_response.ok?, last_response.body
   end
+
+  def test_routes
+    get '/0.1/routes', {api_key: 'demo', locs: '43.2804,5.3806,43.291576,5.355835;42.2804,4.3806,42.291576,4.355835'}
+    assert last_response.ok?, last_response.body
+    f = JSON.parse(last_response.body)['features']
+    assert_equal 2, f.size
+  end
+
+  def test_routes_none_locs
+    get '/0.1/routes', {api_key: 'demo'}
+    assert !last_response.ok?, last_response.body
+  end
+
+  def test_routes_missing_locs
+    get '/0.1/routes', {api_key: 'demo', locs: '43.2804,5.3806'}
+    assert !last_response.ok?, last_response.body
+  end
+
+  def test_routes_odd_locs
+    get '/0.1/routes', {api_key: 'demo', locs: '43.2804,5.3806,43.291576'}
+    assert !last_response.ok?, last_response.body
+  end
 end

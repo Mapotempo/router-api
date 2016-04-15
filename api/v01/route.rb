@@ -20,6 +20,7 @@ require 'polylines'
 require './api/v01/api_base'
 require './api/geojson_formatter'
 require './api/v01/entities/route_result'
+require './api/v01/entities/routes_result'
 require './wrappers/wrapper'
 require './router_wrapper'
 
@@ -53,32 +54,71 @@ module Api
           requires :loc, type: Array, coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
         }
         get do
+          params[:locs] = [params[:loc]]
+          present compute_routes(params)[0], with: RouteResult
+        end
+      end
+
+      resource :routes do
+        desc 'Many routes, each via two points or more', {
+          nickname: 'route',
+          entity: RouteResult
+        }
+        params {
+          optional :mode, type: Symbol, desc: 'Transportation mode.'
+          optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute fastest or shortest (default on time.)'
+          optional :geometry, type: Boolean, default: true, desc: 'Return the route trace geometry.'
+          optional :departure, type: Date, desc: 'Departure date time.'
+          optional :arrival, type: Date, desc: 'Arrival date time.'
+          optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
+          optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons.'
+          optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons.'
+          optional :lang, type: String, default: :en
+          requires :locs, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a } }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
+        }
+        get do
+          routes = compute_routes(params)
+          ret = {
+            type: 'FeatureCollection',
+            features: routes
+          }
+          present ret, with: RoutesResult
+        end
+      end
+
+      helpers do
+        def compute_routes(params)
           params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           if params[:area]
-            params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng are needed.', 400)
+            params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng required.', 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
-          params[:loc].size >= 2 || error!('At least two couples of lat/lng are needed.', 400)
-          params[:loc][-1].size == 2 || error!('loc: couples of lat/lng are needed.', 400)
+          params[:locs].each_with_index{ |loc, index|
+            loc.size >= 2 || error!('locs: segment ##{index}, at least two couples of lat/lng required.', 400)
+            loc[-1].size == 2 || error!('locs: segment ##{index}, couples of lat/lng required.', 400)
+          }
 
-          results = RouterWrapper::wrapper_route(APIBase.services(params[:api_key]), params)
-          results[:router][:version] = 'draft'
-          results[:features].each{ |feature|
-            if feature[:geometry]
-              if params[:format] == 'geojson'
-                if feature[:geometry][:polylines]
-                  feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
-                  feature[:geometry].delete(:polylines)
-                end
-              else
-                if feature[:geometry][:coordinates]
-                  feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
-                  feature[:geometry].delete(:coordinates)
+          routes = params[:locs].collect{ |loc|
+            params[:loc] = loc
+            results = RouterWrapper::wrapper_route(APIBase.services(params[:api_key]), params)
+            results[:router][:version] = 'draft'
+            results[:features].each{ |feature|
+              if feature[:geometry]
+                if params[:format] == 'geojson'
+                  if feature[:geometry][:polylines]
+                    feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
+                    feature[:geometry].delete(:polylines)
+                  end
+                else
+                  if feature[:geometry][:coordinates]
+                    feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
+                    feature[:geometry].delete(:coordinates)
+                  end
                 end
               end
-            end
+            }
+            results
           }
-          present results, with: RouteResult
         end
       end
     end
