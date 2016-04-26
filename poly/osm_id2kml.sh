@@ -16,6 +16,6 @@ cat $2.tmp | tr -d '\n' | sed -e 's/,$//' >> $2.geojson
 echo ']}]}' >> $2.geojson
 
 # Convert ot KML
-ogr2ogr -f "KML" -lco COORDINATE_PRECISION=7 $2.kml $2.geojson
+ogr2ogr -f "KML" $2.kml $2.geojson
 
 rm *.geojson $2.tmp
