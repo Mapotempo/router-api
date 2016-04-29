@@ -107,7 +107,7 @@ module Wrappers
     end
 
     def isoline(loc, dimension, size, departure, language, options = {})
-      key = [:opt, :isoline, @router_id, loc, size, departure, options]
+      key = [:opt, :isoline, @router_id, loc, size, departure, Digest::MD5.hexdigest(Marshal.dump([options]))]
 
       departure ||= monday_morning
 
