@@ -26,7 +26,7 @@ module Api
       end
 
       expose(:type, documentation: { type: String, desc: 'RouteJSON result is a FeatureCollection.' })
-      expose(:features, using: RouteResult, documentation: { type: RouteResultFeature, desc: 'Routes as FeatureCollection as per GeoJSON spec.', is_array: true })
+      expose(:features, using: RouteResultFeature, documentation: { type: RouteResultFeature, desc: 'Routes as Feature as per GeoJSON spec.', is_array: true })
     end
   end
 end

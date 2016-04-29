@@ -119,6 +119,71 @@ Returns geocodejson (and geojson) valid result:
 }
 ```
 
+Routes
+---------------
+Return many routes between list of points using GET request.
+
+For instance, routes between Bordeaux, Mérignac and Mérignac, Talence
+```
+http://localhost:4899/0.1/routes.json?api_key=demo&mode=osrm&geometry=true&locs=44.837778,-0.579197,44.844866,-0.656377;44.844866,-0.656377,44.808047,-0.588598
+```
+
+Returns geocodejson (and geojson) valid result:
+```
+{
+  "type": "FeatureCollection",
+  "router": {
+    "version": "draft",
+    "licence": "ODbL",
+    "attribution": "\u00a9 OpenStreetMap contributors"
+  },
+  "features": [
+    {
+      "properties": {
+        "router": {
+          "total_distance": 7181,
+          "total_time": 1608,
+          "start_point": [
+            -0.579197,
+            44.837778
+          ],
+          "end_point": [
+            -0.656377,
+            44.844866
+          ]
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "polylines": "}`uotAphjb@i@yKOyCM_CsKpAmNbBuBp@J`CpAfYdFljAhCtk@d@zHeGzAoDz@aB^mCg@aThEoEeCyM_H_DaBeVuMaVmLuAn@wCgBoDwDkNgHgErAiCjFwBpEmDx@ea@VkKLsBB?lF@lHzApf@jBhj@|@|WNzEp@zRHrCf@zMXlIvAxa@~@hWZbJZ|IzEduARlFjBpj@J|CdB~g@`Df_ARbGlBtk@LpDJ`Dz@xVf@hOnC~w@z@lVLjDbC~s@VtHtA|`@p@dSz@~VtB`n@~Cj_ARrFv@jUV|H`EhlA^nKpBfl@NbFTnHRtGpCvv@d@hMZlIdCbv@P~EpBfl@J~E`Bxc@VlInCnz@h@hOnCny@hAt]~Bpq@`Clu@pC~v@`Clr@tFx`BzCvz@lCdo@hBpUxM~`AvMz}@x@zF~BbMx@tIHnMUzJo@v\\Mzg@s@xT]xPaB`~@]rYRpRbA`n@d@jUXhSt@nn@Rbb@qCz_AaBpd@eCp_AuBfu@aA`Zw@vJ{Dx\\yDtXwDlWkA`I}DtYsBdQgAlVa@zUn@hk@z@~bAPpj@F~mAWdW{AxgBOvaA_@hJsDnb@oFfd@eD`TcMlq@_Iha@qJ`WkBtEsDhJaBdHkNfyAwYpmB{Kv_AcPvrAuDj]oBhMmB`I[vEOnEYlLIhLKbPz@~ZzEje@tH~n@zD|W`Hno@gAfQQbCwDtAaDjAoEhClAhRQvDKtC{A|BuAzAo_@lb@oHtHkE`BwD]{BcAwFiCoLoDuL}A{l@}HwZmE}AOyH{HqLnWmFnLgHpTqIr[yCfSQ`FB~FgCj@mAzAaAfEBhDp@nCdBzB`Bh@pBMrCeC|NvMxEvNjBpMz@fGz@pSYdRy@fI{Ena@|AnB",
+        "type": "LineString"
+      }
+    },
+    {
+      "properties": {
+        "router": {
+          "total_distance": 15247,
+          "total_time": 1954,
+          "start_point": [
+            -0.656377,
+            44.844866
+          ],
+          "end_point": [
+            -0.588598,
+            44.808047
+          ]
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "polylines": "sobptA`y`g@}AoBsF_CkBl@sL~]eChBsCUmGqE}k@wa@mQzf@si@luA`PpL`c@`ZrRrMtSrKdIjEnS~Gi@vEt@rEbOfW~C|E~LvUzh@nwAvG`N~JjUbDnDhGtH|[`YvGtFp^`Vt[nIjNrcDOxJuBfTy@vDkC|@cCbEe@|HlBrGgYvaA_^t}@{BbINpDZtCfBnFx@xF]vAS~B@`CVzBlChFlB|Dj@dET~DYdF{@jHiBbHkYfs@sCvJ{Thg@aAdCxDxD|NzH~uBz|@twAny@`e@lTvZdM~f@vQbt@nQfr@hLzn@|EnZ|Af\\fAbZJx_@e@tXcAd`@kCzDSbPsArs@oI`TgCpqAmPlh@uGf_@yExeAaNfOmBhfHm}@~{B_Y|c@aG~p@oI`mAgOxu@sJxV_DtpA_Phb@mFzr@}I~cAeNdFiAb`@qIxp@sQ~k@aXvb@gU|b@}[|b@q`@`i@qn@fx@uoAh{@kbBvbA{nB~rDsjH~l@_lAvFiLhy@ibBxu@wtAxt@cdAr`Ag_A~~AsmAv`HeeF|x@cv@nXm^lPiV~IyNnKqRdXek@`Yas@pUyv@lQcq@|Oez@xKex@rE{g@`Giw@|Cg|@XafAkD_dBmCmk@kbA{rUcQkaD{TidG}WehGaCojAaB_eAlEefBbBk\\bFw[nIgWpO_Th]iWzIcOxB_OH}GgIoc@m@uCsAcEmAoCo]jEwc@jEw[jDgFV{BVgOl@uW^qv@s@gb@cBsGy@kJm@q_@gDmGo@mNsBoHsAwNwEgWsNqCkBiCeBoGkEgMuKaG{HaCqDkHwLs]sg@kCwD_EkFmE}F_X}]_BuBoA}BiReXaPy[yImQwCaGmUaf@cD}GkDcHqp@ysA}IkQyBmE}l@clAmGaL}EeGoAeAoEkF?yG{BkHiFiDiAaBeAsDs@kEu@oDkAiDcRy_@aDqG{BoEaHoNgR}_@cDiHwDkH{AeB_BaAum@_RwEwAiF}AcLgDs_@eLgEoA_EkAw^yKqC{@iF_BmIeCuk@eQuFaB}DkAuIeCyFgBwm@sQqHeCwDLTuHLiF\\sG|Dmh@|@oH@{I]kIy@{HcAsGuAgGqCgIeFsOmH_SkAcEx@{GyBmFwCc@iAb@kAxAgB@uAUg`@iS{`@uSuEyC_EqA}@_CgDwBgB@aBp@oA|AgApFDbC^zBz@fBlAhAbDd@bBi@rAsAx@uBfCN|DrAra@dR",
+        "type": "LineString"
+      }
+    }
+  ]
+}
+```
+
 Matrix
 ---------------
 TBD

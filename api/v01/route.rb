@@ -61,7 +61,7 @@ module Api
 
       resource :routes do
         desc 'Many routes, each via two points or more', {
-          nickname: 'route',
+          nickname: 'routes',
           entity: RouteResult
         }
         params {
@@ -80,7 +80,14 @@ module Api
           routes = compute_routes(params)
           ret = {
             type: 'FeatureCollection',
-            features: routes
+            router: routes[0][:router],
+            features: routes.collect{ |r|
+              if r[:type] == 'FeatureCollection'
+                r[:features][0]
+              else
+                r
+              end
+            }
           }
           present ret, with: RoutesResult
         end
@@ -100,24 +107,36 @@ module Api
 
           routes = params[:locs].collect{ |loc|
             params[:loc] = loc
-            results = RouterWrapper::wrapper_route(APIBase.services(params[:api_key]), params)
-            results[:router][:version] = 'draft'
-            results[:features].each{ |feature|
-              if feature[:geometry]
-                if params[:format] == 'geojson'
-                  if feature[:geometry][:polylines]
-                    feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
-                    feature[:geometry].delete(:polylines)
-                  end
-                else
-                  if feature[:geometry][:coordinates]
-                    feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
-                    feature[:geometry].delete(:coordinates)
+            begin
+              results = RouterWrapper::wrapper_route(APIBase.services(params[:api_key]), params)
+              results[:router][:version] = 'draft'
+              results[:features].each{ |feature|
+                if feature[:geometry]
+                  if params[:format] == 'geojson'
+                    if feature[:geometry][:polylines]
+                      feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
+                      feature[:geometry].delete(:polylines)
+                    end
+                  else
+                    if feature[:geometry][:coordinates]
+                      feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
+                      feature[:geometry].delete(:coordinates)
+                    end
                   end
                 end
+              }
+              results
+            rescue => e
+              if params[:locs] && params[:locs].size > 1
+                {
+                  type: 'Feature',
+                  properties: nil,
+                  geometry: nil
+                }
+              else
+                raise e
               end
-            }
-            results
+            end
           }
         end
       end
