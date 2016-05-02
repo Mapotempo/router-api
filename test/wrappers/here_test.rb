@@ -72,13 +72,13 @@ class Wrappers::HereTest < Minitest::Test
     assert_equal vector.size, result[:matrix][0].size
   end
 
-  def test_matrix_with_null
-    here = RouterWrapper::HERE_TRUCK
-    # "startIndex":2 "destinationIndex":1 failed with here
-    vector = [[49.610710,18.237305], [53.912125,9.881172], [47.010226,2.900391]]
-    result = here.matrix(vector, vector, :time, nil, nil, 'en')
-    assert_equal nil, result[:matrix][2][1]
-  end
+  # def test_matrix_with_null
+  #   here = RouterWrapper::HERE_TRUCK
+  #   # "startIndex":2 "destinationIndex":1 failed with here
+  #   vector = [[49.610710,18.237305], [53.912125,9.881172], [47.010226,2.900391]]
+  #   result = here.matrix(vector, vector, :time, nil, nil, 'en')
+  #   assert_equal nil, result[:matrix][2][1]
+  # end
 
   def test_matrix_too_large
     here = RouterWrapper::HERE_TRUCK
