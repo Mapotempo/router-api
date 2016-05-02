@@ -35,23 +35,33 @@ module Api
       default_format :json
       version '0.1', using: :path
 
+      params {
+        optional :mode, type: Symbol, desc: 'Transportation mode.'
+        optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute isochrone or isodistance (default on time.)'
+        optional :departure, type: Date, desc: 'Departure date time.'
+        optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
+        optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons.'
+        optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons.'
+        optional :lang, type: String, default: :en
+        requires :loc, type: String, desc: 'Start latitude and longitude separated with a comma, e.g. lat1,lng1.'
+        requires :size, type: Integer, desc: 'Size of isoline. Time in second, distance in meters.'
+      }
       resource :isoline do
         desc 'Isoline from a start point', {
           nickname: 'isoline',
           entity: IsolineResult
         }
-        params {
-          optional :mode, type: Symbol, desc: 'Transportation mode.'
-          optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute isochrone or isodistance (default on time.)'
-          optional :departure, type: Date, desc: 'Departure date time.'
-          optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
-          optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons.'
-          optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons.'
-          optional :lang, type: String, default: :en
-          requires :loc, type: String, desc: 'Start latitude and longitude separated with a comma, e.g. lat1,lng1.'
-          requires :size, type: Integer, desc: 'Size of isoline. Time in second, distance in meters.'
-        }
         get do
+          isoline params
+        end
+        post do
+          isoline params
+          status 200
+        end
+      end
+
+      helpers do
+        def isoline(params)
           params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           if params[:area]
             params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng are needed.', 400)

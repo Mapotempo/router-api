@@ -35,24 +35,34 @@ module Api
       default_format :json
       version '0.1', using: :path
 
+      params {
+        optional :mode, type: Symbol, desc: 'Transportation mode.'
+        optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute fastest or shortest (default on time.)'
+        optional :departure, type: Date, desc: 'Departure date time.'
+        optional :arrival, type: Date, desc: 'Arrival date time.'
+        optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
+        optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons.'
+        optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons.'
+        optional :lang, type: String, default: :en
+        requires :src, type: String, desc: 'List of sources of latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
+        optional :dst, type: String, desc: 'List of destination of latitudes and longitudes, if not present compute square matrix with sources points.'
+      }
       resource :matrix do
         desc 'Rectangular matrix between two points set', {
           nickname: 'matrix',
           entity: MatrixResult
         }
-        params {
-          optional :mode, type: Symbol, desc: 'Transportation mode.'
-          optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute fastest or shortest (default on time.)'
-          optional :departure, type: Date, desc: 'Departure date time.'
-          optional :arrival, type: Date, desc: 'Arrival date time.'
-          optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
-          optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons.'
-          optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons.'
-          optional :lang, type: String, default: :en
-          requires :src, type: String, desc: 'List of sources of latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
-          optional :dst, type: String, desc: 'List of destination of latitudes and longitudes, if not present compute square matrix with sources points.'
-        }
         get do
+          matrix params
+        end
+        post do
+          matrix params
+          status 200
+        end
+      end
+
+      helpers do
+        def matrix(params)
           params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           if params[:area]
             params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng are needed.', 400)

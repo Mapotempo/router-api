@@ -59,37 +59,29 @@ module Api
         end
       end
 
+      params {
+        optional :mode, type: Symbol, desc: 'Transportation mode.'
+        optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute fastest or shortest (default on time.)'
+        optional :geometry, type: Boolean, default: true, desc: 'Return the route trace geometry.'
+        optional :departure, type: Date, desc: 'Departure date time.'
+        optional :arrival, type: Date, desc: 'Arrival date time.'
+        optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
+        optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons.'
+        optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons.'
+        optional :lang, type: String, default: :en
+        requires :locs, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a } }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
+      }
       resource :routes do
         desc 'Many routes, each via two points or more', {
           nickname: 'routes',
           entity: RouteResult
         }
-        params {
-          optional :mode, type: Symbol, desc: 'Transportation mode.'
-          optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute fastest or shortest (default on time.)'
-          optional :geometry, type: Boolean, default: true, desc: 'Return the route trace geometry.'
-          optional :departure, type: Date, desc: 'Departure date time.'
-          optional :arrival, type: Date, desc: 'Arrival date time.'
-          optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
-          optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons.'
-          optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons.'
-          optional :lang, type: String, default: :en
-          requires :locs, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a } }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
-        }
         get do
-          routes = compute_routes(params)
-          ret = {
-            type: 'FeatureCollection',
-            router: routes[0][:router],
-            features: routes.collect{ |r|
-              if r[:type] == 'FeatureCollection'
-                r[:features][0]
-              else
-                r
-              end
-            }
-          }
-          present ret, with: RoutesResult
+          many_routes params
+        end
+        post do
+          many_routes params
+          status 200
         end
       end
 
@@ -138,6 +130,22 @@ module Api
               end
             end
           }
+        end
+
+        def many_routes(params)
+          routes = compute_routes(params)
+          ret = {
+            type: 'FeatureCollection',
+            router: routes[0][:router],
+            features: routes.collect{ |r|
+              if r[:type] == 'FeatureCollection'
+                r[:features][0]
+              else
+                r
+              end
+            }
+          }
+          present ret, with: RoutesResult
         end
       end
     end
