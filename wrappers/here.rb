@@ -29,14 +29,6 @@ module Wrappers
       @mode = hash[:mode]
     end
 
-    def dimension_distance?
-      if @mode == 'truck'
-        false # not supported in 7.2 for truck
-      else
-        true
-      end
-    end
-
     def avoid_area?
       true
     end
@@ -101,6 +93,10 @@ module Wrappers
       ret
     end
 
+    def matrix_dimension
+      [:time, dimension_distance? ? :time_distance : nil].compact
+    end
+
     def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
       raise 'More than 100x100 matrix, not possible with Here' if srcs.size > 100 || dsts.size > 100
 
@@ -124,7 +120,10 @@ module Wrappers
         # 500 to get response before 30 seconds timeout
         split_size = [5, (1000 / srcs.size).round].min
 
-        result = Array.new(srcs.size) { Array.new(dsts.size) }
+        result = {
+          time: Array.new(srcs.size) { Array.new(dsts.size) },
+          distance: Array.new(srcs.size) { Array.new(dsts.size) }
+        }
 
         commons_param = {
           mode: here_mode(dimension, @mode),
@@ -152,7 +151,8 @@ module Wrappers
 
           request['response']['matrixEntry'].each{ |e|
             s = e['summary']
-            result[srcs_start + e['startIndex']][e['destinationIndex']] = s ? s['travelTime'].round : nil # TODO: return distance in addition
+            result[:time][srcs_start + e['startIndex']][e['destinationIndex']] = s && s.key?('travelTime') ? s['travelTime'].round : nil
+            result[:distance][srcs_start + e['startIndex']][e['destinationIndex']] = s && s.key?('distance') ? s['distance'].round : nil
           }
 
           srcs_start += split_size
@@ -161,17 +161,27 @@ module Wrappers
         @cache.write(key, result)
       end
 
-      {
+      ret = {
         router: {
           licence: 'HERE',
           attribution: 'HERE',
         },
-        matrix: result.collect { |r|
+        matrix_time: result[:time].collect { |r|
           r.collect { |rr|
             rr ? (rr / (options[:speed_multiplicator] || 1)).round : nil
           }
         }
       }
+
+      if dimension == :time_distance
+        ret[:matrix_distance] = result[:distance].collect { |r|
+          r.collect { |rr|
+            rr ? (rr / (options[:speed_multiplicator] || 1)).round : nil
+          }
+        }
+      end
+
+      ret
     end
 
     def isoline?(loc, dimension)
@@ -179,6 +189,14 @@ module Wrappers
     end
 
     private
+
+    def dimension_distance?
+      if @mode == 'truck'
+        false # not supported in 7.2 for truck
+      else
+        true
+      end
+    end
 
     def here_mode(dimension, mode)
       "#{dimension == :time ? 'fastest' : 'shortest'};#{@mode};traffic:disabled"

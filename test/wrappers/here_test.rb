@@ -51,8 +51,8 @@ class Wrappers::HereTest < Minitest::Test
     here = RouterWrapper::HERE_TRUCK
     vector = [[49.610710, 18.237305], [47.010226, 2.900391]]
     result = here.matrix(vector, vector, :time, nil, nil, 'en')
-    assert_equal vector.size, result[:matrix].size
-    assert_equal vector.size, result[:matrix][0].size
+    assert_equal vector.size, result[:matrix_time].size
+    assert_equal vector.size, result[:matrix_time][0].size
   end
 
   def test_matrix_rectangular
@@ -60,16 +60,16 @@ class Wrappers::HereTest < Minitest::Test
     src = [[49.610710, 18.237305], [47.010226, 2.900391]]
     dst = [[49.610710, 18.237305]]
     result = here.matrix(src, dst, :time, nil, nil, 'en')
-    assert_equal src.size, result[:matrix].size
-    assert_equal dst.size, result[:matrix][0].size
+    assert_equal src.size, result[:matrix_time].size
+    assert_equal dst.size, result[:matrix_time][0].size
   end
 
   def test_matrix_with_more_than_15_sources
     here = RouterWrapper::HERE_TRUCK
     vector = (0..20).collect{ |i| [47 + Float(i) / 10, 2 + Float(i) / 10]}
     result = here.matrix(vector, vector, :time, nil, nil, 'en')
-    assert_equal vector.size, result[:matrix].size
-    assert_equal vector.size, result[:matrix][0].size
+    assert_equal vector.size, result[:matrix_time].size
+    assert_equal vector.size, result[:matrix_time][0].size
   end
 
   # def test_matrix_with_null
@@ -77,7 +77,7 @@ class Wrappers::HereTest < Minitest::Test
   #   # "startIndex":2 "destinationIndex":1 failed with here
   #   vector = [[49.610710,18.237305], [53.912125,9.881172], [47.010226,2.900391]]
   #   result = here.matrix(vector, vector, :time, nil, nil, 'en')
-  #   assert_equal nil, result[:matrix][2][1]
+  #   assert_equal nil, result[:matrix_time][2][1]
   # end
 
   def test_matrix_too_large

@@ -37,8 +37,8 @@ class Wrappers::OtpTest < Minitest::Test
     osrm = RouterWrapper::OTP_BORDEAUX
     vector = [[44.82641, -0.55674], [44.85284, -0.5393]]
     result = osrm.matrix(vector, vector, :time, nil, nil, 'en')
-    assert_equal vector.size, result[:matrix].size
-    assert_equal vector.size, result[:matrix][0].size
+    assert_equal vector.size, result[:matrix_time].size
+    assert_equal vector.size, result[:matrix_time][0].size
   end
 
   def test_router_rectangular
@@ -46,8 +46,8 @@ class Wrappers::OtpTest < Minitest::Test
     src = [[44.82641, -0.55674], [44.85284, -0.5393]]
     dst = [[44.82641, -0.55674]]
     result = osrm.matrix(src, dst, :time, nil, nil, 'en')
-    assert_equal src.size, result[:matrix].size
-    assert_equal dst.size, result[:matrix][0].size
+    assert_equal src.size, result[:matrix_time].size
+    assert_equal dst.size, result[:matrix_time][0].size
   end
 
   def test_isoline

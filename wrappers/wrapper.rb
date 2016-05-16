@@ -33,14 +33,6 @@ module Wrappers
       @area
     end
 
-    def dimension_time?
-      true
-    end
-
-    def dimension_distance?
-      false
-    end
-
     def avoid_area?
       false
     end
@@ -49,12 +41,20 @@ module Wrappers
       false
     end
 
+    def route_dimension
+      [:time]
+    end
+
     def route?(start, stop, dimension)
       if @boundary
         contains?(*start) && contains?(*stop)
       else
         true
       end
+    end
+
+    def matrix_dimension
+      [:time]
     end
 
     def matrix?(top_left, down_right, dimension)
@@ -80,8 +80,12 @@ module Wrappers
           licence: @licence,
           attribution: @attribution,
         },
-        matrix: m
+        matrix_time: m
       }
+    end
+
+    def isoline_dimension
+      [:time]
     end
 
     def isoline?(loc, dimension)

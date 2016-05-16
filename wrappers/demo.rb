@@ -60,7 +60,7 @@ module Wrappers
           licence: 'demo',
           attribution: 'demo',
         },
-        matrix: src.collect{ |s|
+        matrix_time: src.collect{ |s|
           dst.collect{ |d|
             1
           }

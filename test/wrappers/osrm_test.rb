@@ -37,17 +37,28 @@ class Wrappers::OsrmTest < Minitest::Test
     osrm = RouterWrapper::OSRM
     vector = [[49.610710, 18.237305], [47.010226, 2.900391]]
     result = osrm.matrix(vector, vector, :time, nil, nil, 'en')
-    assert_equal vector.size, result[:matrix].size
-    assert_equal vector.size, result[:matrix][0].size
+    assert_equal vector.size, result[:matrix_time].size
+    assert_equal vector.size, result[:matrix_time][0].size
   end
 
-  def test_matrix_rectangular
+  def test_matrix_rectangular_time
     osrm = RouterWrapper::OSRM
     src = [[49.610710, 18.237305], [47.010226, 2.900391]]
     dst = [[49.610710, 18.237305]]
     result = osrm.matrix(src, dst, :time, nil, nil, 'en')
-    assert_equal src.size, result[:matrix].size
-    assert_equal dst.size, result[:matrix][0].size
+    assert_equal src.size, result[:matrix_time].size
+    assert_equal dst.size, result[:matrix_time][0].size
+  end
+
+  def test_matrix_rectangular_time_distance
+    osrm = RouterWrapper::OSRM
+    src = [[49.610710, 18.237305], [47.010226, 2.900391]]
+    dst = [[49.610710, 18.237305]]
+    result = osrm.matrix(src, dst, :time_distance, nil, nil, 'en')
+    assert_equal src.size, result[:matrix_time].size
+    assert_equal src.size, result[:matrix_distance].size
+    assert_equal dst.size, result[:matrix_time][0].size
+    assert_equal dst.size, result[:matrix_distance][0].size
   end
 
   def test_isoline

@@ -30,6 +30,12 @@ module Wrappers
         time: hash[:url_time],
         distance: hash[:url_distance]
       }
+      @url_matrix = {
+        time: hash[:url_time],
+        time_distance: hash[:url_time],
+        distance: hash[:url_distance],
+        distance_time: hash[:url_distance]
+      }
       @url_isoline = {
         time: hash[:url_isochrone],
         distance: hash[:url_isodistance]
@@ -38,16 +44,12 @@ module Wrappers
       @attribution = hash[:attribution]
     end
 
-    def route?(start, stop, dimension)
-      @url_trace[dimension] && super(start, stop, dimension)
+    def route_dimension
+      @url_trace.keys.select{ |d| @url_trace[d] }.compact
     end
 
-    def dimension_time?
-      !!@url_trace[:time]
-    end
-
-    def dimension_distance?
-      !!@url_trace[:distance]
+    def route?(top_left, down_right, dimension)
+      @url_trace[dimension] && super(top_left, down_right, dimension)
     end
 
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
@@ -96,34 +98,68 @@ module Wrappers
       ret
     end
 
+
+    def matrix_dimension
+      @url_matrix.keys.select{ |d| @url_matrix[d] }.compact
+    end
+
     def matrix?(top_left, down_right, dimension)
-      @url_trace[dimension] && super(top_left, down_right, dimension)
+      @url_matrix[dimension] && super(top_left, down_right, dimension)
     end
 
     def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
       # Workaround, cause restclient dosen't deals with array params
       query_params = 'table?' + URI::encode_www_form([[:alt, false]] + srcs.collect{ |src| [:src, src.join(',')] } + dsts.collect{ |dst| [:dst, dst.join(',')] })
 
-      key = [:osrm, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dimension], query_params, options]))]
+      dim1, dim2 = dimension.to_s.split('_').collect(&:to_sym)
+      key = [:osrm, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_matrix[dim1], query_params, options]))]
       json = @cache.read(key)
       if !json
-        resource = RestClient::Resource.new(@url_trace[dimension])
+        resource = RestClient::Resource.new(@url_matrix[dim1])
         response = resource[query_params].get
         json = JSON.parse(response)
         @cache.write(key, json)
       end
 
-      {
+      ret = {
         router: {
           licence: @licence,
           attribution: @attribution,
         },
-        matrix: json['distance_table'].collect { |r|
+        "matrix_#{dim1}".to_sym => json['distance_table'].collect { |r|
           r.collect { |rr|
             rr >= 2147483647 ? nil : (rr / 10.0 / (options[:speed_multiplicator] || 1)).round
           }
         }
       }
+
+      if dim2
+        ret["matrix_#{dim2}".to_sym] = srcs.collect{ |src|
+          dsts.collect{ |dst|
+            # Workaround, cause restclient dosen't deals with array params
+            query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, false], [:loc, src.join(',')], [:loc, dst.join(',')]])
+
+            key = [:osrm, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dim1], query_params, language, options]))]
+            json = @cache.read(key)
+            if !json
+              resource = RestClient::Resource.new(@url_trace[dim1])
+              response = resource[query_params].get
+              json = JSON.parse(response)
+              @cache.write(key, json)
+            end
+
+            if [0, 200].include?(json['status'])
+              json['route_summary']['total_distance']
+            end
+          }
+        }
+      end
+
+      ret
+    end
+
+    def isoline_dimension
+      @url_isoline.keys.select{ |d| @url_isoline[d] }.compact
     end
 
     def isoline?(loc, dimension)

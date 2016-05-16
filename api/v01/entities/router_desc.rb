@@ -26,7 +26,7 @@ module Api
 
       expose(:mode, documentation: { type: String })
       expose(:name, documentation: { type: String })
-      expose(:dimensions, documentation: { type: String, values: ['time', 'distance'] })
+      expose(:dimensions, documentation: { type: String, values: ['time', 'time_distance', 'distance', 'distance_time'] })
       expose(:support_avoid_area, documentation: { type: 'Boolean' })
       expose(:support_speed_multiplicator_area, documentation: { type: 'Boolean' })
       expose(:area, documentation: { type: String, is_array: true })

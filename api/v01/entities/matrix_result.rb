@@ -26,7 +26,8 @@ module Api
       end
 
       expose(:router, using: RouteResultRouter, documentation: { type: RouteResultRouter, desc: 'Namespace.' })
-      expose(:matrix)
+      expose(:matrix_time, if: lambda { |m, _| m[:matrix_time] })
+      expose(:matrix_distance, if: lambda { |m, _| m[:matrix_distance] })
     end
   end
 end
