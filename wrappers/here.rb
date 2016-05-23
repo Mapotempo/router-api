@@ -23,7 +23,9 @@ module Wrappers
 
     def initialize(cache, hash = {})
       super(cache, hash)
-      @url = 'https://route.nlp.nokia.com/routing'
+      @url_router = 'https://route.api.here.com/routing'
+      @url_matrix = 'https://matrix.route.api.here.com/routing'
+      @url_isoline = 'https://isoline.route.api.here.com/routing'
       @app_id = hash[:app_id]
       @app_code = hash[:app_code]
       @mode = hash[:mode]
@@ -53,7 +55,7 @@ module Wrappers
       locs.each_with_index{ |loc, index|
         params["waypoint#{index}"] = "geo!#{loc[0]},#{loc[1]}"
       }
-      request = get('7.2/calculateroute', params)
+      request = get(@url_router, '7.2/calculateroute', params)
 
       ret = {
         type: 'FeatureCollection',
@@ -147,7 +149,7 @@ module Wrappers
           srcs_start.upto([srcs_start + split_size - 1, srcs.size - 1].min).each{ |i|
             param["start#{i - srcs_start}"] = srcs[i].join(',')
           }
-          request = get('7.2/calculatematrix', param)
+          request = get(@url_matrix, '7.2/calculatematrix', param)
 
           request['response']['matrixEntry'].each{ |e|
             s = e['summary']
@@ -211,8 +213,8 @@ module Wrappers
       }.join('!') if areas
     end
 
-    def get(object, params = {})
-      url = "#{@url}/#{object}.json"
+    def get(url_base, object, params = {})
+      url = "#{url_base}/#{object}.json"
       params = {app_id: @app_id, app_code: @app_code}.merge(params)
 
       key = [:here, :request, Digest::MD5.hexdigest(Marshal.dump([url, params.to_a.sort_by{ |i| i[0].to_s }]))]
