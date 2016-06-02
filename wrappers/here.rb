@@ -37,7 +37,7 @@ module Wrappers
 
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       params = {
-        mode: here_mode(dimension, @mode),
+        mode: here_mode(dimension.to_s.split('_').collect(&:to_sym), @mode),
         avoidAreas: here_avoid_areas(options[:speed_multiplicator_area]),
         alternatives: 0,
         resolution: 1,
@@ -96,7 +96,7 @@ module Wrappers
     end
 
     def matrix_dimension
-      [:time, dimension_distance? ? :time_distance : nil].compact
+      [:time, :time_distance].push(* here_dimension_distance? ? [:distance, :distance_time] : nil)
     end
 
     def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
@@ -127,11 +127,13 @@ module Wrappers
           distance: Array.new(srcs.size) { Array.new(dsts.size) }
         }
 
+        dim = dimension.to_s.split('_').collect(&:to_sym)
+
         commons_param = {
-          mode: here_mode(dimension, @mode),
+          mode: here_mode(dim, @mode),
           avoidAreas: here_avoid_areas(options[:speed_multiplicator_area]),
           truckType: @mode,
-          summaryAttributes: 'traveltime', # TODO: manage distance here (dimension)
+          summaryAttributes: dim.collect{ |d| d == :time ? 'traveltime' : d == :distance ? 'distance' : nil }.compact.join(',')
           #limitedWeight: # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
           #weightPerAxle: # Truck routing only, vehicle weight per axle in tons.
           #height: # Truck routing only, vehicle height in meters.
@@ -187,12 +189,12 @@ module Wrappers
     end
 
     def isoline?(loc, dimension)
-      false
+      false # TODO: not implemented
     end
 
     private
 
-    def dimension_distance?
+    def here_dimension_distance?
       if @mode == 'truck'
         false # not supported in 7.2 for truck
       else
@@ -201,7 +203,7 @@ module Wrappers
     end
 
     def here_mode(dimension, mode)
-      "#{dimension == :time ? 'fastest' : 'shortest'};#{@mode};traffic:disabled"
+      "#{dimension[0] == :time ? 'fastest' : 'shortest'};#{@mode};traffic:disabled"
     end
 
     def here_avoid_areas(areas)
