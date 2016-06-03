@@ -47,7 +47,7 @@ module RouterWrapper
       router.route?(params[:loc][0], params[:loc][-1], params[:dimension])
     }
     if !router
-      raise OutOfSupportedAreaError
+      raise OutOfSupportedAreaOrNotSupportedDimensionError
     elsif params[:loc].size == 2 && params[:loc][0] == params[:loc][1]
       feature = {
         type: 'Feature',
@@ -91,7 +91,7 @@ module RouterWrapper
       router.matrix?(top_left, bottom_right, params[:dimension])
     }
     if !router
-      raise OutOfSupportedAreaError
+      raise OutOfSupportedAreaOrNotSupportedDimensionError
     else
       options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
       router.matrix(params[:src], params[:dst], params[:dimension], params[:departure], params[:arrival], params[:language], options)
@@ -107,7 +107,7 @@ module RouterWrapper
       router.isoline?(params[:loc], params[:dimension])
     }
     if !router
-      raise OutOfSupportedAreaError
+      raise OutOfSupportedAreaOrNotSupportedDimensionError
     else
       options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
       router.isoline(params[:loc], params[:dimension], params[:size], params[:departure], params[:language], options)
@@ -120,7 +120,7 @@ module RouterWrapper
   class NotSupportedTransportationMode < RouterWrapperError
   end
 
-  class OutOfSupportedAreaError < RouterWrapperError
+  class OutOfSupportedAreaOrNotSupportedDimensionError < RouterWrapperError
   end
 
   private

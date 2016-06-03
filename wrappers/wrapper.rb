@@ -46,6 +46,7 @@ module Wrappers
     end
 
     def route?(start, stop, dimension)
+      return false if !route_dimension.include? dimension
       if @boundary
         contains?(*start) && contains?(*stop)
       else
@@ -58,6 +59,7 @@ module Wrappers
     end
 
     def matrix?(top_left, down_right, dimension)
+      return false if !matrix_dimension.include? dimension
       if @boundary
         contains?(*top_left[0]) && contains?(*top_left[1]) && contains?(*down_right[0]) && contains?(*down_right[1])
       else
@@ -89,6 +91,7 @@ module Wrappers
     end
 
     def isoline?(loc, dimension)
+      return false if !isoline_dimension.include? dimension
       if @boundary
         contains?(*loc)
       else
