@@ -118,9 +118,9 @@ module Wrappers
         # ensure a response time of 30 seconds each. The number of the destinations in one request is limited
         # to 100.
 
-        # Request should not contain more than 15 starts per request
+        # Request should not contain more than 15 starts per request / 100 combinaisons
         # 500 to get response before 30 seconds timeout
-        split_size = [5, (1000 / srcs.size).round].min
+        split_size = [(100 / dsts.size).to_i, (1000 / srcs.size).round].min
 
         result = {
           time: Array.new(srcs.size) { Array.new(dsts.size) },
