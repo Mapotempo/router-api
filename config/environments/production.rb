@@ -24,7 +24,8 @@ require './wrappers/otp'
 require './wrappers/here'
 
 module RouterWrapper
-  CACHE = ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*60*24*1)
+  ActiveSupport::Cache.lookup_store :redis_store
+  CACHE = ActiveSupport::Cache::RedisStore.new(namespace: 'router', expires_in: 60*60*24*1)
 
   DEMO = Wrappers::Demo.new(CACHE)
   OSRM = Wrappers::Osrm.new(CACHE, url_time: 'http://router.project-osrm.org', url_distance: 'http://router.project-osrm.org', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')

@@ -24,3 +24,7 @@ group :test do
 end
 
 gem 'polylines'
+
+group :production do
+  gem 'redis-activesupport'
+end
