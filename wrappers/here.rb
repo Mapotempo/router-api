@@ -100,8 +100,6 @@ module Wrappers
     end
 
     def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
-      raise 'More than 100x100 matrix, not possible with Here' if srcs.size > 100 || dsts.size > 100
-
       srcs = srcs.collect{ |r| [r[0].round(5), r[1].round(5)] }
       dsts = dsts.collect{ |c| [c[0].round(5), c[1].round(5)] }
 
@@ -120,7 +118,8 @@ module Wrappers
 
         # Request should not contain more than 15 starts per request / 100 combinaisons
         # 500 to get response before 30 seconds timeout
-        split_size = [(100 / dsts.size).to_i, (1000 / srcs.size).round].min
+        srcs_split = [(100 / dsts.size).to_i, (1000 / srcs.size).round].min
+        dsts_split = [100, dsts.size].min
 
         result = {
           time: Array.new(srcs.size) { Array.new(dsts.size) },
@@ -140,26 +139,46 @@ module Wrappers
           #width: # Truck routing only, vehicle width in meters.
           #length: # Truck routing only, vehicle length in meters.
         }
-        0.upto(dsts.size - 1).each{ |i|
-          commons_param["destination#{i}"] = dsts[i].join(',')
-        }
 
         total = srcs.size * dsts.size
         srcs_start = 0
         while srcs_start < srcs.size do
-          param = commons_param.dup
-          srcs_start.upto([srcs_start + split_size - 1, srcs.size - 1].min).each{ |i|
-            param["start#{i - srcs_start}"] = srcs[i].join(',')
+          param_start = {}
+          srcs_start.upto([srcs_start + srcs_split - 1, srcs.size - 1].min).each{ |i|
+            param_start["start#{i - srcs_start}"] = srcs[i].join(',')
           }
-          request = get(@url_matrix, '7.2/calculatematrix', param)
+          dsts_start = 0
+          dsts_split = [dsts_split * 2, 100, dsts.size].min
+          while dsts_start < dsts.size do
+            param_destination = {}
+            dsts_start.upto([dsts_start + dsts_split - 1, dsts.size - 1].min).each{ |i|
+              param_destination["destination#{i - dsts_start}"] = dsts[i].join(',')
+            }
+            request = get(@url_matrix, '7.2/calculatematrix', commons_param.dup.merge(param_start).merge(param_destination))
 
-          request['response']['matrixEntry'].each{ |e|
-            s = e['summary']
-            result[:time][srcs_start + e['startIndex']][e['destinationIndex']] = s && s.key?('travelTime') ? s['travelTime'].round : nil
-            result[:distance][srcs_start + e['startIndex']][e['destinationIndex']] = s && s.key?('distance') ? s['distance'].round : nil
-          }
+            if request
+              request['response']['matrixEntry'].each{ |e|
+                s = e['summary']
+                if s
+                  result[:time][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s && s.key?('travelTime') ? s['travelTime'].round : nil
+                  result[:distance][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s && s.key?('distance') ? s['distance'].round : nil
+                elsif e['status'] == 'failed'
+                  request = nil
+                  break
+                end
+              }
+            end
 
-          srcs_start += split_size
+            # in some cases, matrix cannot be computed (cancelled) or is incomplete => try to decrease matrix size
+            if !request && dsts_split > 2
+              dsts_start = [dsts_start - dsts_split, 0].max
+              dsts_split = (dsts_split / 2).ceil
+            else
+              dsts_start += dsts_split
+            end
+          end
+
+          srcs_start += srcs_split
         end
 
         @cache.write(key, result)
@@ -230,6 +249,8 @@ module Wrappers
             additional_data = error['AdditionalData'] || error['additionalData']
             if additional_data
               if additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED'})
+                return
+              elsif additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTING_CANCELLED'})
                 return
               elsif additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_START_POINT'})
                 raise UnreachablePointError
