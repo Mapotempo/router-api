@@ -118,8 +118,8 @@ module Wrappers
 
         # Request should not contain more than 15 starts per request / 100 combinaisons
         # 500 to get response before 30 seconds timeout
-        srcs_split = [(100 / dsts.size).to_i, (1000 / srcs.size).round].min
-        dsts_split = [100, dsts.size].min
+        srcs_split = [(100 / [dsts.size, 100].min).to_i, (1000 / srcs.size).round].min
+        dsts_split = dsts_max = [100, dsts.size].min
 
         result = {
           time: Array.new(srcs.size) { Array.new(dsts.size) },
@@ -148,7 +148,7 @@ module Wrappers
             param_start["start#{i - srcs_start}"] = srcs[i].join(',')
           }
           dsts_start = 0
-          dsts_split = [dsts_split * 2, 100, dsts.size].min
+          dsts_split = [dsts_split * 2, dsts_max].min
           while dsts_start < dsts.size do
             param_destination = {}
             dsts_start.upto([dsts_start + dsts_split - 1, dsts.size - 1].min).each{ |i|

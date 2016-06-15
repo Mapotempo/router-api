@@ -64,9 +64,11 @@ class Wrappers::HereTest < Minitest::Test
     assert_equal dst.size, result[:matrix_time][0].size
   end
 
-  def test_matrix_with_more_than_15_sources
-    here = RouterWrapper::HERE_TRUCK
-    vector = (0..20).collect{ |i| [47 + Float(i) / 10, 2 + Float(i) / 10]}
+  def test_large_matrix_split
+    # activate cache because of large matrix
+    here = Wrappers::Here.new(ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*10), app_id: RouterWrapper::HERE_APP_ID, app_code: RouterWrapper::HERE_APP_CODE, mode: 'truck')
+    # 101 points inside south-west(50.0,10.0) and north-east(51.0,11.0) (small zone to avoid timeout with here)
+    vector = (0..100).collect{ |i| [50 + Float(i) / 100, 10 + Float(i) / 100]}
     result = here.matrix(vector, vector, :time, nil, nil, 'en')
     assert_equal vector.size, result[:matrix_time].size
     assert_equal vector.size, result[:matrix_time][0].size
@@ -79,12 +81,4 @@ class Wrappers::HereTest < Minitest::Test
   #   result = here.matrix(vector, vector, :time, nil, nil, 'en')
   #   assert_equal nil, result[:matrix_time][2][1]
   # end
-
-  def test_matrix_too_large
-    here = RouterWrapper::HERE_TRUCK
-    vector = (0..100).collect{ |i| [i, i] }
-    assert_raises RuntimeError do
-      here.matrix(vector, vector, :time, nil, nil, 'en')
-    end
-  end
 end

@@ -60,12 +60,4 @@ class Api::V01::MatrixTest < Minitest::Test
       assert_equal 417, last_response.status, 'Bad response: ' + last_response.body
     }
   end
-
-  def test_matrix_error
-    [:get, :post].each{ |method|
-      send method, '/0.1/matrix', {api_key: 'demo', mode: 'here', src: (0..100).collect{ |i| [i, i] }.join(',')}
-      assert !last_response.ok?, last_response.body
-      assert last_response.body.include? 'More than 100x100 matrix'
-    }
-  end
 end
