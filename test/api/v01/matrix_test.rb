@@ -60,4 +60,11 @@ class Api::V01::MatrixTest < Minitest::Test
       assert_equal 417, last_response.status, 'Bad response: ' + last_response.body
     }
   end
+
+  def test_matrix_not_all_outside_area
+    [:get, :post].each{ |method|
+      send method, '/0.1/matrix', {api_key: 'demo', src: '44.8,-0.6,43.3,5.4'}
+      assert last_response.ok?, last_response.body
+    }
+  end
 end

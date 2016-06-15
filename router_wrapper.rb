@@ -83,18 +83,49 @@ module RouterWrapper
     if !modes
       raise NotSupportedTransportationMode
     end
-    top, bottom = (params[:src] + params[:dst]).minmax_by{ |loc| loc[0] }
-    left, right = (params[:src] + params[:dst]).minmax_by{ |loc| loc[1] }
-    top_left = [top, left]
-    bottom_right = [bottom, right]
-    router = modes.find{ |router|
-      router.matrix?(top_left, bottom_right, params[:dimension])
-    }
-    if !router
+    routers = params[:src].collect{ |src|
+      params[:dst].collect{ |dst|
+        modes.find{ |router|
+          router.matrix?(src, dst, params[:dimension])
+        }
+      }
+    }.flatten.compact.uniq
+    if routers.size == 0
       raise OutOfSupportedAreaOrNotSupportedDimensionError
     else
       options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
-      router.matrix(params[:src], params[:dst], params[:dimension], params[:departure], params[:arrival], params[:language], options)
+      if routers.size == 1
+        routers[0].matrix(params[:src], params[:dst], params[:dimension], params[:departure], params[:arrival], params[:language], options)
+      else
+        ret = {
+          router: {
+            licence: [],
+            attribution: [],
+          }
+        }
+        params[:dimension].to_s.split('_').each{ |dim|
+          ret[('matrix_' + dim).to_sym] = Array.new(params[:src].size) { Array.new(params[:dst].size) }
+        }
+        routers.each{ |router|
+          partial = router.matrix(params[:src], params[:dst], params[:dimension], params[:departure], params[:arrival], params[:language], options)
+          if partial
+            ret[:router][:licence] << partial[:router][:licence]
+            ret[:router][:attribution] << partial[:router][:attribution]
+            params[:dimension].to_s.split('_').each{ |dim|
+              matrix_dim = ('matrix_' + dim).to_sym
+              params[:src].each_with_index{ |src, m|
+                params[:dst].each_with_index{ |dst, n|
+                  if partial[matrix_dim][m][n] && (!ret[matrix_dim][m][n] || partial[matrix_dim][m][n] < ret[matrix_dim][m][n])
+                    ret[matrix_dim][m][n] = partial[matrix_dim][m][n]
+                  end
+                }
+              }
+            }
+          end
+        }
+
+        ret
+      end
     end
   end
 

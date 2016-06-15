@@ -58,10 +58,10 @@ module Wrappers
       [:time]
     end
 
-    def matrix?(top_left, down_right, dimension)
+    def matrix?(src, dst, dimension)
       return false if !matrix_dimension.include? dimension
       if @boundary
-        contains?(*top_left[0]) && contains?(*top_left[1]) && contains?(*down_right[0]) && contains?(*down_right[1])
+        contains?(*src) && contains?(*dst)
       else
         true
       end

@@ -103,8 +103,8 @@ module Wrappers
       @url_matrix.keys.select{ |d| @url_matrix[d] }.compact
     end
 
-    def matrix?(top_left, down_right, dimension)
-      @url_matrix[dimension] && super(top_left, down_right, dimension)
+    def matrix?(src, dst, dimension)
+      @url_matrix[dimension] && super(src, dst, dimension)
     end
 
     def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})

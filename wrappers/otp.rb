@@ -98,8 +98,8 @@ module Wrappers
       ret
     end
 
-    def matrix?(top_left, down_right, dimension)
-      dimension == :time && super(top_left, down_right, dimension)
+    def matrix?(src, dst, dimension)
+      dimension == :time && super(src, dst, dimension)
     end
 
     def isoline?(loc, dimension)
