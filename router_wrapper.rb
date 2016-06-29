@@ -83,13 +83,22 @@ module RouterWrapper
     if !modes
       raise NotSupportedTransportationMode
     end
-    routers = params[:src].collect{ |src|
-      params[:dst].collect{ |dst|
-        modes.find{ |router|
-          router.matrix?(src, dst, params[:dimension])
+    if modes.size == 1
+      top, bottom = (params[:src] + params[:dst]).minmax_by{ |loc| loc[0] }
+      left, right = (params[:src] + params[:dst]).minmax_by{ |loc| loc[1] }
+      routers = [modes.find{ |router|
+        router.matrix?(top, left, params[:dimension]) && router.matrix?(bottom, right, params[:dimension])
+      }].compact
+    else
+      # check all comninations in matrix, could be long...
+      routers = params[:src].collect{ |src|
+        params[:dst].collect{ |dst|
+          modes.find{ |router|
+            router.matrix?(src, dst, params[:dimension])
+          }
         }
-      }
-    }.flatten.compact.uniq
+      }.flatten.compact.uniq
+    end
     if routers.size == 0
       raise OutOfSupportedAreaOrNotSupportedDimensionError
     else
