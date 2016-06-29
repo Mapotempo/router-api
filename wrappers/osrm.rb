@@ -143,13 +143,23 @@ module Wrappers
             json = @cache.read(key)
             if !json
               resource = RestClient::Resource.new(@url_trace[dim1])
-              response = resource[query_params].get
-              json = JSON.parse(response)
+              response = resource[query_params].get { |response, request, result, &block|
+                if response.code == 200
+                  response
+                elsif response.code == 400 && response.match('No route found between points')
+                  ''
+                else
+                  response.return!(request, result, &block)
+                end
+              }
+              json = response != '' ? JSON.parse(response) : {}
               @cache.write(key, json)
             end
 
-            if [0, 200].include?(json['status'])
+            if json['status'] && [0, 200].include?(json['status'])
               json['route_summary']['total_distance']
+            else
+              nil
             end
           }
         }
