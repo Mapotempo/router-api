@@ -30,6 +30,7 @@ module Api
 
       resource :capability do
         desc 'Capability of current api', {
+          detail: 'Return capability of all operations. For each operation, it will return availables modes (car, truck, public_transport...) and availables options for those modes.',
           nickname: 'capability',
           entity: ServicesDesc
         }

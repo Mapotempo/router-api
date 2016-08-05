@@ -38,18 +38,19 @@ module Api
 
       resource :route do
         desc 'Route via two points or more', {
+          detail: 'Find the route between two or more points depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'route',
           entity: RouteResult
         }
         params {
-          optional :mode, type: Symbol, desc: 'Transportation mode.'
+          optional :mode, type: Symbol, desc: 'Transportation mode (see capability operation for available modes).'
           optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute fastest or shortest (default on time.)'
           optional :geometry, type: Boolean, default: true, desc: 'Return the route trace geometry.'
-          optional :departure, type: Date, desc: 'Departure date time.'
-          optional :arrival, type: Date, desc: 'Arrival date time.'
-          optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
-          optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons.'
-          optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons.'
+          optional :departure, type: Date, desc: 'Departure date time (currently not used).'
+          optional :arrival, type: Date, desc: 'Arrival date time (currently not used).'
+          optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport modes.'
+          optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
+          optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
           optional :lang, type: String, default: :en
           requires :loc, type: Array, coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
         }
@@ -60,19 +61,20 @@ module Api
       end
 
       params {
-        optional :mode, type: Symbol, desc: 'Transportation mode.'
+        optional :mode, type: Symbol, desc: 'Transportation mode (see capability operation for available modes).'
         optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute fastest or shortest (default on time.)'
         optional :geometry, type: Boolean, default: true, desc: 'Return the route trace geometry.'
         optional :departure, type: Date, desc: 'Departure date time.'
         optional :arrival, type: Date, desc: 'Arrival date time.'
-        optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport mode.'
-        optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons.'
-        optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons.'
+        optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport modes.'
+        optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time, see capability operation for informations).'
+        optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
         optional :lang, type: String, default: :en
         requires :locs, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a } }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
       }
       resource :routes do
         desc 'Many routes, each via two points or more', {
+          detail: 'Find many routes between many couples of two or more points. Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time).',
           nickname: 'routes',
           entity: RouteResult
         }

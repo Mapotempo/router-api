@@ -30,7 +30,24 @@ module Api
 
     documentation_class = add_swagger_documentation base_path: (lambda do |request| "#{request.scheme}://#{request.host}:#{request.port}" end), hide_documentation_path: true, info: {
       title: ::RouterWrapper::config[:product_title],
-      description: 'API access require an api_key.',
+      description: ('<h2>Technical access</h2>
+
+<h3>Swagger descriptor</h3>
+<p>This REST API is described with Swagger. The Swagger descriptor defines the request end-points, the parameters and the return values. The API can be addressed by HTTP request or with a generated client using the Swagger descriptor.</p>
+
+<h3>API key</h3>
+<p>All access to the API are subject to an <code>api_key</code> parameter in order to authenticate the user.</p>
+
+<h3>Return</h3>
+<p>The API supports several return formats: <code>geojson</code>, <code>json</code> and <code>xml</code> which depend of the requested extension used in url.</p>
+
+<h2>Examples</h2>
+<h3>Routing</h3>
+<p><a href="#" target="_blank">Find your route on a map !</a></p>
+
+<h3>Isolines</h3>
+<p><a href="#" target="_blank">Build your isoline on a map !</a></p>
+').delete("\n"),
       contact: ::RouterWrapper::config[:product_contact]
     }
   end
