@@ -22,6 +22,7 @@ require './router_wrapper'
 require './api/root'
 require 'rack/cors'
 require 'rack/contrib/locale'
+require 'rack/contrib/try_static'
 
 use Rack::Cors do
   allow do
@@ -33,3 +34,9 @@ end
 use Rack::Locale
 
 run Api::Root
+
+# Serve files from the public directory
+use Rack::TryStatic,
+  root: 'public',
+  urls: %w[/],
+  try: ['.html', 'route.html', '/route.html', 'isoline.html', '/isoline.html']

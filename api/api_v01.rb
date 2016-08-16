@@ -43,10 +43,10 @@ module Api
 
 <h2>Examples</h2>
 <h3>Routing</h3>
-<p><a href="#" target="_blank">Find your route on a map !</a></p>
+<p><a href="http://router.mapotempo.com/route.html" target="_blank">Find your route on a map !</a></p>
 
 <h3>Isolines</h3>
-<p><a href="#" target="_blank">Build your isoline on a map !</a></p>
+<p><a href="http://router.mapotempo.com/isoline.html" target="_blank">Build your isoline on a map !</a></p>
 ').delete("\n"),
       contact: ::RouterWrapper::config[:product_contact]
     }
