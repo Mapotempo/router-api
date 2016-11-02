@@ -81,7 +81,7 @@ Return the route between list of points using GET request.
 
 For instance, route between Bordeaux, Mérignac and Talence
 ```
-http://localhost:4899/0.1/route.json?api_key=demo&mode=osrm&geometry=true&loc=44.837778,-0.579197,44.844866,-0.656377,44.808047,-0.588598
+http://localhost:4899/0.1/route.json?api_key=demo&mode=osrm4&geometry=true&loc=44.837778,-0.579197,44.844866,-0.656377,44.808047,-0.588598
 ```
 
 Returns geocodejson (and geojson) valid result:
@@ -125,7 +125,7 @@ Return many routes between list of points using GET request.
 
 For instance, routes between Bordeaux, Mérignac and Mérignac, Talence
 ```
-http://localhost:4899/0.1/routes.json?api_key=demo&mode=osrm&geometry=true&locs=44.837778,-0.579197,44.844866,-0.656377;44.844866,-0.656377,44.808047,-0.588598
+http://localhost:4899/0.1/routes.json?api_key=demo&mode=osrm4&geometry=true&locs=44.837778,-0.579197,44.844866,-0.656377;44.844866,-0.656377,44.808047,-0.588598
 ```
 
 Returns geocodejson (and geojson) valid result:

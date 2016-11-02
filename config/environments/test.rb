@@ -19,7 +19,7 @@ require 'active_support'
 require 'tmpdir'
 
 require './wrappers/demo'
-require './wrappers/osrm'
+require './wrappers/osrm4'
 require './wrappers/otp'
 require './wrappers/here'
 
@@ -27,7 +27,7 @@ module RouterWrapper
   CACHE = ActiveSupport::Cache::NullStore.new
 
   DEMO = Wrappers::Demo.new(CACHE, boundary: 'poly/france-marseille.kml')
-  OSRM = Wrappers::Osrm.new(CACHE, url_time: 'http://router.project-osrm.org', url_distance: 'http://router.project-osrm.org', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
+  OSRM4 = Wrappers::Osrm4.new(CACHE, url_time: 'http://localhost:5004', url_distance: 'http://localhost:5004', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
   OTP_BORDEAUX = Wrappers::Otp.new(CACHE, url: 'http://localhost:8080', router_id: 'bordeaux', licence: 'ODbL', attribution: 'Bordeaux Métropole', area: 'Bordeaux', crs: 'EPSG:2154')
   HERE_APP_ID = nil
   HERE_APP_CODE = nil
@@ -59,19 +59,19 @@ module RouterWrapper
         route_default: :demo,
         route: {
           demo: [DEMO],
-          osrm: [OSRM],
+          osrm4: [OSRM4],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
         },
         matrix: {
           demo: [DEMO],
-          osrm: [OSRM],
+          osrm4: [OSRM4],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
         },
         isoline: {
           demo: [DEMO],
-          osrm: [OSRM],
+          osrm4: [OSRM4],
           otp: [OTP_BORDEAUX],
         }
       }

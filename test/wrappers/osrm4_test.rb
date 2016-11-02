@@ -17,24 +17,24 @@
 #
 require './test/test_helper'
 
-require './wrappers/osrm'
+require './wrappers/osrm4'
 
-class Wrappers::OsrmTest < Minitest::Test
+class Wrappers::Osrm4Test < Minitest::Test
 
   def test_router
-    osrm = RouterWrapper::OSRM
+    osrm = RouterWrapper::OSRM4
     result = osrm.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true)
     assert 0 < result[:features].size
   end
 
   def test_router_no_route
-    osrm = RouterWrapper::OSRM
+    osrm = RouterWrapper::OSRM4
     result = osrm.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], :time, nil, nil, 'en', true)
     assert_equal 0, result[:features].size
   end
 
   def test_matrix_square
-    osrm = RouterWrapper::OSRM
+    osrm = RouterWrapper::OSRM4
     vector = [[49.610710, 18.237305], [47.010226, 2.900391]]
     result = osrm.matrix(vector, vector, :time, nil, nil, 'en')
     assert_equal vector.size, result[:matrix_time].size
@@ -42,7 +42,7 @@ class Wrappers::OsrmTest < Minitest::Test
   end
 
   def test_matrix_rectangular_time
-    osrm = RouterWrapper::OSRM
+    osrm = RouterWrapper::OSRM4
     src = [[49.610710, 18.237305], [47.010226, 2.900391]]
     dst = [[49.610710, 18.237305]]
     result = osrm.matrix(src, dst, :time, nil, nil, 'en')
@@ -51,7 +51,7 @@ class Wrappers::OsrmTest < Minitest::Test
   end
 
   def test_matrix_rectangular_time_distance
-    osrm = RouterWrapper::OSRM
+    osrm = RouterWrapper::OSRM4
     src = [[49.610710, 18.237305], [47.010226, 2.900391]]
     dst = [[49.610710, 18.237305]]
     result = osrm.matrix(src, dst, :time_distance, nil, nil, 'en')
@@ -62,7 +62,7 @@ class Wrappers::OsrmTest < Minitest::Test
   end
 
   def test_isoline
-    osrm = RouterWrapper::OSRM
+    osrm = RouterWrapper::OSRM4
     result = osrm.isoline([49.610710, 18.237305], :time, 100, nil, 'en')
     assert 0 < result['features'].size
   end
