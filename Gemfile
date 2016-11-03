@@ -13,6 +13,7 @@ gem 'grape-swagger'
 gem 'i18n'
 gem 'rack-contrib'
 gem 'rest-client'
+gem 'addressable'
 gem 'border_patrol'
 gem 'activesupport'
 
