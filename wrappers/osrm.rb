@@ -149,7 +149,7 @@ module Wrappers
                 elsif response.code == 400 && response.match('No route found between points')
                   ''
                 else
-                  response.return!(request, result, &block)
+                  raise response
                 end
               }
               json = response != '' ? JSON.parse(response) : {}
