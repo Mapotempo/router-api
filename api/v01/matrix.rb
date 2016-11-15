@@ -51,7 +51,7 @@ module Api
         desc 'Rectangular matrix between two points set', {
           detail: 'Build time/distance matrix between several points depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'matrix',
-          entity: MatrixResult
+          success: MatrixResult
         }
         get do
           matrix params

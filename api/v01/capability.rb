@@ -32,7 +32,7 @@ module Api
         desc 'Capability of current api', {
           detail: 'Return capability of all operations. For each operation, it will return availables modes (car, truck, public_transport...) and availables options for those modes.',
           nickname: 'capability',
-          entity: ServicesDesc
+          success: ServicesDesc
         }
         get do
           present RouterWrapper::desc(APIBase.services(params[:api_key])), with: ServicesDesc

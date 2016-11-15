@@ -260,7 +260,7 @@ module Wrappers
             end
           end
           Api::Root.logger.info [url, params]
-          Api::Root.logger.info error
+          Api::Root.logger.info error.inspect
           error = error['response'] if error.key?('response')
           raise ['Here', error['type'], error['subtype'], error['details'], error['Details']].compact.join(' ')
         end

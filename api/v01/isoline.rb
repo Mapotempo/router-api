@@ -50,7 +50,7 @@ module Api
         desc 'Isoline from a start point', {
           detail: 'Build isoline from a point with defined size depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'isoline',
-          entity: IsolineResult
+          success: IsolineResult
         }
         get do
           isoline params
