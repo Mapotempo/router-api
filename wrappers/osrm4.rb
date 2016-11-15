@@ -185,10 +185,10 @@ module Wrappers
           lng: loc[1],
           time: size * (options[:speed_multiplicator] || 1)
         }
-        request = String.new(RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
+        request = RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
           accept: :json,
           params: params
-        }))
+        })
         @cache.write(key, request)
       end
 

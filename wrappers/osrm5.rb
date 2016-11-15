@@ -68,7 +68,7 @@ module Wrappers
           continue_straight: false
         }
         coordinates = locs.collect{ |loc| [loc[1], loc[0]].join(',') }.join(';')
-        request = String.new(RestClient.get(@url_trace[dimension] + '/route/v1/driving/' + coordinates, {
+        request = RestClient.get(@url_trace[dimension] + '/route/v1/driving/' + coordinates, {
           accept: :json,
           params: params
         }) { |response, request, result, &block|
@@ -78,7 +78,7 @@ module Wrappers
           else
             response.return!(request, result, &block)
           end
-        })
+        }
 
         json = JSON.parse(request)
         if ['Ok', 'NoRoute'].include?(json['code'])
@@ -199,7 +199,7 @@ module Wrappers
                 continue_straight: false
               }
               coordinates = locs.collect{ |loc| loc.reverse.join(',') }.join(';')
-              request = String.new(RestClient.get(@url_trace[dim1] + '/route/v1/driving/' + coordinates, {
+              request = RestClient.get(@url_trace[dim1] + '/route/v1/driving/' + coordinates, {
                 accept: :json,
                 params: params
               }) { |response, request, result, &block|
@@ -209,7 +209,7 @@ module Wrappers
                 else
                   response.return!(request, result, &block)
                 end
-              })
+              }
 
               if request
                 json = JSON.parse(request)
@@ -243,10 +243,10 @@ module Wrappers
           lng: loc[1],
           time: size * (options[:speed_multiplicator] || 1)
         }
-        request = String.new(RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
+        request = RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
           accept: :json,
           params: params
-        }))
+        })
         @cache.write(key, request)
       end
 
