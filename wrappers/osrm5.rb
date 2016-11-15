@@ -84,7 +84,7 @@ module Wrappers
         if ['Ok', 'NoRoute'].include?(json['code'])
           @cache.write(key, json)
         else
-          raise 'OSRM request fails with: ' + json['code'] + ' ' + (json['message'] || '')
+          raise 'OSRM request fails with: ' + (json['code'] || '')  + ' ' + (json['message'] || '')
         end
       end
 
@@ -166,7 +166,7 @@ module Wrappers
         if json['code'] == 'Ok'
           @cache.write(key, json)
         else
-          raise 'OSRM request fails with: ' + json['code'] + ' ' + (json['message'] || '')
+          raise 'OSRM request fails with: ' + (json['code'] || '') + ' ' + (json['message'] || '')
         end
       end
 
