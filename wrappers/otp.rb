@@ -57,7 +57,7 @@ module Wrappers
           accept: :json,
           params: params
         })
-        @cache.write(key, request)
+        @cache.write(key, request.body)
       end
 
       ret = {
@@ -134,7 +134,7 @@ module Wrappers
             params: params
           }
         )
-        @cache.write(key, request)
+        @cache.write(key, request.body)
       end
 
       if request
