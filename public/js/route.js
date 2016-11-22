@@ -114,6 +114,6 @@
   });
 
 })({
-  serviceUrl: window.location.protocol + '//' + window.location.host + '/0.1',
+  serviceUrl: '0.1',
   apiKey: 'demo'
 });

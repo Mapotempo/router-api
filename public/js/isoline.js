@@ -161,6 +161,6 @@
   });
 
 })({
-  serviceUrl: 'https://router.mapotempo.com/0.1',
+  serviceUrl: '0.1',
   apiKey: 'demo'
 });
