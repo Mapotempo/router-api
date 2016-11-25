@@ -118,7 +118,13 @@ module Wrappers
 
         # Request should not contain more than 15 starts per request / 100 combinaisons
         # 500 to get response before 30 seconds timeout
-        srcs_split = [(100 / [dsts.size, 100].min).to_i, (1000 / srcs.size).round].min
+
+        lats = (srcs + dsts).minmax_by{ |p| p[0] }
+        lons = (srcs + dsts).minmax_by{ |p| p[1] }
+        dist = distance([lats[1][0], lons[1][1]], [lats[0][0], lons[0][1]])
+        coef_distance = 7 - [dist / 200, 6.0].min
+
+        srcs_split = [100 / [(dsts.size / coef_distance).ceil, 100].min, (1000 / srcs.size.to_f).ceil].min
         dsts_split = dsts_max = [100, dsts.size].min
 
         result = {
@@ -270,6 +276,25 @@ module Wrappers
       end
 
       request
+    end
+
+    def distance(src, dst)
+      dtor = Math::PI/180
+      r = 6378.14
+
+      rlat1 = src[0] * dtor
+      rlon1 = src[1] * dtor
+      rlat2 = dst[0] * dtor
+      rlon2 = dst[1] * dtor
+
+      dlon = rlon1 - rlon2
+      dlat = rlat1 - rlat2
+
+      a = (Math::sin(dlat/2) ** 2) + Math::cos(rlat1) * Math::cos(rlat2) * (Math::sin(dlon/2) ** 2)
+      c = 2 * Math::atan2(Math::sqrt(a), Math::sqrt(1-a))
+      d = r * c
+
+      d
     end
   end
 end
