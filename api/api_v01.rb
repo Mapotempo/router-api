@@ -28,7 +28,7 @@ module Api
 
     mount V01::Api
 
-    documentation_class = add_swagger_documentation base_path: (lambda do |request| "#{request.scheme}://#{request.host}:#{request.port}" end), hide_documentation_path: true, info: {
+    documentation_class = add_swagger_documentation hide_documentation_path: true, info: {
       title: ::RouterWrapper::config[:product_title],
       description: ('<h2>Technical access</h2>
 
