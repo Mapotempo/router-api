@@ -122,10 +122,11 @@ module Wrappers
         lats = (srcs + dsts).minmax_by{ |p| p[0] }
         lons = (srcs + dsts).minmax_by{ |p| p[1] }
         dist = distance([lats[1][0], lons[1][1]], [lats[0][0], lons[0][1]])
-        coef_distance = 7 - [dist / 200, 6.0].min
+        coef_distance = 7 - [dist / 200, 6.0].min # 100km: 7, 1200km: 2, 1400km: 1
 
         srcs_split = [100 / [(dsts.size / coef_distance).ceil, 100].min, (1000 / srcs.size.to_f).ceil].min
         dsts_split = dsts_max = [100, dsts.size].min
+        srcs_split = [srcs_split, 15].min if srcs_split * dsts_split > 99
 
         result = {
           time: Array.new(srcs.size) { Array.new(dsts.size) },
