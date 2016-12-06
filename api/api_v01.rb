@@ -28,26 +28,33 @@ module Api
 
     mount V01::Api
 
-    documentation_class = add_swagger_documentation hide_documentation_path: true, info: {
+    documentation_class = add_swagger_documentation hide_documentation_path: true, markdown: GrapeSwagger::Markdown::KramdownAdapter.new, info: {
       title: ::RouterWrapper::config[:product_title],
-      description: ('<h2>Technical access</h2>
+      description: ('
+## Technical access
 
-<h3>Swagger descriptor</h3>
-<p>This REST API is described with Swagger. The Swagger descriptor defines the request end-points, the parameters and the return values. The API can be addressed by HTTP request or with a generated client using the Swagger descriptor.</p>
+### Swagger descriptor
 
-<h3>API key</h3>
-<p>All access to the API are subject to an <code>api_key</code> parameter in order to authenticate the user.</p>
+This REST API is described with Swagger. The Swagger descriptor defines the request end-points, the parameters and the return values. The API can be addressed by HTTP request or with a generated client using the Swagger descriptor.
 
-<h3>Return</h3>
-<p>The API supports several return formats: <code>geojson</code>, <code>json</code> and <code>xml</code> which depend of the requested extension used in url.</p>
+### API key
 
-<h2>Examples</h2>
-<h3>Routing</h3>
-<p><a href="http://router.mapotempo.com/route.html" target="_blank">Find your route on a map !</a></p>
+All access to the API are subject to an `api_key` parameter in order to authenticate the user.
 
-<h3>Isolines</h3>
-<p><a href="http://router.mapotempo.com/isoline.html" target="_blank">Build your isoline on a map !</a></p>
-').delete("\n"),
+### Return
+
+The API supports several return formats: `geojson`, `json` and `xml` which depend of the requested extension used in url.
+
+## Examples
+
+### Routing
+
+[Find your route on a map](http://router.mapotempo.com/route.html)
+
+### Isolines
+
+[Build your isoline on a map](http://router.mapotempo.com/isoline.html)
+'),
       contact: ::RouterWrapper::config[:product_contact]
     }
   end
