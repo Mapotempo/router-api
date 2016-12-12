@@ -40,7 +40,12 @@ module Api
         desc 'Route via two points or more', {
           detail: 'Find the route between two or more points depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'route',
-          success: RouteResult
+          success: RouteResult,
+          produces: [
+            'application/json; charset=UTF-8',
+            'application/vnd.geo+json; charset=UTF-8',
+            'application/xml',
+          ]
         }
         params {
           optional :mode, type: Symbol, desc: 'Transportation mode (see capability operation for available modes).'
@@ -76,7 +81,12 @@ module Api
         desc 'Many routes, each via two points or more', {
           detail: 'Find many routes between many couples of two or more points. Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time).',
           nickname: 'routes',
-          success: RouteResult
+          success: RouteResult,
+          produces: [
+            'application/json; charset=UTF-8',
+            'application/vnd.geo+json; charset=UTF-8',
+            'application/xml',
+          ]
         }
         get do
           many_routes params

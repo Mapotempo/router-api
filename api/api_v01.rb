@@ -26,11 +26,28 @@ module Api
   class ApiV01 < Grape::API
     version '0.1', using: :path
 
+    content_type :json, 'application/json; charset=UTF-8'
+    content_type :geojson, 'application/vnd.geo+json; charset=UTF-8'
+    content_type :xml, 'application/xml'
+    content_type :csv, 'text/csv; charset=UTF-8'
+
     mount V01::Api
 
-    documentation_class = add_swagger_documentation hide_documentation_path: true, markdown: GrapeSwagger::Markdown::KramdownAdapter.new, info: {
-      title: ::RouterWrapper::config[:product_title],
-      description: ('
+    documentation_class = add_swagger_documentation(
+      hide_documentation_path: true,
+      consumes: [
+        'application/json; charset=UTF-8',
+        'application/xml',
+      ],
+      produces: [
+        'application/json; charset=UTF-8',
+        'application/xml',
+      ],
+      markdown: GrapeSwagger::Markdown::KramdownAdapter.new,
+      info: {
+        title: ::RouterWrapper::config[:product_title],
+        contact: ::RouterWrapper::config[:product_contact],
+        description: '
 ## Technical access
 
 ### Swagger descriptor
@@ -53,9 +70,8 @@ The API supports several return formats: `geojson`, `json` and `xml` which depen
 
 ### Isolines
 
-[Build your isoline on a map](http://router.mapotempo.com/isoline.html)
-'),
-      contact: ::RouterWrapper::config[:product_contact]
-    }
+[Build your isoline on a map](http://router.mapotempo.com/isoline.html)'
+      }
+    )
   end
 end
