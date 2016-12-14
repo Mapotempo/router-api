@@ -20,6 +20,7 @@ require 'polylines'
 require './api/v01/api_base'
 require './api/geojson_formatter'
 require './api/v01/entities/matrix_result'
+require './api/v01/entities/status'
 require './wrappers/wrapper'
 require './router_wrapper'
 
@@ -51,11 +52,23 @@ module Api
         desc 'Rectangular matrix between two points set', {
           detail: 'Build time/distance matrix between several points depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'matrix',
-          success: MatrixResult
+          success: MatrixResult,
+          failures: [
+            {code: 400, model: Status}
+          ],
         }
         get do
           matrix params
         end
+
+        desc 'Rectangular matrix between two points set', {
+          detail: 'Build time/distance matrix between several points depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
+          nickname: 'matrix_post',
+          success: MatrixResult,
+          failures: [
+            {code: 400, model: Status}
+          ],
+        }
         post do
           matrix params
           status 200
@@ -66,15 +79,15 @@ module Api
         def matrix(params)
           params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           if params[:area]
-            params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng are needed.', 400)
+            params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:src] = params[:src].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
-          params[:src][-1].size == 2 || error!('Source couples of lat/lng are needed.', 400)
+          params[:src][-1].size == 2 || error!({detail: 'Source couples of lat/lng are needed.'}, 400)
 
           if params.key?(:dst)
             params[:dst] = params[:dst].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
-            params[:dst][-1].size == 2 || error!('Destination couples of lat/lng are needed.', 400)
+            params[:dst][-1].size == 2 || error!({detail: 'Destination couples of lat/lng are needed.'}, 400)
           else
             params[:dst] =  params[:src]
           end

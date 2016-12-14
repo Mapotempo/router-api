@@ -20,6 +20,7 @@ require 'polylines'
 require './api/v01/api_base'
 require './api/geojson_formatter'
 require './api/v01/entities/isoline_result'
+require './api/v01/entities/status'
 require './wrappers/wrapper'
 require './router_wrapper'
 
@@ -51,6 +52,9 @@ module Api
           detail: 'Build isoline from a point with defined size depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'isoline',
           success: IsolineResult,
+          failures: [
+            {code: 400, model: Status}
+          ],
           produces: [
             'application/json; charset=UTF-8',
             'application/vnd.geo+json; charset=UTF-8',
@@ -60,6 +64,20 @@ module Api
         get do
           isoline params
         end
+
+        desc 'Isoline from a start point', {
+          detail: 'Build isoline from a point with defined size depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
+          nickname: 'isoline_post',
+          success: IsolineResult,
+          failures: [
+            {code: 400, model: Status}
+          ],
+          produces: [
+            'application/json; charset=UTF-8',
+            'application/vnd.geo+json; charset=UTF-8',
+            'application/xml',
+          ]
+        }
         post do
           isoline params
           status 200
@@ -70,11 +88,11 @@ module Api
         def isoline(params)
           params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           if params[:area]
-            params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng are needed.', 400)
+            params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }
-          params[:loc].size == 2 || error!('Start lat/lng is needed.', 400)
+          params[:loc].size == 2 || error!({detail: 'Start lat/lng is needed.'}, 400)
 
           results = RouterWrapper::wrapper_isoline(APIBase.services(params[:api_key]), params)
           results[:router][:version] = 'draft'

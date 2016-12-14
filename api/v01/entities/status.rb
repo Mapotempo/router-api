@@ -17,13 +17,13 @@
 #
 module Api
   module V01
-    class Error < Grape::Entity
+    class Status < Grape::Entity
       def self.entity_name
-        'Error'
+        'Status'
       end
 
-      expose(:error, documentation: { type: String, desc: 'Error title.' })
-      expose(:detail, documentation: { type: String, desc: 'Error detail.' })
+      expose(:status, documentation: { type: String, desc: 'Status title.' })
+      expose(:detail, documentation: { type: String, desc: 'Status detail.' })
     end
   end
 end

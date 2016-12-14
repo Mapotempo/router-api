@@ -21,6 +21,7 @@ require './api/v01/api_base'
 require './api/geojson_formatter'
 require './api/v01/entities/route_result'
 require './api/v01/entities/routes_result'
+require './api/v01/entities/status'
 require './wrappers/wrapper'
 require './router_wrapper'
 
@@ -41,6 +42,9 @@ module Api
           detail: 'Find the route between two or more points depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'route',
           success: RouteResult,
+          failures: [
+            {code: 400, model: Status}
+          ],
           produces: [
             'application/json; charset=UTF-8',
             'application/vnd.geo+json; charset=UTF-8',
@@ -82,6 +86,9 @@ module Api
           detail: 'Find many routes between many couples of two or more points. Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time).',
           nickname: 'routes',
           success: RouteResult,
+          failures: [
+            {code: 400, model: Status}
+          ],
           produces: [
             'application/json; charset=UTF-8',
             'application/vnd.geo+json; charset=UTF-8',
@@ -91,6 +98,20 @@ module Api
         get do
           many_routes params
         end
+
+        desc 'Many routes, each via two points or more', {
+          detail: 'Find many routes between many couples of two or more points. Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time).',
+          nickname: 'routes_post',
+          success: RouteResult,
+          failures: [
+            {code: 400, model: Status}
+          ],
+          produces: [
+            'application/json; charset=UTF-8',
+            'application/vnd.geo+json; charset=UTF-8',
+            'application/xml',
+          ]
+        }
         post do
           many_routes params
           status 200
@@ -101,12 +122,12 @@ module Api
         def compute_routes(params)
           params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           if params[:area]
-            params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng required.', 400)
+            params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng required.'}, 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:locs].each_with_index{ |loc, index|
-            loc.size >= 2 || error!('locs: segment ##{index}, at least two couples of lat/lng required.', 400)
-            loc[-1].size == 2 || error!('locs: segment ##{index}, couples of lat/lng required.', 400)
+            loc.size >= 2 || error!({detail: 'locs: segment ##{index}, at least two couples of lat/lng required.'}, 400)
+            loc[-1].size == 2 || error!({detail: 'locs: segment ##{index}, couples of lat/lng required.'}, 400)
           }
 
           routes = params[:locs].collect{ |loc|
