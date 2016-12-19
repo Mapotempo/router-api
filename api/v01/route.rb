@@ -58,13 +58,15 @@ module Api
           optional :departure, type: Date, desc: 'Departure date time (currently not used).'
           optional :arrival, type: Date, desc: 'Arrival date time (currently not used).'
           optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport modes.'
+#          optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
           optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
-          optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
+          optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
           optional :lang, type: String, default: :en
-          requires :loc, type: Array, coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
+#          requires :loc, type: Array[Array[Float]], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
+          requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
         }
         get do
-          params[:locs] = [params[:loc]]
+          params[:locs] = [params[:loc].each_slice(2).to_a]
           present compute_routes(params)[0], with: RouteResult
         end
       end
@@ -76,10 +78,12 @@ module Api
         optional :departure, type: Date, desc: 'Departure date time.'
         optional :arrival, type: Date, desc: 'Arrival date time.'
         optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport modes.'
+#        optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time, see capability operation for informations).'
         optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time, see capability operation for informations).'
-        optional :speed_multiplicator_area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
+        optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
         optional :lang, type: String, default: :en
-        requires :locs, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a } }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
+#        requires :locs, type: Array[Array[Array[Float]]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a } }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
+        requires :locs, type: Array[String], coerce_with: ->(c) { c.split(';') }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
       }
       resource :routes do
         desc 'Many routes, each via two points or more', {
@@ -96,6 +100,7 @@ module Api
           ]
         }
         get do
+          params[:locs] = params[:locs].collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }
           many_routes params
         end
 
@@ -113,6 +118,7 @@ module Api
           ]
         }
         post do
+          params[:locs] = params[:locs].collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }
           many_routes params
           status 200
         end
@@ -126,8 +132,8 @@ module Api
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:locs].each_with_index{ |loc, index|
-            loc.size >= 2 || error!({detail: 'locs: segment ##{index}, at least two couples of lat/lng required.'}, 400)
-            loc[-1].size == 2 || error!({detail: 'locs: segment ##{index}, couples of lat/lng required.'}, 400)
+            loc.size >= 2 || error!({detail: "locs: segment ##{index}, at least two couples of lat/lng required."}, 400)
+            loc[-1].size == 2 || error!({detail: "locs: segment ##{index}, couples of lat/lng required."}, 400)
           }
 
           routes = params[:locs].collect{ |loc|
