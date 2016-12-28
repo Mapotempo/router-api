@@ -46,8 +46,8 @@ module Api
         optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
         optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
         optional :lang, type: String, default: :en
-        requires :src, type: String, desc: 'List of sources of latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
-        optional :dst, type: String, desc: 'List of destination of latitudes and longitudes, if not present compute square matrix with sources points.'
+        requires :src, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of sources of latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
+        optional :dst, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of destination of latitudes and longitudes, if not present compute square matrix with sources points.'
       }
       resource :matrix do
         desc 'Rectangular matrix between two points set', {
@@ -83,11 +83,11 @@ module Api
             params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
-          params[:src] = params[:src].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
+          params[:src] = params[:src].each_slice(2).to_a
           params[:src][-1].size == 2 || error!({detail: 'Source couples of lat/lng are needed.'}, 400)
 
           if params.key?(:dst)
-            params[:dst] = params[:dst].split(',').collect{ |f| Float(f) }.each_slice(2).to_a
+            params[:dst] = params[:dst].each_slice(2).to_a
             params[:dst][-1].size == 2 || error!({detail: 'Destination couples of lat/lng are needed.'}, 400)
           else
             params[:dst] =  params[:src]

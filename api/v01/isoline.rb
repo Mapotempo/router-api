@@ -45,7 +45,8 @@ module Api
         optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
         optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
         optional :lang, type: String, default: :en
-        requires :loc, type: String, desc: 'Start latitude and longitude separated with a comma, e.g. lat1,lng1.'
+        requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'Start latitude and longitude separated with a comma, e.g. lat1,lng1.'
+
         requires :size, type: Integer, desc: 'Size of isoline. Time in second, distance in meters.'
       }
       resource :isoline do
@@ -92,7 +93,6 @@ module Api
             params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
-          params[:loc] = params[:loc].split(',').collect{ |f| Float(f) }
           params[:loc].size == 2 || error!({detail: 'Start lat/lng is needed.'}, 400)
 
           results = RouterWrapper::wrapper_isoline(APIBase.services(params[:api_key]), params)
