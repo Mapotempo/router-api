@@ -43,7 +43,6 @@ module Api
         'application/json; charset=UTF-8',
         'application/xml',
       ],
-      markdown: GrapeSwagger::Markdown::KramdownAdapter.new,
       info: {
         title: ::RouterWrapper::config[:product_title],
         contact: ::RouterWrapper::config[:product_contact],
