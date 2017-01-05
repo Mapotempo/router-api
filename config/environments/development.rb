@@ -37,7 +37,8 @@ module RouterWrapper
 
   @@c = {
     product_title: 'Router Wrapper API',
-    product_contact: 'frederic@mapotempo.com',
+    product_contact_email: 'tech@mapotempo.com',
+    product_contact_url: 'https://github.com/Mapotempo/router-wrapper',
     profiles: [{
       api_keys: ['light'],
       services: {
