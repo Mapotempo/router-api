@@ -215,7 +215,9 @@ module Wrappers
                 json = JSON.parse(request)
                 if ['Ok', 'NoRoute'].include?(json['code'])
                   @cache.write(key, json)
-                  json['routes'][0]['distance']
+                  if json['code'] == 'Ok'
+                    json['routes'][0]['distance']
+                  end
                 end
               end
             end
