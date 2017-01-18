@@ -183,7 +183,7 @@ module Wrappers
         params = {
           lat: loc[0],
           lng: loc[1],
-          time: size * (options[:speed_multiplicator] || 1)
+          time: (size * (options[:speed_multiplicator] || 1)).round(1)
         }
         request = RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
           accept: :json,
