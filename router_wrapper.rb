@@ -83,59 +83,61 @@ module RouterWrapper
     if !modes
       raise NotSupportedTransportationMode
     end
-    if modes.size == 1
-      top, bottom = (params[:src] + params[:dst]).minmax_by{ |loc| loc[0] }
-      left, right = (params[:src] + params[:dst]).minmax_by{ |loc| loc[1] }
-      routers = [modes.find{ |router|
-        router.matrix?(top, left, params[:dimension]) && router.matrix?(bottom, right, params[:dimension])
-      }].compact
-    else
-      # check all comninations in matrix, could be long...
-      routers = params[:src].collect{ |src|
-        params[:dst].collect{ |dst|
-          modes.find{ |router|
-            router.matrix?(src, dst, params[:dimension])
-          }
-        }
-      }.flatten.compact.uniq
-    end
-    if routers.size == 0
-      raise OutOfSupportedAreaOrNotSupportedDimensionError
-    else
-      options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
-      if routers.size == 1
-        routers[0].matrix(params[:src], params[:dst], params[:dimension], params[:departure], params[:arrival], params[:language], options)
+
+    point_uniq(params[:src], params[:dst], params[:dimension]) { |src, dst|
+      routers = if modes.size == 1
+        top, bottom = (src + dst).minmax_by{ |loc| loc[0] }
+        left, right = (src + dst).minmax_by{ |loc| loc[1] }
+        [modes.find{ |router|
+          router.matrix?(top, left, params[:dimension]) && router.matrix?(bottom, right, params[:dimension])
+        }].compact
       else
-        ret = {
-          router: {
-            licence: [],
-            attribution: [],
+        # check all combinations in matrix, could be long...
+        src.collect{ |src|
+          dst.collect{ |dst|
+            modes.find{ |router|
+              router.matrix?(src, dst, params[:dimension])
+            }
           }
-        }
-        params[:dimension].to_s.split('_').each{ |dim|
-          ret[('matrix_' + dim).to_sym] = Array.new(params[:src].size) { Array.new(params[:dst].size) }
-        }
-        routers.each{ |router|
-          partial = router.matrix(params[:src], params[:dst], params[:dimension], params[:departure], params[:arrival], params[:language], options)
-          if partial
-            ret[:router][:licence] << partial[:router][:licence]
-            ret[:router][:attribution] << partial[:router][:attribution]
-            params[:dimension].to_s.split('_').each{ |dim|
-              matrix_dim = ('matrix_' + dim).to_sym
-              params[:src].each_with_index{ |src, m|
-                params[:dst].each_with_index{ |dst, n|
-                  if partial[matrix_dim][m][n] && (!ret[matrix_dim][m][n] || partial[matrix_dim][m][n] < ret[matrix_dim][m][n])
-                    ret[matrix_dim][m][n] = partial[matrix_dim][m][n]
-                  end
+        }.flatten.compact.uniq
+      end
+      if routers.size == 0
+        raise OutOfSupportedAreaOrNotSupportedDimensionError
+      else
+        options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
+        if routers.size == 1
+          routers[0].matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options)
+        else
+          ret = {
+            router: {
+              licence: [],
+              attribution: [],
+            }
+          }
+          params[:dimension].to_s.split('_').each{ |dim|
+            ret[('matrix_' + dim).to_sym] = Array.new(src.size) { Array.new(dst.size) }
+          }
+          routers.each{ |router|
+            partial = router.matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options)
+            if partial
+              ret[:router][:licence] << partial[:router][:licence]
+              ret[:router][:attribution] << partial[:router][:attribution]
+              params[:dimension].to_s.split('_').each{ |dim|
+                matrix_dim = ('matrix_' + dim).to_sym
+                src.each_with_index{ |src, m|
+                  dst.each_with_index{ |dst, n|
+                    if partial[matrix_dim][m][n] && (!ret[matrix_dim][m][n] || partial[matrix_dim][m][n] < ret[matrix_dim][m][n])
+                      ret[matrix_dim][m][n] = partial[matrix_dim][m][n]
+                    end
+                  }
                 }
               }
-            }
-          end
-        }
-
-        ret
+            end
+          }
+          ret
+        end
       end
-    end
+    }
   end
 
   def self.wrapper_isoline(services, params)
@@ -167,5 +169,31 @@ module RouterWrapper
 
   def self.speed_multiplicator_area(params)
     Hash[params[:area].zip(params[:speed_multiplicator_area])] if params[:area]
+  end
+
+  def self.point_uniq(src, dst, dimension)
+    src_uniq = src.each_with_index.group_by(&:first).to_a.sort_by(&:first)
+    dst_uniq = dst.each_with_index.group_by(&:first).to_a.sort_by(&:first)
+
+    ret = yield(src_uniq.collect(&:first), dst_uniq.collect(&:first))
+
+    dimension.to_s.split('_').each{ |dim|
+      matrix_dim = ('matrix_' + dim).to_sym
+      matrix = Array.new(src.size) { Array.new(dst.size) }
+      src_uniq.each_with_index{ |a, src_uniq_index|
+        src_point, src_indices = a
+        src_indices.each{ |_, src_index|
+          dst_uniq.each_with_index{ |b, dst_uniq_index|
+            dst_point, dst_indices = b
+            dst_indices.each{ |_, dst_index|
+              matrix[src_index][dst_index] = ret[matrix_dim][src_uniq_index][dst_uniq_index]
+            }
+          }
+        }
+      }
+      ret[matrix_dim] = matrix
+    }
+
+    ret
   end
 end

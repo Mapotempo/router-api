@@ -68,4 +68,24 @@ class Api::V01::MatrixTest < Minitest::Test
       assert last_response.ok?, last_response.body
     }
   end
+
+  def test_matrix_with_duplicate
+    [:get, :post].each{ |method|
+      send method, '/0.1/matrix', {api_key: 'demo', mode: 'osrm5', src: '43.2804,5.3806,43.291576,5.355835,43.2804,5.3806'}
+      assert last_response.ok?, last_response.body
+      json = JSON.parse(last_response.body)
+      assert_equal 3, json['matrix_time'].size
+      assert_equal 3, json['matrix_time'][0].size
+    }
+  end
+
+  def test_matrix_rectangular_with_duplicate
+    [:get, :post].each{ |method|
+      send method, '/0.1/matrix', {api_key: 'demo', mode: 'osrm5', src: '43.2804,5.3806,43.291576,5.355835,43.2804,5.3806', dst: '43.290014,5.425873,43.290014,5.425873'}
+      assert last_response.ok?, last_response.body
+      json = JSON.parse(last_response.body)
+      assert_equal 3, json['matrix_time'].size
+      assert_equal 2, json['matrix_time'][0].size
+    }
+  end
 end
