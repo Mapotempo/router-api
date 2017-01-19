@@ -8,7 +8,7 @@ gem 'rack-cors'
 gem 'grape'
 gem 'grape_logging'
 gem 'grape-entity'
-gem 'grape-swagger'
+gem 'grape-swagger', '<0.26' # FIXME wait for ruby 2.2
 gem 'grape-swagger-entity'
 
 gem 'i18n'
