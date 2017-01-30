@@ -26,7 +26,6 @@ module Api
       content_type :xml, 'application/xml'
       content_type :json, 'application/json; charset=UTF-8'
       default_format :json
-      version '0.1', using: :path
 
       resource :capability do
         desc 'Capability of current api', {

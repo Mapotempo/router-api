@@ -34,7 +34,6 @@ module Api
       # content_type :gpx, 'application/gpx+xml; charset=UTF-8'
       # formatter :gpx, GpxFormatter
       default_format :json
-      version '0.1', using: :path
 
       params {
         optional :mode, type: Symbol, desc: 'Transportation mode (see capability operation for available modes).'

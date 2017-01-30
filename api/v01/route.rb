@@ -35,7 +35,6 @@ module Api
       # content_type :gpx, 'application/gpx+xml; charset=UTF-8'
       # formatter :gpx, GpxFormatter
       default_format :json
-      version '0.1', using: :path
 
       resource :route do
         desc 'Route via two points or more', {
