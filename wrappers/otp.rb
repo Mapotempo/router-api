@@ -151,7 +151,7 @@ module Wrappers
 
     def monday_morning
       monday_morning = Date.today
-      monday_morning += (8 - monday_morning.cwday).modulo(7) # Go to (next) monday, today or future
+      #monday_morning += (8 - monday_morning.cwday).modulo(7) # Go to current week monday
       monday_morning.to_time + 9.hours # Go to monday 09:00
     end
   end
