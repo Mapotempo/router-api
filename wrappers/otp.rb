@@ -49,7 +49,7 @@ module Wrappers
           time: datetime.strftime('%I:%M%p'),
           date: datetime.strftime('%m-%d-%Y'),
           arriveBy: arrive_by,
-          maxWalkDistance: 500,
+          maxWalkDistance: 750,
           wheelchair: false,
           showIntermediateStops: false
         }
@@ -115,7 +115,7 @@ module Wrappers
       if !request
         params = {
           requestTimespanHours: 2,
-          radiusMeters: 500,
+          radiusMeters: 750,
           nContours: 1,
           contourSpacingMinutes: size / 60,
           crs: @crs,
