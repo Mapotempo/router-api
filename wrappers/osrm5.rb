@@ -76,7 +76,7 @@ module Wrappers
           when 200, 400
             response
           else
-            response.return!(request, result, &block)
+            raise response
           end
         }
 
@@ -158,7 +158,7 @@ module Wrappers
           when 200, 400
             response
           else
-            response.return!(request, result, &block)
+            raise response
           end
         }
 
