@@ -134,7 +134,6 @@ module Wrappers
       dim1, dim2 = dimension.to_s.split('_').collect(&:to_sym)
       key = [:osrm5, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_matrix[dim1], srcs, dsts, options]))]
 
-
       json = @cache.read(key)
       if !json
         if srcs == dsts
@@ -148,25 +147,29 @@ module Wrappers
           }
         end
 
-        uri = ::Addressable::URI.parse(@url_matrix[dim1])
-        uri.path = '/table/v1/driving/polyline(' + Polylines::Encoder.encode_points(locs_uniq, 1e5) + ')'
-        request = RestClient.get(uri.normalize.to_str, {
-          accept: :json,
-          params: params
-        }) { |response, request, result, &block|
-          case response.code
-          when 200, 400
-            response
-          else
-            raise response
-          end
-        }
-
-        json = JSON.parse(request)
-        if json['code'] == 'Ok'
-          @cache.write(key, json)
+        if locs_uniq.size == 1
+          json['durations'] = [[0], [0]]
         else
-          raise 'OSRM request fails with: ' + (json['code'] || '') + ' ' + (json['message'] || '')
+          uri = ::Addressable::URI.parse(@url_matrix[dim1])
+          uri.path = '/table/v1/driving/polyline(' + Polylines::Encoder.encode_points(locs_uniq, 1e5) + ')'
+          request = RestClient.get(uri.normalize.to_str, {
+            accept: :json,
+            params: params
+          }) { |response, request, result, &block|
+            case response.code
+            when 200, 400
+              response
+            else
+              raise response
+            end
+          }
+
+          json = JSON.parse(request)
+          if json['code'] == 'Ok'
+            @cache.write(key, json)
+          else
+            raise 'OSRM request fails with: ' + (json['code'] || '') + ' ' + (json['message'] || '')
+          end
         end
       end
 
@@ -185,38 +188,42 @@ module Wrappers
       if dim2
         ret["matrix_#{dim2}".to_sym] = srcs.collect{ |src|
           dsts.collect{ |dst|
-            locs = [src, dst]
-            key = [:osrm5, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dim1], false, locs, language, options]))]
+            if src == dst
+              0.0
+            else
+              locs = [src, dst]
+              key = [:osrm5, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dim1], false, locs, language, options]))]
 
-            json = @cache.read(key)
-            if !json
-              params = {
-                alternatives: false,
-                steps: false,
-                annotations: false,
-                geometries: :polyline,
-                overview: false,
-                continue_straight: false
-              }
-              coordinates = locs.collect{ |loc| loc.reverse.join(',') }.join(';')
-              request = RestClient.get(@url_trace[dim1] + '/route/v1/driving/' + coordinates, {
-                accept: :json,
-                params: params
-              }) { |response, request, result, &block|
-                case response.code
-                when 200, 400
-                  response
-                else
-                  response.return!(request, result, &block)
-                end
-              }
+              json = @cache.read(key)
+              if !json
+                params = {
+                  alternatives: false,
+                  steps: false,
+                  annotations: false,
+                  geometries: :polyline,
+                  overview: false,
+                  continue_straight: false
+                }
+                coordinates = locs.collect{ |loc| loc.reverse.join(',') }.join(';')
+                request = RestClient.get(@url_trace[dim1] + '/route/v1/driving/' + coordinates, {
+                  accept: :json,
+                  params: params
+                }) { |response, request, result, &block|
+                  case response.code
+                  when 200, 400
+                    response
+                  else
+                    response.return!(request, result, &block)
+                  end
+                }
 
-              if request
-                json = JSON.parse(request)
-                if ['Ok', 'NoRoute'].include?(json['code'])
-                  @cache.write(key, json)
-                  if json['code'] == 'Ok'
-                    json['routes'][0]['distance']
+                if request
+                  json = JSON.parse(request)
+                  if ['Ok', 'NoRoute'].include?(json['code'])
+                    @cache.write(key, json)
+                    if json['code'] == 'Ok'
+                      json['routes'][0]['distance']
+                    end
                   end
                 end
               end
