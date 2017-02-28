@@ -37,7 +37,7 @@ module Wrappers
 
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       params = {
-        mode: here_mode(dimension.to_s.split('_').collect(&:to_sym), @mode),
+        mode: here_mode(dimension.to_s.split('_').collect(&:to_sym), @mode, options),
         avoidAreas: here_avoid_areas(options[:speed_multiplicator_area]),
         alternatives: 0,
         resolution: 1,
@@ -45,11 +45,13 @@ module Wrappers
         representation: 'display',
         routeAttributes: 'summary,shape',
         truckType: @mode,
-        #limitedWeight: # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
-        #weightPerAxle: # Truck routing only, vehicle weight per axle in tons.
-        #height: # Truck routing only, vehicle height in meters.
-        #width: # Truck routing only, vehicle width in meters.
-        #length: # Truck routing only, vehicle length in meters.
+        trailersCount: options[:trailers], # Truck routing only, number of trailers.
+        limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
+        weightPerAxle: options[:weight_per_axle], # Truck routing only, vehicle weight per axle in tons.
+        height: options[:height], # Truck routing only, vehicle height in meters.
+        width: options[:width], # Truck routing only, vehicle width in meters.
+        length: options[:length], # Truck routing only, vehicle length in meters.
+        shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
         #tunnelCategory : # Specifies the tunnel category to restrict certain route links. The route will pass only through tunnels of a les
       }
       locs.each_with_index{ |loc, index|
@@ -136,15 +138,17 @@ module Wrappers
         dim = dimension.to_s.split('_').collect(&:to_sym)
 
         commons_param = {
-          mode: here_mode(dim, @mode),
+          mode: here_mode(dim, @mode, options),
           avoidAreas: here_avoid_areas(options[:speed_multiplicator_area]),
           truckType: @mode,
-          summaryAttributes: dim.collect{ |d| d == :time ? 'traveltime' : d == :distance ? 'distance' : nil }.compact.join(',')
-          #limitedWeight: # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
-          #weightPerAxle: # Truck routing only, vehicle weight per axle in tons.
-          #height: # Truck routing only, vehicle height in meters.
-          #width: # Truck routing only, vehicle width in meters.
-          #length: # Truck routing only, vehicle length in meters.
+          summaryAttributes: dim.collect{ |d| d == :time ? 'traveltime' : d == :distance ? 'distance' : nil }.compact.join(','),
+          trailersCount: options[:trailers], # Truck routing only, number of trailers.
+          limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
+          weightPerAxle: options[:weight_per_axle], # Truck routing only, vehicle weight per axle in tons.
+          height: options[:height], # Truck routing only, vehicle height in meters.
+          width: options[:width], # Truck routing only, vehicle width in meters.
+          length: options[:length], # Truck routing only, vehicle length in meters.
+          shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
         }
 
         total = srcs.size * dsts.size
@@ -228,8 +232,8 @@ module Wrappers
       end
     end
 
-    def here_mode(dimension, mode)
-      "#{dimension[0] == :time ? 'fastest' : 'shortest'};#{@mode};traffic:disabled"
+    def here_mode(dimension, mode, options)
+      "#{dimension[0] == :time ? 'fastest' : 'shortest'};#{@mode};traffic:disabled#{!options[:motorway] ? ';motorway:-3' : !options[:toll] ? ';tollroad:-3' : ''}"
     end
 
     def here_avoid_areas(areas)
@@ -277,6 +281,22 @@ module Wrappers
       end
 
       request
+    end
+
+    def here_hazardous_map
+      {
+        explosive: :explosive,
+        gas: :gas,
+        flammable: :flammable,
+        combustible: :combustible,
+        organic: :organic,
+        poison: :poison,
+        radio_active: :radioActive,
+        corrosive: :corrosive,
+        poisonous_inhalation: :poisonousInhalation,
+        harmful_to_water: :harmfulToWater,
+        other: :other
+      }
     end
 
     def distance(src, dst)

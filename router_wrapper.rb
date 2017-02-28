@@ -73,8 +73,7 @@ module RouterWrapper
         features: [feature]
       }
     else
-      options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
-      router.route(params[:loc], params[:dimension], params[:departure], params[:arrival], params[:language], params[:geometry], options)
+      router.route(params[:loc], params[:dimension], params[:departure], params[:arrival], params[:language], params[:geometry], options(params))
     end
   end
 
@@ -104,9 +103,8 @@ module RouterWrapper
       if routers.size == 0
         raise OutOfSupportedAreaOrNotSupportedDimensionError
       else
-        options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
         if routers.size == 1
-          routers[0].matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options)
+          routers[0].matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options(params))
         else
           ret = {
             router: {
@@ -151,8 +149,7 @@ module RouterWrapper
     if !router
       raise OutOfSupportedAreaOrNotSupportedDimensionError
     else
-      options = { speed_multiplicator: (params[:speed_multiplicator] || 1), speed_multiplicator_area: speed_multiplicator_area(params) }
-      router.isoline(params[:loc], params[:dimension], params[:size], params[:departure], params[:language], options)
+      router.isoline(params[:loc], params[:dimension], params[:size], params[:departure], params[:language], options(params))
     end
   end
 
@@ -195,5 +192,21 @@ module RouterWrapper
     }
 
     ret
+  end
+
+  def self.options(params)
+    {
+      speed_multiplicator: (params[:speed_multiplicator] || 1),
+      speed_multiplicator_area: speed_multiplicator_area(params),
+      motorway: params[:motorway],
+      toll: params[:toll],
+      trailers: params[:trailers],
+      weight: params[:weight],
+      weight_per_axle: params[:weight_per_axle],
+      height: params[:height],
+      width: params[:width],
+      length: params[:length],
+      hazardous_goods: params[:hazardous_goods],
+    }
   end
 end

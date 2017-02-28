@@ -43,6 +43,15 @@ module Api
 #        optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
         optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
         optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
+        optional :motorway, type: Boolean, default: true, desc: 'Use motorway or not.'
+        optional :toll, type: Boolean, default: true, desc: 'Use toll section or not.'
+        optional :trailers, type: Integer, desc: 'Number of trailers.'
+        optional :weight, type: Float, desc: 'Vehicle weight including trailers and shipped goods, in tons.'
+        optional :weight_per_axle, type: Float, desc: 'Weight per axle in tons.'
+        optional :height, type: Float, desc: 'Height in meters.'
+        optional :width, type: Float, desc: 'Width in meters.'
+        optional :length, type: Float, desc: 'Length in meters.'
+        optional :hazardous_goods, type: Symbol, values: [:explosive, :gas, :flammable, :combustible, :organic, :poison, :radio_active, :corrosive, :poisonous_inhalation, :harmful_to_water, :other], desc: 'List of hazardous materials in the vehicle.'
         optional :lang, type: String, default: :en
         requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'Start latitude and longitude separated with a comma, e.g. lat1,lng1.'
 

@@ -23,13 +23,19 @@ class Wrappers::HereTest < Minitest::Test
 
   def test_router
     here = RouterWrapper::HERE_TRUCK
-    result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true)
+    result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, {motorway: true, toll: true})
+    assert 0 < result[:features].size
+  end
+
+  def test_router_without_motorway
+    here = RouterWrapper::HERE_TRUCK
+    result = here.route([[47.096305, 2.491150], [47.010226, 2.900391]], :time, nil, nil, 'en', true)
     assert 0 < result[:features].size
   end
 
   def test_router_disconnected
     here = RouterWrapper::HERE_TRUCK
-    result = here.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], :time, nil, nil, 'en', true)
+    result = here.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], :time, nil, nil, 'en', true, {motorway: true, toll: true})
     assert_equal 0, result[:features].size
   end
 
@@ -42,7 +48,7 @@ class Wrappers::HereTest < Minitest::Test
 
   def test_router_avoid_area
     here = RouterWrapper::HERE_TRUCK
-    options = {speed_multiplicator_area: {[[52, 14], [42, 5]] => 0}}
+    options = {speed_multiplicator_area: {[[52, 14], [42, 5]] => 0}, motorway: true, toll: true}
     result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, options)
     assert 1900000 < result[:features][0][:properties][:router][:total_distance]
   end
