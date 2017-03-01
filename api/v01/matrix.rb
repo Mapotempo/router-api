@@ -40,10 +40,12 @@ module Api
         optional :dimension, type: Symbol, values: [:time, :time_distance, :distance, :distance_time], default: :time, desc: 'Compute fastest or shortest and the optional additional dimension (default on time.)'
         optional :departure, type: Date, desc: 'Departure date time (currently not used).'
         optional :arrival, type: Date, desc: 'Arrival date time (currently not used).'
-        optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport modes.'
+        optional :speed_multiplier, type: Float, desc: 'Speed multiplier (default: 1), not available on all transport modes.'
+        optional :speed_multiplicator, type: Float, desc: 'Deprecated, use speed_multiplier instead.'
 #        optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
         optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
-        optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
+        optional :speed_multiplier_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplier per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
+        optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Deprecated, use speed_multiplier_area instead.'
         optional :motorway, type: Boolean, default: true, desc: 'Use motorway or not.'
         optional :toll, type: Boolean, default: true, desc: 'Use toll section or not.'
         optional :trailers, type: Integer, desc: 'Number of trailers.'
@@ -59,7 +61,7 @@ module Api
       }
       resource :matrix do
         desc 'Rectangular matrix between two points set', {
-          detail: 'Build time/distance matrix between several points depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
+          detail: 'Build time/distance matrix between several points depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'matrix',
           success: MatrixResult,
           failures: [
@@ -67,11 +69,13 @@ module Api
           ],
         }
         get do
+          params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
+          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0
           matrix params
         end
 
         desc 'Rectangular matrix between two points set', {
-          detail: 'Build time/distance matrix between several points depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
+          detail: 'Build time/distance matrix between several points depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'matrix_post',
           success: MatrixResult,
           failures: [
@@ -79,6 +83,8 @@ module Api
           ],
         }
         post do
+          params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
+          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0
           matrix params
           status 200
         end

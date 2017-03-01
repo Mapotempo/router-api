@@ -102,7 +102,7 @@ module Wrappers
         properties: {
           router: {
             total_distance: route['distance'],
-            total_time: (route['duration'] * 1.0 / (options[:speed_multiplicator] || 1)).round(1),
+            total_time: (route['duration'] * 1.0 / (options[:speed_multiplier] || 1)).round(1),
             start_point: locs[0].reverse,
             end_point: locs[-1].reverse
           }
@@ -180,7 +180,7 @@ module Wrappers
         },
         "matrix_#{dim1}".to_sym => json['durations'].collect { |r|
           r.collect { |rr|
-            rr ? (rr * 1.0 / (options[:speed_multiplicator] || 1)).round : nil
+            rr ? (rr * 1.0 / (options[:speed_multiplier] || 1)).round : nil
           }
         }
       }
@@ -250,7 +250,7 @@ module Wrappers
         params = {
           lat: loc[0],
           lng: loc[1],
-          time: (size * (options[:speed_multiplicator] || 1)).round(1)
+          time: (size * (options[:speed_multiplier] || 1)).round(1)
         }
         request = RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
           accept: :json,

@@ -39,10 +39,12 @@ module Api
         optional :mode, type: Symbol, desc: 'Transportation mode (see capability operation for available modes).'
         optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute isochrone or isodistance (default on time.)'
         optional :departure, type: Date, desc: 'Departure date time (currently not used).'
-        optional :speed_multiplicator, type: Float, desc: 'Speed multiplicator (default: 1), not available on all transport modes.'
+        optional :speed_multiplier, type: Float, desc: 'Speed multiplier (default: 1), not available on all transport modes.'
+        optional :speed_multiplicator, type: Float, desc: 'Deprecated, use speed_multiplier instead.'
 #        optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
         optional :area, type: Array, coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
-        optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplicator per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
+        optional :speed_multiplier_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Speed multiplier per area, 0 avoid area. Areas separated with semicolons (only available for truck mode at this time).'
+        optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(';').collect{ |f| Float(f) }}, desc: 'Deprecated, use speed_multiplier_area instead.'
         optional :motorway, type: Boolean, default: true, desc: 'Use motorway or not.'
         optional :toll, type: Boolean, default: true, desc: 'Use toll section or not.'
         optional :trailers, type: Integer, desc: 'Number of trailers.'
@@ -59,7 +61,7 @@ module Api
       }
       resource :isoline do
         desc 'Isoline from a start point', {
-          detail: 'Build isoline from a point with defined size depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
+          detail: 'Build isoline from a point with defined size depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'isoline',
           success: IsolineResult,
           failures: [
@@ -72,11 +74,13 @@ module Api
           ]
         }
         get do
+          params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
+          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0
           isoline params
         end
 
         desc 'Isoline from a start point', {
-          detail: 'Build isoline from a point with defined size depending of transportation mode, dimension, etc... Area/speed_multiplicator_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
+          detail: 'Build isoline from a point with defined size depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'isoline_post',
           success: IsolineResult,
           failures: [
@@ -89,6 +93,8 @@ module Api
           ]
         }
         post do
+          params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
+          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0
           isoline params
           status 200
         end

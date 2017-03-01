@@ -60,8 +60,8 @@ class Api::V01::RouteTest < Minitest::Test
     assert_equal 417, last_response.status, 'Bad response: ' + last_response.body
   end
 
-  def test_route
-    get '/0.1/route', {api_key: 'demo', loc: '43.2804,5.3806,43.291576,5.355835', speed_multiplicator_area: '0', area: '52,14,42,5'}
+  def test_route_speed_multiplier_area
+    get '/0.1/route', {api_key: 'demo', loc: '43.2804,5.3806,43.291576,5.355835', speed_multiplier_area: '0', area: '52,14,42,5'}
     assert last_response.ok?, last_response.body
   end
 

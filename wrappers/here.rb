@@ -38,7 +38,7 @@ module Wrappers
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       params = {
         mode: here_mode(dimension.to_s.split('_').collect(&:to_sym), @mode, options),
-        avoidAreas: here_avoid_areas(options[:speed_multiplicator_area]),
+        avoidAreas: here_avoid_areas(options[:speed_multiplier_area]),
         alternatives: 0,
         resolution: 1,
         language: language,
@@ -77,7 +77,7 @@ module Wrappers
           properties: {
             router: {
               total_distance: s['distance'],
-              total_time: (s['trafficTime'] * 1.0 / (options[:speed_multiplicator] || 1)).round(1),
+              total_time: (s['trafficTime'] * 1.0 / (options[:speed_multiplier] || 1)).round(1),
               start_point: locs[0].reverse,
               end_point: locs[-1].reverse
             }
@@ -139,7 +139,7 @@ module Wrappers
 
         commons_param = {
           mode: here_mode(dim, @mode, options),
-          avoidAreas: here_avoid_areas(options[:speed_multiplicator_area]),
+          avoidAreas: here_avoid_areas(options[:speed_multiplier_area]),
           truckType: @mode,
           summaryAttributes: dim.collect{ |d| d == :time ? 'traveltime' : d == :distance ? 'distance' : nil }.compact.join(','),
           trailersCount: options[:trailers], # Truck routing only, number of trailers.
@@ -202,7 +202,7 @@ module Wrappers
         },
         matrix_time: result[:time].collect { |r|
           r.collect { |rr|
-            rr ? (rr / (options[:speed_multiplicator] || 1)).round : nil
+            rr ? (rr / (options[:speed_multiplier] || 1)).round : nil
           }
         }
       }
@@ -210,7 +210,7 @@ module Wrappers
       if dimension == :time_distance
         ret[:matrix_distance] = result[:distance].collect { |r|
           r.collect { |rr|
-            rr ? (rr / (options[:speed_multiplicator] || 1)).round : nil
+            rr ? (rr / (options[:speed_multiplier] || 1)).round : nil
           }
         }
       end

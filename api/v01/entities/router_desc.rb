@@ -28,7 +28,8 @@ module Api
       expose(:name, documentation: { type: String })
       expose(:dimensions, documentation: { type: String, values: ['time', 'time_distance', 'distance', 'distance_time'] })
       expose(:support_avoid_area, documentation: { type: 'Boolean' })
-      expose(:support_speed_multiplicator_area, documentation: { type: 'Boolean' })
+      expose(:support_speed_multiplier_area, documentation: { type: 'Boolean' })
+      expose(:support_speed_multiplicator_area, documentation: { type: 'Boolean', desc: 'Deprecated, use support_speed_multiplier_area instead.' })
       expose(:area, documentation: { type: String, is_array: true })
     end
   end

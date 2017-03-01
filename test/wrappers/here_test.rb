@@ -48,7 +48,7 @@ class Wrappers::HereTest < Minitest::Test
 
   def test_router_avoid_area
     here = RouterWrapper::HERE_TRUCK
-    options = {speed_multiplicator_area: {[[52, 14], [42, 5]] => 0}, motorway: true, toll: true}
+    options = {speed_multiplier_area: {[[52, 14], [42, 5]] => 0}, motorway: true, toll: true}
     result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, options)
     assert 1900000 < result[:features][0][:properties][:router][:total_distance]
   end

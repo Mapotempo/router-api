@@ -37,7 +37,7 @@ module Wrappers
       false
     end
 
-    def speed_multiplicator_area?
+    def speed_multiplier_area?
       false
     end
 
