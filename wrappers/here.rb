@@ -31,13 +31,17 @@ module Wrappers
       @mode = hash[:mode]
     end
 
-    def avoid_area?
-      true
+    (OPTIONS - [:speed_multiplier_area]).each do |s|
+      define_method("#{s}?") do
+        true
+      end
     end
 
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       params = {
         mode: here_mode(dimension.to_s.split('_').collect(&:to_sym), @mode, options),
+        departure: departure,
+        arrival: arrival,
         avoidAreas: here_avoid_areas(options[:speed_multiplier_area]),
         alternatives: 0,
         resolution: 1,
@@ -139,6 +143,7 @@ module Wrappers
 
         commons_param = {
           mode: here_mode(dim, @mode, options),
+          departure: departure,
           avoidAreas: here_avoid_areas(options[:speed_multiplier_area]),
           truckType: @mode,
           summaryAttributes: dim.collect{ |d| d == :time ? 'traveltime' : d == :distance ? 'distance' : nil }.compact.join(','),
@@ -233,7 +238,7 @@ module Wrappers
     end
 
     def here_mode(dimension, mode, options)
-      "#{dimension[0] == :time ? 'fastest' : 'shortest'};#{@mode};traffic:disabled#{!options[:motorway] ? ';motorway:-3' : !options[:toll] ? ';tollroad:-3' : ''}"
+      "#{dimension[0] == :time ? 'fastest' : 'shortest'};#{@mode};traffic:#{options[:traffic] ? 'enabled' : 'disabled'}#{!options[:motorway] ? ';motorway:-3' : !options[:toll] ? ';tollroad:-3' : ''}"
     end
 
     def here_avoid_areas(areas)

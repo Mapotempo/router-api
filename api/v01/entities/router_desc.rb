@@ -27,10 +27,20 @@ module Api
       expose(:mode, documentation: { type: String })
       expose(:name, documentation: { type: String })
       expose(:dimensions, documentation: { type: String, values: ['time', 'time_distance', 'distance', 'distance_time'] })
+      expose(:area, documentation: { type: String, is_array: true })
       expose(:support_avoid_area, documentation: { type: 'Boolean' })
       expose(:support_speed_multiplier_area, documentation: { type: 'Boolean' })
-      expose(:support_speed_multiplicator_area, documentation: { type: 'Boolean', desc: 'Deprecated, use support_speed_multiplier_area instead.' })
-      expose(:area, documentation: { type: String, is_array: true })
+      expose(:support_speed_multiplicator_area, documentation: { type: 'Boolean', desc: 'Deprecated, use support_speed_multiplier_area instead.' }) { |m| m[:support_speed_multiplier_area] }
+      expose :support_traffic, documentation: { type: 'Boolean' }
+      expose :support_motorway, documentation: { type: 'Boolean' }
+      expose :support_toll, documentation: { type: 'Boolean' }
+      expose :support_trailers, documentation: { type: 'Boolean' }
+      expose :support_weight, documentation: { type: 'Boolean' }
+      expose :support_weight_per_axle, documentation: { type: 'Boolean' }
+      expose :support_height, documentation: { type: 'Boolean' }
+      expose :support_width, documentation: { type: 'Boolean' }
+      expose :support_length, documentation: { type: 'Boolean' }
+      expose :support_hazardous_goods, documentation: { type: 'Boolean' }
     end
   end
 end

@@ -25,14 +25,16 @@ module RouterWrapper
   def self.desc(services)
     Hash[services.select{ |s, v| [:route, :matrix, :isoline].include?(s) }.collect do |service_key, service_value|
       l = service_value.collect do |router_key, router_values|
-        {
+        h = {
           mode: router_key,
           name: I18n.translate('router.' + router_key.to_s + '.name', default: (I18n.translate('router.' + router_key.to_s + '.name', locale: :en))),
           dimensions: router_values.collect{ |r| r.send(service_key.to_s + '_dimension') }.flatten.uniq,
-          support_avoid_area: router_values.all?(&:avoid_area?),
-          support_speed_multiplier_area: router_values.all?(&:speed_multiplier_area?),
           area: router_values.collect(&:area).compact
         }
+        Wrappers::Wrapper::OPTIONS.each do |s|
+          h.merge!("support_#{s}".to_sym => router_values.all?(&"#{s}?".to_sym))
+        end
+        h
       end
       [service_key, l.flatten]
     end]
@@ -198,6 +200,7 @@ module RouterWrapper
     {
       speed_multiplier: (params[:speed_multiplier] || 1),
       speed_multiplier_area: speed_multiplier_area(params),
+      traffic: params[:traffic],
       motorway: params[:motorway],
       toll: params[:toll],
       trailers: params[:trailers],

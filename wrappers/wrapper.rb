@@ -21,6 +21,23 @@ require 'border_patrol'
 
 module Wrappers
   class Wrapper
+    OPTIONS = [
+      :avoid_area,
+      :speed_multiplier_area,
+      :departure,
+      :arrival,
+      :traffic,
+      :motorway,
+      :toll,
+      :trailers,
+      :weight,
+      :weight_per_axle,
+      :height,
+      :width,
+      :length,
+      :hazardous_goods
+    ]
+
     def initialize(cache, hash = {})
       @cache = cache
       if hash[:boundary]
@@ -33,12 +50,10 @@ module Wrappers
       @area
     end
 
-    def avoid_area?
-      false
-    end
-
-    def speed_multiplier_area?
-      false
+    OPTIONS.each do |s|
+      define_method("#{s}?") do
+        false
+      end
     end
 
     def route_dimension
