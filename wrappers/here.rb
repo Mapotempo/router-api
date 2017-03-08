@@ -264,7 +264,8 @@ module Wrappers
           if error['type'] == 'ApplicationError'
             additional_data = error['AdditionalData'] || error['additionalData']
             if additional_data
-              if additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED'})
+              if additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED'}) ||
+                additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED_CHECK_OPTIONS'})
                 return
               elsif additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTING_CANCELLED'})
                 return
