@@ -66,12 +66,18 @@ class Api::V01::RouteTest < Minitest::Test
   end
 
   def test_routes
+    features = []
     [:get, :post].each{ |method|
-      send method, '/0.1/routes', {api_key: 'demo', locs: '43.2804,5.3806,43.291576,5.355835;42.2804,4.3806,42.291576,4.355835'}
+      send method, '/0.1/routes', {api_key: 'demo', locs: '43.2804,5.3806,43.291576,5.355835;43.330672,5.375404,43.267706,5.402184'}
       assert last_response.ok?, last_response.body
       f = JSON.parse(last_response.body)['features']
       assert_equal 2, f.size
+      assert f[0]['geometry']
+      assert f[1]['geometry']
+      features << f
     }
+
+    assert_equal features[0], features[1]
   end
 
   def test_routes_none_locs

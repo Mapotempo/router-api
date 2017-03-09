@@ -38,7 +38,7 @@ module Api
 
       resource :route do
         desc 'Route via two points or more', {
-          detail: 'Find the route between two or more points depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
+          detail: 'Find the route between two or more points depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for information).',
           nickname: 'route',
           success: RouteResult,
           failures: [
