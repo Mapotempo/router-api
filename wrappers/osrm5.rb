@@ -54,8 +54,8 @@ module Wrappers
       @url_trace[dimension] && super(top_left, down_right, dimension)
     end
 
-    def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
-      key = [:osrm5, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dimension], with_geometry, locs, language, options]))]
+    def route(locs, dimension, _departure, _arrival, language, with_geometry, options = {})
+      key = [:osrm5, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dimension], dimension, with_geometry, locs, language, options]))]
 
       json = @cache.read(key)
       if !json
@@ -130,9 +130,9 @@ module Wrappers
       @url_matrix[dimension] && super(src, dst, dimension)
     end
 
-    def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
+    def matrix(srcs, dsts, dimension, _departure, _arrival, language, options = {})
       dim1, dim2 = dimension.to_s.split('_').collect(&:to_sym)
-      key = [:osrm5, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_matrix[dim1], srcs, dsts, options]))]
+      key = [:osrm5, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_matrix[dim1], dim1, srcs, dsts, options]))]
 
       json = @cache.read(key)
       if !json
@@ -192,7 +192,7 @@ module Wrappers
               0.0
             else
               locs = [src, dst]
-              key = [:osrm5, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dim1], false, locs, language, options]))]
+              key = [:osrm5, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dim1], dim2, false, locs, language, options]))]
 
               json = @cache.read(key)
               if !json
@@ -243,8 +243,8 @@ module Wrappers
       @url_isoline[dimension] && super(loc, dimension)
     end
 
-    def isoline(loc, dimension, size, departure, language, options = {})
-      key = [:osrm5, :isoline, Digest::MD5.hexdigest(Marshal.dump([@url_isoline[dimension], loc, size, options]))]
+    def isoline(loc, dimension, size, _departure, language, options = {})
+      key = [:osrm5, :isoline, Digest::MD5.hexdigest(Marshal.dump([@url_isoline[dimension], dimension, loc, size, options]))]
       request = @cache.read(key)
       if !request
         params = {

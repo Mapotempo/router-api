@@ -52,11 +52,11 @@ module Wrappers
       @url_trace[dimension] && super(top_left, down_right, dimension)
     end
 
-    def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
+    def route(locs, dimension, _departure, _arrival, language, with_geometry, options = {})
       # Workaround, cause restclient dosen't deals with array params
       query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, with_geometry]] + locs.collect{ |loc| [:loc, loc.join(',')] })
 
-      key = [:osrm4, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dimension], query_params, language, options]))]
+      key = [:osrm4, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dimension], dimension, query_params, language, options]))]
       json = @cache.read(key)
       if !json
         resource = RestClient::Resource.new(@url_trace[dimension])
@@ -107,12 +107,12 @@ module Wrappers
       @url_matrix[dimension] && super(src, dst, dimension)
     end
 
-    def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
+    def matrix(srcs, dsts, dimension, _departure, _arrival, language, options = {})
       # Workaround, cause restclient dosen't deals with array params
       query_params = 'table?' + URI::encode_www_form([[:alt, false]] + srcs.collect{ |src| [:src, src.join(',')] } + dsts.collect{ |dst| [:dst, dst.join(',')] })
 
       dim1, dim2 = dimension.to_s.split('_').collect(&:to_sym)
-      key = [:osrm4, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_matrix[dim1], query_params, options]))]
+      key = [:osrm4, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_matrix[dim1], dim1, query_params, options]))]
       json = @cache.read(key)
       if !json
         resource = RestClient::Resource.new(@url_matrix[dim1])
@@ -139,7 +139,7 @@ module Wrappers
             # Workaround, cause restclient dosen't deals with array params
             query_params = 'viaroute?' + URI::encode_www_form([[:alt, false], [:geometry, false], [:loc, src.join(',')], [:loc, dst.join(',')]])
 
-            key = [:osrm4, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dim1], query_params, language, options]))]
+            key = [:osrm4, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dim1], dim2, query_params, language, options]))]
             json = @cache.read(key)
             if !json
               resource = RestClient::Resource.new(@url_trace[dim1])
@@ -176,8 +176,8 @@ module Wrappers
       @url_isoline[dimension] && super(loc, dimension)
     end
 
-    def isoline(loc, dimension, size, departure, language, options = {})
-      key = [:osrm4, :isoline, Digest::MD5.hexdigest(Marshal.dump([@url_isoline[dimension], loc, size, options]))]
+    def isoline(loc, dimension, size, _departure, language, options = {})
+      key = [:osrm4, :isoline, Digest::MD5.hexdigest(Marshal.dump([@url_isoline[dimension], dimension, loc, size, options]))]
       request = @cache.read(key)
       if !request
         params = {

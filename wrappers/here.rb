@@ -38,6 +38,7 @@ module Wrappers
     end
 
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
+      # Cache defined inside private get method
       params = {
         mode: here_mode(dimension.to_s.split('_').collect(&:to_sym), @mode, options),
         departure: departure,
@@ -109,8 +110,8 @@ module Wrappers
       srcs = srcs.collect{ |r| [r[0].round(5), r[1].round(5)] }
       dsts = dsts.collect{ |c| [c[0].round(5), c[1].round(5)] }
 
-      key = Digest::MD5.hexdigest(Marshal.dump([srcs, dsts, options]))
-
+      # In addition of cache defined inside private get method
+      key = Digest::MD5.hexdigest(Marshal.dump([srcs, dsts, dimension, departure, arrival, language, options]))
       result = @cache.read(key)
       if !result
 
