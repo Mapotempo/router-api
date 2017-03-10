@@ -32,22 +32,21 @@ module Api
         end
       end
 
-      rescue_from :all do |error|
-        case error
-        when Grape::Exceptions::ValidationErrors
-          error!(error.message, 400)
-        when RouterWrapper::RouterWrapperError
-          error!(error.message, 417)
-        when Wrappers::UnreachablePointError
-          error!(error.message, 204)
+      rescue_from :all, backtrace: ENV['APP_ENV'] != 'production' do |e|
+        @error = e
+        STDERR.puts "\n\n#{e.class} (#{e.message}):\n    " + e.backtrace.join("\n    ") + "\n\n"
+
+        response = {message: e.message}
+        if e.is_a?(RangeError) || e.is_a?(Grape::Exceptions::ValidationErrors)
+          rack_response(format_message(response, e.backtrace), 400)
+        elsif e.is_a?(Grape::Exceptions::MethodNotAllowed)
+          rack_response(format_message(response, nil), 405)
+        elsif e.is_a?(RouterWrapper::RouterWrapperError)
+          rack_response(format_message(response, nil), 417)
+        elsif e.is_a?(Wrappers::UnreachablePointError)
+          rack_response(format_message(response, nil), 204)
         else
-          message = {error: error.class.name, detail: error.message}
-          if ['development', 'production'].include?(ENV['APP_ENV'])
-            message[:trace] = error.backtrace
-            STDERR.puts error.message
-            STDERR.puts error.backtrace
-          end
-          error!(message, 500)
+          rack_response(format_message(response, e.backtrace), 500)
         end
       end
 
