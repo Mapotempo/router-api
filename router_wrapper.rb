@@ -118,7 +118,7 @@ module RouterWrapper
             ret[('matrix_' + dim).to_sym] = Array.new(src.size) { Array.new(dst.size) }
           }
           routers.each{ |router|
-            partial = router.matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options)
+            partial = router.matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options(params))
             if partial
               ret[:router][:licence] << partial[:router][:licence]
               ret[:router][:attribution] << partial[:router][:attribution]
