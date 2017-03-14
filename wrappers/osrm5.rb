@@ -31,27 +31,23 @@ module Wrappers
       @url_trace = {
         time: hash[:url_time],
         distance: hash[:url_distance]
-      }
+      }.delete_if { |k, v| v.nil? }
       @url_matrix = {
         time: hash[:url_time],
         time_distance: hash[:url_time],
         distance: hash[:url_distance],
         distance_time: hash[:url_distance]
-      }
+      }.delete_if { |k, v| v.nil? }
       @url_isoline = {
         time: hash[:url_isochrone],
         distance: hash[:url_isodistance]
-      }
+      }.delete_if { |k, v| v.nil? }
       @licence = hash[:licence]
       @attribution = hash[:attribution]
     end
 
     def route_dimension
-      @url_trace.keys.select{ |d| @url_trace[d] }.compact
-    end
-
-    def route?(top_left, down_right, dimension)
-      @url_trace[dimension] && super(top_left, down_right, dimension)
+      @url_trace.keys
     end
 
     def route(locs, dimension, _departure, _arrival, language, with_geometry, options = {})
@@ -121,13 +117,8 @@ module Wrappers
       ret
     end
 
-
     def matrix_dimension
-      @url_matrix.keys.select{ |d| @url_matrix[d] }.compact
-    end
-
-    def matrix?(src, dst, dimension)
-      @url_matrix[dimension] && super(src, dst, dimension)
+      @url_matrix.keys
     end
 
     def matrix(srcs, dsts, dimension, _departure, _arrival, language, options = {})
@@ -236,11 +227,7 @@ module Wrappers
     end
 
     def isoline_dimension
-      @url_isoline.keys.select{ |d| @url_isoline[d] }.compact
-    end
-
-    def isoline?(loc, dimension)
-      @url_isoline[dimension] && super(loc, dimension)
+      @url_isoline.keys
     end
 
     def isoline(loc, dimension, size, _departure, language, options = {})

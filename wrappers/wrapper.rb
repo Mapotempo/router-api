@@ -61,12 +61,7 @@ module Wrappers
     end
 
     def route?(start, stop, dimension)
-      return false if !route_dimension.include? dimension
-      if @boundary
-        contains?(*start) && contains?(*stop)
-      else
-        true
-      end
+      route_dimension.include?(dimension) && (!@boundary || (contains?(*start) && contains?(*stop)))
     end
 
     def matrix_dimension
@@ -74,12 +69,7 @@ module Wrappers
     end
 
     def matrix?(src, dst, dimension)
-      return false if !matrix_dimension.include? dimension
-      if @boundary
-        contains?(*src) && contains?(*dst)
-      else
-        true
-      end
+      matrix_dimension.include?(dimension) && (!@boundary || (contains?(*src) && contains?(*dst)))
     end
 
     def matrix(srcs, dsts, dimension, departure, arrival, language, options = {})
@@ -106,12 +96,7 @@ module Wrappers
     end
 
     def isoline?(loc, dimension)
-      return false if !isoline_dimension.include? dimension
-      if @boundary
-        contains?(*loc)
-      else
-        true
-      end
+      isoline_dimension.include?(dimension) && (!@boundary || contains?(*loc))
     end
 
     private
