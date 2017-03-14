@@ -139,7 +139,9 @@ module Wrappers
         end
 
         if locs_uniq.size == 1
-          json['durations'] = [[0], [0]]
+          json = {
+            'durations' => [[0]]
+          }
         else
           uri = ::Addressable::URI.parse(@url_matrix[dim1])
           uri.path = '/table/v1/driving/polyline(' + Polylines::Encoder.encode_points(locs_uniq, 1e5) + ')'

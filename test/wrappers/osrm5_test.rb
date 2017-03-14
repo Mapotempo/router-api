@@ -50,6 +50,17 @@ class Wrappers::Osrm5Test < Minitest::Test
     assert_equal dst.size, result[:matrix_time][0].size
   end
 
+  def test_matrix_1x1
+    osrm = RouterWrapper::OSRM5
+    src = [[49.610710, 18.237305]]
+    dst = [[49.610710, 18.237305]]
+    result = osrm.matrix(src, dst, :time_distance, nil, nil, 'en')
+    assert_equal src.size, result[:matrix_time].size
+    assert_equal dst.size, result[:matrix_time][0].size
+    assert_equal src.size, result[:matrix_distance].size
+    assert_equal dst.size, result[:matrix_distance][0].size
+  end
+
   def test_matrix_rectangular_time_distance
     osrm = RouterWrapper::OSRM5
     src = [[49.610710, 18.237305], [47.010226, 2.900391]]
