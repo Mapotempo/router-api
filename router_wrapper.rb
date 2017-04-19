@@ -210,6 +210,7 @@ module RouterWrapper
       width: params[:width],
       length: params[:length],
       hazardous_goods: params[:hazardous_goods],
+      max_walk_distance: params[:max_walk_distance],
     }
   end
 end

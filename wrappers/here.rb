@@ -147,7 +147,7 @@ module Wrappers
           departure: departure,
           avoidAreas: here_avoid_areas(options[:speed_multiplier_area]),
           truckType: @mode,
-          summaryAttributes: dim.collect{ |d| d == :time ? 'traveltime' : d == :distance ? 'distance' : nil }.compact.join(','),
+          summaryAttributes: dim.collect{ |d| d == :time ? 'traveltime' : d == :distance ? 'distance' : nil }.compact.join(','),
           trailersCount: options[:trailers], # Truck routing only, number of trailers.
           limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
           weightPerAxle: options[:weight_per_axle], # Truck routing only, vehicle weight per axle in tons.

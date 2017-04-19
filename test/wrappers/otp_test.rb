@@ -33,6 +33,13 @@ class Wrappers::OtpTest < Minitest::Test
     assert 0 == result[:features].size
   end
 
+  def test_router_with_max_walk_distance
+    otp = RouterWrapper::OTP_BORDEAUX
+    result_short = otp.route([[44.869571, -0.530927], [44.82641, -0.55674]], :time, nil, nil, 'en', true, max_walk_distance: 200)
+    result_long = otp.route([[44.869571, -0.530927], [44.82641, -0.55674]], :time, nil, nil, 'en', true, max_walk_distance: 2000)
+    assert result_short[:features].size != result_long[:features].size
+  end
+
   def test_router_square
     osrm = RouterWrapper::OTP_BORDEAUX
     vector = [[44.82641, -0.55674], [44.85284, -0.5393]]

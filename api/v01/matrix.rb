@@ -55,6 +55,7 @@ module Api
         optional :width, type: Float, desc: 'Width in meters.'
         optional :length, type: Float, desc: 'Length in meters.'
         optional :hazardous_goods, type: Symbol, values: [:explosive, :gas, :flammable, :combustible, :organic, :poison, :radio_active, :corrosive, :poisonous_inhalation, :harmful_to_water, :other], desc: 'List of hazardous materials in the vehicle.'
+        optional :max_walk_distance, type: Float, default: 750, desc: 'Max distance by walk.'
         optional :lang, type: String, default: :en
         requires :src, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of sources of latitudes and longitudes separated with comma, e.g. lat1,lng1,lat2,lng2...'
         optional :dst, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of destination of latitudes and longitudes, if not present compute square matrix with sources points.'

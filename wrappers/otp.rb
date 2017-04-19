@@ -33,6 +33,11 @@ module Wrappers
       @crs = hash[:crs]
     end
 
+    # Declare available router options for capability operation
+    def max_walk_distance?
+      true
+    end
+
     def route?(start, stop, dimension)
       dimension == :time && super(start, stop, dimension)
     end
@@ -49,7 +54,7 @@ module Wrappers
           time: datetime.strftime('%I:%M%p'),
           date: datetime.strftime('%m-%d-%Y'),
           arriveBy: arrive_by,
-          maxWalkDistance: 750,
+          maxWalkDistance: options[:max_walk_distance] || 750,
           wheelchair: false,
           showIntermediateStops: false
         }
@@ -77,7 +82,7 @@ module Wrappers
           type: 'Feature',
           properties: {
             router: {
-              total_distance: i['walkDistance'] || 0, # FIXME walk onl
+              total_distance: i['walkDistance'] || 0, # FIXME walk only
               total_time: i['duration'],
               start_point: locs[0].reverse,
               end_point: locs[-1].reverse

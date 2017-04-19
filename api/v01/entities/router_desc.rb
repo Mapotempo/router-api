@@ -28,6 +28,8 @@ module Api
       expose(:name, documentation: { type: String })
       expose(:dimensions, documentation: { type: String, values: ['time', 'time_distance', 'distance', 'distance_time'] })
       expose(:area, documentation: { type: String, is_array: true })
+
+      # Router options are to begin with "support_"
       expose(:support_avoid_area, documentation: { type: 'Boolean' })
       expose(:support_speed_multiplier_area, documentation: { type: 'Boolean' })
       expose(:support_speed_multiplicator_area, documentation: { type: 'Boolean', desc: 'Deprecated, use support_speed_multiplier_area instead.' }) { |m| m[:support_speed_multiplier_area] }
@@ -41,6 +43,7 @@ module Api
       expose :support_width, documentation: { type: 'Boolean' }
       expose :support_length, documentation: { type: 'Boolean' }
       expose :support_hazardous_goods, documentation: { type: 'Boolean' }
+      expose :support_max_walk_distance, documentation: { type: 'Boolean' }
     end
   end
 end

@@ -35,7 +35,8 @@ module Wrappers
       :height,
       :width,
       :length,
-      :hazardous_goods
+      :hazardous_goods,
+      :max_walk_distance
     ]
 
     def initialize(cache, hash = {})
