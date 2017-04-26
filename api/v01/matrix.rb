@@ -39,7 +39,7 @@ module Api
         optional :mode, type: Symbol, desc: 'Transportation mode (see capability operation for available modes).'
         optional :dimension, type: Symbol, values: [:time, :time_distance, :distance, :distance_time], default: :time, desc: 'Compute fastest or shortest and the optional additional dimension (default on time.)'
         optional :traffic, type: Boolean, default: false, desc: 'Traffic (default: false), not available on all transport modes.'
-        optional :departure, type: Date, desc: 'Departure date time (currently not used).'
+        optional :departure, type: DateTime, desc: 'Departure date time (currently not used).'
         optional :speed_multiplier, type: Float, desc: 'Speed multiplier (default: 1), not available on all transport modes.'
         optional :speed_multiplicator, type: Float, desc: 'Deprecated, use speed_multiplier instead.'
 #        optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
