@@ -27,9 +27,7 @@ module Api
   module V01
     class Api < Grape::API
       before do
-        if !::RouterWrapper::config[:api_keys].include?(params[:api_key])
-          error!('401 Unauthorized', 401)
-        end
+        error!('401 Unauthorized', 401) unless ::RouterWrapper::config[:api_keys].include?(params[:api_key])
       end
 
       rescue_from :all, backtrace: ENV['APP_ENV'] != 'production' do |e|

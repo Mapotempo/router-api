@@ -79,13 +79,10 @@ class Api::V01::MatrixTest < Minitest::Test
     }
   end
 
-  def test_matrix_rectangular_with_duplicate
+  def test_matrix_with_not_supported_transportation_mode
     [:get, :post].each{ |method|
-      send method, '/0.1/matrix', {api_key: 'demo', mode: 'osrm5', src: '43.2804,5.3806,43.291576,5.355835,43.2804,5.3806', dst: '43.290014,5.425873,43.290014,5.425873'}
-      assert last_response.ok?, last_response.body
-      json = JSON.parse(last_response.body)
-      assert_equal 3, json['matrix_time'].size
-      assert_equal 2, json['matrix_time'][0].size
+      send method, '/0.1/matrix', {api_key: 'demo', mode: 'unknown', src: '1,1,2,2'}
+      assert_equal 404, last_response.status, 'Bad response: ' + last_response.body
     }
   end
 

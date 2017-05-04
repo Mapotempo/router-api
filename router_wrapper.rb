@@ -44,15 +44,14 @@ module RouterWrapper
 
   def self.wrapper_route(services, params)
     modes = services[:route][params[:mode]]
-    if !modes
-      raise NotSupportedTransportationMode
-    end
+    raise NotSupportedTransportationMode unless modes
+
     router = modes.find{ |router|
       router.route?(params[:loc][0], params[:loc][-1], params[:dimension])
     }
-    if !router
-      raise OutOfSupportedAreaOrNotSupportedDimensionError
-    elsif params[:loc].size == 2 && params[:loc][0] == params[:loc][1]
+    raise OutOfSupportedAreaOrNotSupportedDimensionError unless router
+
+    if params[:loc].size == 2 && params[:loc][0] == params[:loc][1]
       feature = {
         type: 'Feature',
         properties: {
@@ -83,9 +82,7 @@ module RouterWrapper
 
   def self.wrapper_matrix(services, params)
     modes = services[:matrix][params[:mode]]
-    if !modes
-      raise NotSupportedTransportationMode
-    end
+    raise NotSupportedTransportationMode unless modes
 
     point_uniq(params[:src], params[:dst], params[:dimension]) { |src, dst|
       routers = if modes.size == 1
@@ -104,57 +101,53 @@ module RouterWrapper
           }
         }.flatten.compact.uniq
       end
-      if routers.size == 0
-        raise OutOfSupportedAreaOrNotSupportedDimensionError
+      raise OutOfSupportedAreaOrNotSupportedDimensionError if routers.size == 0
+
+      if routers.size == 1
+        routers[0].matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options(params))
       else
-        if routers.size == 1
-          routers[0].matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options(params))
-        else
-          ret = {
+        ret = {
             router: {
-              licence: [],
-              attribution: [],
+                licence: [],
+                attribution: [],
             }
-          }
-          params[:dimension].to_s.split('_').each{ |dim|
-            ret[('matrix_' + dim).to_sym] = Array.new(src.size) { Array.new(dst.size) }
-          }
-          routers.each{ |router|
-            partial = router.matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options(params))
-            if partial
-              ret[:router][:licence] << partial[:router][:licence]
-              ret[:router][:attribution] << partial[:router][:attribution]
-              params[:dimension].to_s.split('_').each{ |dim|
-                matrix_dim = ('matrix_' + dim).to_sym
-                src.each_with_index{ |src, m|
-                  dst.each_with_index{ |dst, n|
-                    if partial[matrix_dim][m][n] && (!ret[matrix_dim][m][n] || partial[matrix_dim][m][n] < ret[matrix_dim][m][n])
-                      ret[matrix_dim][m][n] = partial[matrix_dim][m][n]
-                    end
-                  }
+        }
+        params[:dimension].to_s.split('_').each {|dim|
+          ret[('matrix_' + dim).to_sym] = Array.new(src.size) {Array.new(dst.size)}
+        }
+        routers.each {|router|
+          partial = router.matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options(params))
+          if partial
+            ret[:router][:licence] << partial[:router][:licence]
+            ret[:router][:attribution] << partial[:router][:attribution]
+            params[:dimension].to_s.split('_').each {|dim|
+              matrix_dim = ('matrix_' + dim).to_sym
+              src.each_with_index {|src, m|
+                dst.each_with_index {|dst, n|
+                  if partial[matrix_dim][m][n] && (!ret[matrix_dim][m][n] || partial[matrix_dim][m][n] < ret[matrix_dim][m][n])
+                    ret[matrix_dim][m][n] = partial[matrix_dim][m][n]
+                  end
                 }
               }
-            end
-          }
-          ret
-        end
+            }
+          end
+        }
+        ret
       end
     }
   end
 
   def self.wrapper_isoline(services, params)
     modes = services[:isoline][params[:mode]]
-    if !modes
-      raise NotSupportedTransportationMode
-    end
+    raise NotSupportedTransportationMode unless modes
+
     router = modes.find{ |router|
       router.isoline?(params[:loc], params[:dimension])
     }
-    if !router
-      raise OutOfSupportedAreaOrNotSupportedDimensionError
-    else
-      router.isoline(params[:loc], params[:dimension], params[:size], params[:departure], params[:language], options(params))
-    end
+
+    raise OutOfSupportedAreaOrNotSupportedDimensionError unless router
+
+    router.isoline(params[:loc], params[:dimension], params[:size], params[:departure], params[:language], options(params))
   end
 
   class RouterWrapperError < StandardError
