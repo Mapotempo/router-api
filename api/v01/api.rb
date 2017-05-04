@@ -43,6 +43,8 @@ module Api
           rack_response(format_message(response, e.backtrace), 400)
         elsif e.is_a?(Grape::Exceptions::MethodNotAllowed)
           rack_response(format_message(response, nil), 405)
+        elsif e.is_a?(RouterWrapper::NotSupportedTransportationMode)
+          rack_response(format_message(response, nil), 404)
         elsif e.is_a?(RouterWrapper::RouterWrapperError)
           rack_response(format_message(response, nil), 417)
         elsif e.is_a?(Wrappers::UnreachablePointError)

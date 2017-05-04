@@ -88,4 +88,11 @@ class Api::V01::MatrixTest < Minitest::Test
       assert_equal 2, json['matrix_time'][0].size
     }
   end
+
+  def test_matrix_with_not_supported_transportation_mode
+    [:get, :post].each{ |method|
+      send method, '/0.1/matrix', {api_key: 'demo', mode: 'unknown', src: '1,1,2,2'}
+      assert_equal 404, last_response.status, 'Bad response: ' + last_response.body
+    }
+  end
 end
