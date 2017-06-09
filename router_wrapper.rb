@@ -25,17 +25,19 @@ module RouterWrapper
   def self.desc(services)
     Hash[services.select{ |s, v| [:route, :matrix, :isoline].include?(s) }.collect do |service_key, service_value|
       l = service_value.collect do |router_key, router_values|
-        h = {
-          mode: router_key,
-          name: I18n.translate('router.' + router_key.to_s + '.name', default: (I18n.translate('router.' + router_key.to_s + '.name', locale: :en))),
-          dimensions: router_values.collect{ |r| r.send(service_key.to_s + '_dimension') }.flatten.uniq,
-          area: router_values.collect(&:area).compact
-        }
-        Wrappers::Wrapper::OPTIONS.each do |s|
-          h.merge!("support_#{s}".to_sym => router_values.all?(&"#{s}?".to_sym))
+        unless router_values.empty?
+          h = {
+            mode: router_key,
+            name: I18n.translate('router.' + router_key.to_s + '.name', default: (I18n.translate('router.' + router_key.to_s + '.name', locale: :en))),
+            dimensions: router_values.collect{ |r| r.send(service_key.to_s + '_dimension') }.flatten.uniq,
+            area: router_values.collect(&:area).compact
+          }
+          Wrappers::Wrapper::OPTIONS.each do |s|
+            h.merge!("support_#{s}".to_sym => router_values.all?(&"#{s}?".to_sym))
+          end
+          h
         end
-        h
-      end
+      end.compact
       [service_key, l.flatten]
     end]
   end
