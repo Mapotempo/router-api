@@ -73,6 +73,8 @@ module Api
           optional :length, type: Float, desc: 'Length in meters.'
           optional :hazardous_goods, type: Symbol, values: [:explosive, :gas, :flammable, :combustible, :organic, :poison, :radio_active, :corrosive, :poisonous_inhalation, :harmful_to_water, :other], desc: 'List of hazardous materials in the vehicle.'
           optional :max_walk_distance, type: Float, default: 750, desc: 'Max distance by walk.'
+          optional :toll_costs, type: Boolean, default: false
+          optional :currency, type: String, default: 'EUR', desc: 'ISO currency code.'
           optional :lang, type: String, default: :en
 #          requires :loc, type: Array[Array[Float]], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
           requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
@@ -107,6 +109,9 @@ module Api
         optional :width, type: Float, desc: 'Width in meters.'
         optional :length, type: Float, desc: 'Length in meters.'
         optional :hazardous_goods, type: Symbol, values: [:explosive, :gas, :flammable, :combustible, :organic, :poison, :radio_active, :corrosive, :poisonous_inhalation, :harmful_to_water, :other], desc: 'List of hazardous materials in the vehicle.'
+        optional :max_walk_distance, type: Float, default: 750, desc: 'Max distance by walk.'
+        optional :toll_costs, type: Boolean, default: false
+        optional :currency, type: String, default: 'EUR', desc: 'ISO currency code.'
         optional :lang, type: String, default: :en
 #        requires :locs, type: Array[Array[Array[Float]]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a } }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
         requires :locs, type: Array[String], coerce_with: ->(c) { c.split(/;|\|/) }, desc: 'List of latitudes and longitudes separated with commas. Each route separated by pipes. E.g. r1lat1,r1lng1,r1lat2,r1lng2|r2lat1,r2lng1,r2lat2,r2lng2'

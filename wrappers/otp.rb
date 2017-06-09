@@ -34,8 +34,10 @@ module Wrappers
     end
 
     # Declare available router options for capability operation
-    def max_walk_distance?
-      true
+    [:departure, :arrival, :max_walk_distance].each do |s|
+      define_method("#{s}?") do
+        true
+      end
     end
 
     def route?(start, stop, dimension)

@@ -22,6 +22,7 @@ require 'border_patrol'
 module Wrappers
   class Wrapper
     OPTIONS = [
+      :speed_multiplier,
       :avoid_area,
       :speed_multiplier_area,
       :departure,
@@ -36,7 +37,9 @@ module Wrappers
       :width,
       :length,
       :hazardous_goods,
-      :max_walk_distance
+      :max_walk_distance,
+      :toll_costs,
+      :currency,
     ]
 
     def initialize(cache, hash = {})

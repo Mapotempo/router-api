@@ -44,6 +44,11 @@ module Wrappers
       @attribution = hash[:attribution]
     end
 
+    # Declare available router options for capability operation
+    def speed_multiplier?
+      true
+    end
+
     def route_dimension
       @url_trace.keys
     end

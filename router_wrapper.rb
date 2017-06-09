@@ -197,20 +197,14 @@ module RouterWrapper
   end
 
   def self.options(params)
-    {
+    hash = {
       speed_multiplier: (params[:speed_multiplier] || 1),
       speed_multiplier_area: speed_multiplier_area(params),
-      traffic: params[:traffic],
-      motorway: params[:motorway],
-      toll: params[:toll],
-      trailers: params[:trailers],
-      weight: params[:weight],
-      weight_per_axle: params[:weight_per_axle],
-      height: params[:height],
-      width: params[:width],
-      length: params[:length],
-      hazardous_goods: params[:hazardous_goods],
-      max_walk_distance: params[:max_walk_distance],
     }
+    (Wrappers::Wrapper::OPTIONS -
+      [:speed_multiplier, :avoid_area, :speed_multiplier_area, :departure, :arrival]).each{ |k|
+      hash[k] = params[k]
+    }
+    hash
   end
 end

@@ -29,9 +29,11 @@ module Api
       # RECOMMENDED
       expose_not_nil(:total_time, documentation: { type: Integer, desc: 'Route total time in seconds.' })
       # OPTIONAL
-      expose_not_nil(:start_point, documentation: { type: Float, is_array: true, desc: 'Lattitude and longitude of stating point.' })
+      expose(:start_point, documentation: { type: Float, is_array: true, desc: 'Latitude and longitude of starting point.' })
       # OPTIONAL
-      expose_not_nil(:end_point, documentation: { type: Float, is_array: true, desc: 'Lattitude and longitude of ending point.' })
+      expose(:end_point, documentation: { type: Float, is_array: true, desc: 'Latitude and longitude of ending point.' })
+      # OPTIONAL
+      expose(:total_toll_costs, documentation: { type: Float, desc: 'Total toll costs amount in specified currency.' })
     end
   end
 end

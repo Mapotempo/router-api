@@ -26,14 +26,52 @@ module Wrappers
       @url_router = 'https://route.api.here.com/routing'
       @url_matrix = 'https://matrix.route.api.here.com/routing'
       @url_isoline = 'https://isoline.route.api.here.com/routing'
+      @url_tce = 'https://tce.api.here.com'
       @app_id = hash[:app_id]
       @app_code = hash[:app_code]
       @mode = hash[:mode]
     end
 
-    (OPTIONS - [:speed_multiplier_area]).each do |s|
+    # Declare available router options for capability operation
+    # Here api supports most of options... remove unsupported options below
+    (OPTIONS - [:speed_multiplier_area, :max_walk_distance]).each do |s|
       define_method("#{s}?") do
         true
+      end
+    end
+
+    def toll_costs(link_ids, departure, options = {})
+      # https://developer.here.com/platform-extensions/documentation/toll-cost/topics/example-tollcost.html
+      params = {
+        # https://developer.here.com/platform-extensions/documentation/toll-cost/topics/resource-tollcost-input-param-vspec.html
+        tollVehicleType: 3,
+        trailerType: options[:trailers] ? 2 : nil,
+        trailersCount: options[:trailers],
+        vehicleNumberAxles: 2, # Not including trailer axles
+        trailerNumberAxles: options[:trailers] ? 2 * options[:trailers] : nil,
+        # hybrid:
+        emissionType: 6,
+        height: options[:height] ? "#{options[:height]}m" : nil,
+        trailerHeight: options[:trailers] ? "#{options[:height] || 3}m" : nil,
+        vehicleWeight: options[:weight] ? "#{options[:weight]}m" : nil,
+        limitedWeight: options[:weight] ? "#{options[:weight]}m" : nil,
+        # disabledEquipped:
+        passengersCount: 1,
+        # tiresCount: 8, # Default 4
+        # commercial:
+        shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]] == :explosive ? 1 : here_hazardous_map[options[:hazardous_goods]] ? 2 : nil,
+        # heightAbove1stAxle:
+        # departure:
+        # If departure is given, then each route detail is a comma separated struct of link id,seconds left to destination. Otherwise, each route detail is only a link id.
+        route: link_ids.join(';'), # FIXME add seconds if departure
+        detail: 1,
+        rollup: 'total,tollsys,country', # none(per_links),total,tollsys(toll_system_summary),country(per_contries),country;tollsys(per_contries_and_toll_sys)
+        currency: options[:currency],
+      }.delete_if{ |k, v| v.nil? }
+      response = get(@url_tce, '2/tollcost', params)
+
+      if response && response['totalCost']
+        response['totalCost']['amountInTargetCurrency']
       end
     end
 
@@ -47,8 +85,8 @@ module Wrappers
         alternatives: 0,
         resolution: 1,
         language: language,
-        representation: 'display',
-        routeAttributes: 'summary,shape',
+        representation: with_geometry || options[:toll_costs] ? 'display' : 'overview',
+        routeAttributes: 'summary' + (with_geometry ? ',shape' : ''),
         truckType: @mode,
         trailersCount: options[:trailers], # Truck routing only, number of trailers.
         limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
@@ -58,7 +96,10 @@ module Wrappers
         length: options[:length], # Truck routing only, vehicle length in meters.
         shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
         #tunnelCategory : # Specifies the tunnel category to restrict certain route links. The route will pass only through tunnels of a les
-      }
+        legAttributes: options[:toll_costs] ? 'maneuvers,waypoint,length,travelTime,links' : nil,
+        # maneuverAttributes: options[:toll_costs] ? 'link' : nil, # links are already returned in legs
+        linkAttributes: options[:toll_costs] && !with_geometry ? 'speedLimit' : nil, # Avoid shapes
+      }.delete_if{ |k, v| v.nil? }
       locs.each_with_index{ |loc, index|
         params["waypoint#{index}"] = "geo!#{loc[0]},#{loc[1]}"
       }
@@ -76,16 +117,22 @@ module Wrappers
       if request && request['response'] && request['response']['route']
         r = request['response']['route'][0]
         s = r['summary']
+        infos = {
+          total_distance: s['distance'],
+          total_time: (s['trafficTime'] * 1.0 / (options[:speed_multiplier] || 1)).round(1),
+          start_point: locs[0].reverse,
+          end_point: locs[-1].reverse
+        }
+        if options[:toll_costs]
+          infos[:total_toll_costs] = toll_costs(r['leg'].flat_map{ |l|
+              l['link'].map{ |ll| ll['linkId'] }
+            }.compact, departure, options)
+        end
 
         ret[:features] = [{
           type: 'Feature',
           properties: {
-            router: {
-              total_distance: s['distance'],
-              total_time: (s['trafficTime'] * 1.0 / (options[:speed_multiplier] || 1)).round(1),
-              start_point: locs[0].reverse,
-              end_point: locs[-1].reverse
-            }
+            router: infos
           }
         }]
 
