@@ -43,6 +43,7 @@ module Api
         'application/json; charset=UTF-8',
         'application/xml',
       ],
+      doc_version: nil,
       info: {
         title: ::RouterWrapper::config[:product_title],
         contact_email: ::RouterWrapper::config[:product_contact_email],
