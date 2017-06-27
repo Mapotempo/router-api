@@ -1,0 +1,15 @@
+version: '2'
+services:
+    wrapper:
+      build:
+        context: ..
+        dockerfile: docker/Dockerfile
+      image: mapotempo/router-wrapper:latest
+      volumes:
+        - ./production.rb:/srv/app/config/environments/production.rb
+      links:
+        - redis-cache
+
+    redis-cache:
+        image: redis:alpine
+  
