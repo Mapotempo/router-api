@@ -128,7 +128,10 @@ module Wrappers
 
     def matrix(srcs, dsts, dimension, _departure, _arrival, language, options = {})
       dim1, dim2 = dimension.to_s.split('_').collect(&:to_sym)
-      key = [:osrm5, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_matrix[dim1], dim1, srcs, dsts, options]))]
+      options_dim1 = dim1 == :distance ?
+        options.merge(speed_multiplier: 1, speed_multiplier_area: options[:speed_multiplier_area] && options[:speed_multiplier_area].reject{ |k, v| v != 0 }) :
+        options
+      key = [:osrm5, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_matrix[dim1], dim1, srcs, dsts, options_dim1]))]
 
       json = @cache.read(key)
       if !json
@@ -190,7 +193,10 @@ module Wrappers
               0.0
             else
               locs = [src, dst]
-              key = [:osrm5, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dim1], dim2, false, locs, language, options]))]
+              options_dim2 = dim2 == :distance ?
+                options.merge(speed_multiplier: 1, speed_multiplier_area: options[:speed_multiplier_area] && options[:speed_multiplier_area].reject{ |k, v| v != 0 }) :
+                options
+              key = [:osrm5, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dim1], dim2, false, locs, language, options_dim2]))]
 
               json = @cache.read(key)
               if !json

@@ -169,7 +169,7 @@ module RouterWrapper
   private
 
   def self.speed_multiplier_area(params)
-    Hash[params[:area].zip(params[:speed_multiplier_area])] if params[:area]
+    Hash[params[:area].zip(params[:speed_multiplier_area])] if params[:area] && params[:dimension] != :distance
   end
 
   def self.point_uniq(src, dst, dimension)
@@ -200,7 +200,7 @@ module RouterWrapper
 
   def self.options(params)
     hash = {
-      speed_multiplier: (params[:speed_multiplier] || 1),
+      speed_multiplier: (params[:dimension] != :distance && params[:speed_multiplier] || 1),
       speed_multiplier_area: speed_multiplier_area(params),
     }
     (Wrappers::Wrapper::OPTIONS -
