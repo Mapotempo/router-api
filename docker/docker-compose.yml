@@ -9,6 +9,16 @@ services:
         - ./production.rb:/srv/app/config/environments/production.rb
       links:
         - redis-cache
+        - otp
+
+    otp:
+      build:
+        context: otp
+        args:
+          OTP_VERSION: 1.0.0
+      image: mapotempo/otp-server:1.0.0
+      volumes:
+        - /srv/otp/data:/srv/otp/data
 
     redis-cache:
         image: redis:alpine
