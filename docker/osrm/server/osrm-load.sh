@@ -5,6 +5,9 @@ die() {
     exit 1
 }
 
+PROFILE=$1
+REGION=$2
+
 DATADIR=/srv/osrm/data
 DATA_LINK=${DATADIR}/${REGION}-${PROFILE}-latest.osrm
 OSRM_FILE=$(/bin/readlink -e ${DATA_LINK})
