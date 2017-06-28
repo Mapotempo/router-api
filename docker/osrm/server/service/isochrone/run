@@ -1,0 +1,8 @@
+#!/bin/sh
+
+NODE_MODULES=$(npm prefix -g)/lib/node_modules
+
+ISOCHRONE_ROOT=$NODE_MODULES/osrm-isochrone-server
+
+cd $ISOCHRONE_ROOT
+exec /usr/bin/nodejs $ISOCHRONE_ROOT/server.js --port 1723 2>&1
