@@ -12,7 +12,7 @@ for daemon in routed isochrone; do
     echo ${REGION} > /etc/service/${daemon}/env/REGION
 done
 
-# Specifig environment for Isochrone.
+# Specific environment for Isochrone.
 echo ${NODE_CONFIG} > /etc/service/isochrone/env/NODE_CONFIG
 
 # Run datastore once with delay
