@@ -5,6 +5,9 @@ LABEL maintainer="Mapotempo <contact@mapotempo.com>"
 ARG OSRM_VERSION
 ENV OSRM_VERSION ${OSRM_VERSION:-5.5.2}
 
+ARG OSRM_REPOSITORY
+ENV OSRM_REPOSITORY ${OSRM_REPOSITORY:-https://github.com/Project-OSRM/osrm-backend.git}
+
 # Install needed packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends build-essential git cmake \
@@ -12,7 +15,7 @@ RUN apt-get update && \
         libstxxl-dev libosmpbf-dev libprotobuf-dev libtbb-dev ca-certificates && \
     \
 # Clone OSRM Backend
-    git clone https://github.com/mapotempo/osrm-backend.git --branch v${OSRM_VERSION} && \
+    git clone ${OSRM_REPOSITORY} --branch v${OSRM_VERSION} && \
     \
 # Build and install
     mkdir -p osrm-backend/build && cd osrm-backend/build && \
