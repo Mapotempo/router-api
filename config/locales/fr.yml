@@ -20,8 +20,8 @@ fr:
   router:
     demo:
       name: Demo
-    osrm4:
-      name: Open Source Routing
+    osrm5:
+      name: Open Source Routing Engine 5
     otp:
       name: OpenTripPlanner
     here:
