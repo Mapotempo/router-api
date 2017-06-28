@@ -32,6 +32,11 @@ And in production mode:
 APP_ENV=production bundle exec rake server
 ```
 
+Available production extra environment variables are:
+```
+REDIS_HOST=example.com
+```
+
 Usage
 =====
 
