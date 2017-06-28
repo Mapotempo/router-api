@@ -22,6 +22,16 @@ services:
       volumes:
         - /srv/otp/data:/srv/otp/data
 
+    dom-car:
+      build: osrm/server
+      image: mapotempo/osrm-server:latest
+      env:
+        REGION: dom
+        PROFILE: car
+      volumes:
+        - /srv/osrm/data:/srv/osrm/data
+        - /dev/log:/dev/log
+
     redis-cache:
         image: redis:alpine
   
