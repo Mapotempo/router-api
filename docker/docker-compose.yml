@@ -5,6 +5,8 @@ services:
         context: ..
         dockerfile: docker/Dockerfile
       image: mapotempo/router-wrapper:latest
+      ports:
+        - "80:80"
       volumes:
         - ./production.rb:/srv/app/config/environments/production.rb
       links:
