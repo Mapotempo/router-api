@@ -24,7 +24,7 @@ services:
       volumes:
         - /srv/otp/data:/srv/otp/data
 
-    dom-car:
+    osrm-car-dom:
       build:
         context: osrm/server
       image: mapotempo/osrm-server:latest
