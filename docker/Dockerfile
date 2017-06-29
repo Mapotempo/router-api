@@ -27,5 +27,7 @@ RUN apt-get update && \
 
 ADD docker/env.d/* /etc/nginx/env.d/
 
+VOLUME /srv/app/poly
+
 WORKDIR /srv/app
 
