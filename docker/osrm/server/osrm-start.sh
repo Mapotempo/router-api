@@ -5,6 +5,9 @@ die() {
     exit 1
 }
 
+[ -z "${PROFILE}" ] && die "PROFILE environment variable must be provided."
+[ -z "${REGION}" ] && die "REGION environment variable must be provided."
+
 # Initialize environment for daemons.
 for daemon in routed isochrone; do
     mkdir -p /etc/service/${daemon}/env
