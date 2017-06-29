@@ -12,6 +12,8 @@ services:
       links:
         - redis-cache
         - otp
+      environment:
+        APP_ENV: production
 
     otp:
       build:
