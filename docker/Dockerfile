@@ -10,7 +10,6 @@ ADD . /srv/app
 
 # Install app
 RUN apt-get update && \
-    apt-get upgrade -y && \
     apt-get install -y git build-essential zlib1g-dev \
             zlib1g && \
     cd /srv/app && \
