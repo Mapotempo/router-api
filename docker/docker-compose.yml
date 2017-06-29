@@ -23,9 +23,12 @@ services:
         - /srv/otp/data:/srv/otp/data
 
     dom-car:
-      build: osrm/server
+      build:
+        context: osrm/server
+        args:
+          OSRM_VERSION: 5.5.2
       image: mapotempo/osrm-server:latest
-      env:
+      environment:
         REGION: dom
         PROFILE: car
       volumes:
