@@ -16,6 +16,6 @@ done
 echo ${NODE_CONFIG} > /etc/service/isochrone/env/NODE_CONFIG
 
 # Run datastore once with delay
-osrm-load.sh ${PROFILE} ${REGION}
+osrm-load.sh ${PROFILE} ${REGION} || die "Impossible to load data."
 
 exec /usr/bin/runsvdir -P /etc/service
