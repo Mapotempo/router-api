@@ -58,7 +58,7 @@ To pull them from another host, we need to push the built images to
 hub.docker.com:
 
     docker login
-    docker-compose push
+    docker-compose -f docker-compose.builder.yml push
 
 Running on a docker host
 ------------------------
