@@ -39,12 +39,13 @@ COPY service/isochrone/log/run /etc/service/isochrone/log/run
 # Copy startup script
 
 COPY osrm-start.sh /usr/bin/osrm-start.sh
+COPY osrm-load.sh /usr/bin/osrm-load.sh
 
 VOLUME /srv/osrm/isochrone
 
 ENV NODE_CONFIG "{ \"maxspeed\": 115 }"
-ENV PROFILE
-ENV REGION
+ENV PROFILE ""
+ENV REGION ""
 
 # Define entry point
 ENTRYPOINT [ "/usr/bin/osrm-start.sh" ]
