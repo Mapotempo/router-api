@@ -18,7 +18,7 @@ RUN apt-get update && \
         libstxxl-dev libosmpbf-dev libprotobuf-dev libtbb-dev ca-certificates && \
     \
 # Clone OSRM Backend
-    git clone ${OSRM_REPOSITORY} --branch v${OSRM_VERSION} && \
+    git clone ${OSRM_REPOSITORY} --branch ${OSRM_VERSION} && \
     \
 # Build and install
     mkdir -p osrm-backend/build && cd osrm-backend/build && \
