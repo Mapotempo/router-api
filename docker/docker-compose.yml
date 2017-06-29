@@ -27,8 +27,6 @@ services:
     dom-car:
       build:
         context: osrm/server
-        args:
-          OSRM_VERSION: 5.5.2
       image: mapotempo/osrm-server:latest
       environment:
         REGION: dom
