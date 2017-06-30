@@ -190,6 +190,8 @@ TIMESTAMP=$(date +%Y%m%d)
 
 # Command line argument parsing
 
+ADD_LOCATIONS=0
+
 while getopts "p:r:a" option
 do
     case $option in
