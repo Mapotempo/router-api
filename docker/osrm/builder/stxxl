@@ -1,0 +1,1 @@
+disk=/srv/osrm/data/stxxl,20G,syscall autogrow direct unlink
