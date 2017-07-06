@@ -108,7 +108,7 @@ Once the data has been built you need to reload it in the corresponding
 container:
 
     docker-compose -p router exec osrm-${PROFILE}-${REGION} /usr/bin/osrm-load.sh ${PROFILE} ${REGION}
-    docker-compose -p router exec osrm-${PROFILE}-${REGION} sv restart router
+    docker-compose -p router exec osrm-${PROFILE}-${REGION} sv restart routed
     docker-compose -p router exec osrm-${PROFILE}-${REGION} sv restart isochrone
 
 You can check if the data has been loaded in the host daemon logs:
