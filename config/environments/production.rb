@@ -29,6 +29,7 @@ module RouterWrapper
 
   DEMO = Wrappers::Demo.new(CACHE)
   OSRM5 = Wrappers::Osrm5.new(CACHE, url_time: 'http://router.project-osrm.org', url_distance: 'http://router.project-osrm.org', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
+  OSRM5_CAR_ICELAND = Wrappers::Osrm5.new(CACHE, url_time: 'http://osrm-car-iceland:500', url_distance: nil, url_isochrone: 'http://osrm-car-iceland:6000', url_isodistance: nil, licence: 'ODbL', attribution: '© OpenStreetMap contributors')
   OTP_BORDEAUX = Wrappers::Otp.new(CACHE, url: 'http://localhost:8080', router_id: 'bordeaux', licence: 'ODbL', attribution: 'Bordeaux Métropole', area: 'Bordeaux', crs: 'EPSG:2154')
   HERE_APP_ID = nil
   HERE_APP_CODE = nil
@@ -55,22 +56,19 @@ module RouterWrapper
     }, {
       api_keys: ['demo'],
       services: {
-        route_default: :demo,
+        route_default: :osrm5,
         route: {
-          demo: [DEMO],
-          osrm5: [OSRM5],
+          osrm5: [OSRM5_CAR_ICELAND, OSRM5],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
         },
         matrix: {
-          demo: [DEMO],
-          osrm5: [OSRM5],
+          osrm5: [OSRM5_CAR_ICELAND, OSRM5],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
         },
         isoline: {
-          demo: [DEMO],
-          osrm5: [OSRM5],
+          osrm5: [OSRM5_CAR_ICELAND, OSRM5],
           otp: [OTP_BORDEAUX],
         }
       }
