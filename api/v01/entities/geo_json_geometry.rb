@@ -23,7 +23,7 @@ module Api
       end
 
       expose_not_nil(:coordinates, documentation: { type: Float, is_array: true, desc: 'As per GeoJSON spec.' })
-      expose_not_nil(:polylines, documentation: { type: String, desc: 'Google polyline with multiplicator of 1e6.' })
+      expose_not_nil(:polylines, documentation: { type: String, desc: 'Google polyline (with multiplicator of requested precision, default: 1e6).' })
       expose(:type, documentation: { type: String, desc: 'As per GeoJSON spec. Is a LineString' })
     end
   end

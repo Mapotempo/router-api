@@ -78,6 +78,7 @@ module Api
           optional :lang, type: String, default: :en
 #          requires :loc, type: Array[Array[Float]], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
           requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
+          optional :precision, type: Integer, default: 6, desc: 'Precison for encoded polyline.'
         }
         get do
           params[:locs] = [params[:loc].each_slice(2).to_a]
@@ -115,6 +116,7 @@ module Api
         optional :lang, type: String, default: :en
 #        requires :locs, type: Array[Array[Array[Float]]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a } }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
         requires :locs, type: Array[String], coerce_with: ->(c) { c.split(/;|\|/) }, desc: 'List of latitudes and longitudes separated with commas. Each route separated by pipes. E.g. r1lat1,r1lng1,r1lat2,r1lng2|r2lat1,r2lng1,r2lat2,r2lng2'
+        optional :precision, type: Integer, default: 6, desc: 'Precison for encoded polyline.'
       }
       resource :routes do
         desc 'Many routes, each via two points or more', {
@@ -180,12 +182,12 @@ module Api
                 if feature[:geometry]
                   if params[:format] == 'geojson'
                     if feature[:geometry][:polylines]
-                      feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 1e6).collect(&:reverse)
+                      feature[:geometry][:coordinates] = Polylines::Decoder.decode_polyline(feature[:geometry][:polylines], 10**params[:precision]).collect(&:reverse)
                       feature[:geometry].delete(:polylines)
                     end
                   else
                     if feature[:geometry][:coordinates]
-                      feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 1e6)
+                      feature[:geometry][:polylines] = Polylines::Encoder.encode_points(feature[:geometry][:coordinates].collect(&:reverse), 10**params[:precision])
                       feature[:geometry].delete(:coordinates)
                     end
                   end
