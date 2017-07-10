@@ -34,7 +34,7 @@ module Api
 
       rescue_from :all, backtrace: ENV['APP_ENV'] != 'production' do |e|
         @error = e
-        if ENV['APP_ENV'] == 'development'
+        if ENV['APP_ENV'] != 'test'
           STDERR.puts "\n\n#{e.class} (#{e.message}):\n    " + e.backtrace.join("\n    ") + "\n\n"
         end
 
