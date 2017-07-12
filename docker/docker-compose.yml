@@ -31,8 +31,7 @@ services:
         context: osrm/server
       image: mapotempo/osrm-server:${OSRM_VERSION:-latest}
       environment:
-        REGION: iceland
-        PROFILE: car
+        BASENAME: car-iceland
       volumes:
         - /srv/osrm/data:/srv/osrm/data
         - /dev/log:/dev/log
