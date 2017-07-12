@@ -4,7 +4,7 @@ services:
       build:
         context: ..
         dockerfile: docker/Dockerfile
-      image: mapotempo/router-wrapper:latest
+      image: mapotempo/router-wrapper:${MAPOTEMPO_VERSION:-latest}
       ports:
         - "8082:80" # HOST:CONTAINER, edit only HOST part
       volumes:
@@ -38,5 +38,5 @@ services:
         - /dev/log:/dev/log
 
     redis-cache:
-        image: redis:alpine
-        command: redis-server --save ""
+      image: redis:${REDIS_VERSION:-3.2-alpine}
+      command: redis-server --save ""
