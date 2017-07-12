@@ -29,7 +29,7 @@ services:
     osrm-car-iceland:
       build:
         context: osrm/server
-      image: mapotempo/osrm-server:latest
+      image: mapotempo/osrm-server:${OSRM_VERSION:-latest}
       environment:
         REGION: iceland
         PROFILE: car
