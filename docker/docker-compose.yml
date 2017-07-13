@@ -24,7 +24,7 @@ services:
         OTP_VERSION: 1.0.0
     image: mapotempo/otp-server:1.0.0
     volumes:
-      - /srv/otp/data:/srv/otp/data
+      - ./otp/data:/srv/otp/data
 
   osrm-car-iceland:
     build:
@@ -33,7 +33,7 @@ services:
     environment:
       BASENAME: car-iceland
     volumes:
-      - /srv/osrm/data:/srv/osrm/data
+      - ./osrm/data:/srv/osrm/data
       - /dev/log:/dev/log
 
   redis-cache:
