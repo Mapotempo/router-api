@@ -1,6 +1,6 @@
 #!/bin/sh
 
-NODE_MODULES=$(npm prefix -g)/lib/node_modules
+NODE_MODULES=/node_modules
 
 ISOCHRONE_ROOT=$NODE_MODULES/osrm-isochrone-server
 
