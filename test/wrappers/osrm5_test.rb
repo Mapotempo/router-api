@@ -77,4 +77,22 @@ class Wrappers::Osrm5Test < Minitest::Test
     result = osrm.isoline([49.610710, 18.237305], :time, 100, nil, 'en')
     assert 0 < result['features'].size
   end
+
+  def test_geom_geojson
+    osrm = RouterWrapper::OSRM5
+    result = osrm.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, format: 'geojson')
+    assert result[:features][0][:geometry][:coordinates]
+    assert !result[:features][0][:geometry][:polylines]
+  end
+
+  def test_geom_polylines
+    osrm = RouterWrapper::OSRM5
+    result = osrm.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, format: 'json')
+    assert !result[:features][0][:geometry][:coordinates]
+    assert result[:features][0][:geometry][:polylines]
+
+    result = osrm.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, format: 'json', precision: 4)
+    assert result[:features][0][:geometry][:coordinates]
+    assert !result[:features][0][:geometry][:polylines]
+  end
 end

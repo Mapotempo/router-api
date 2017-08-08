@@ -56,6 +56,8 @@ module Wrappers
     end
 
     def route(locs, dimension, _departure, _arrival, language, with_geometry, options = {})
+      options[:format] ||= 'json'
+      options[:precision] ||= 5
       key = [:osrm5, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dimension], dimension, with_geometry, locs, language, options]))]
 
       json = @cache.read(key)
@@ -64,7 +66,7 @@ module Wrappers
           alternatives: false,
           steps: false,
           annotations: false,
-          geometries: :polyline,
+          geometries: options[:format] != 'geojson' && {5 => :polyline, 6 => :polyline6}[options[:precision]] || :geojson,
           overview: with_geometry ? :full : false,
           continue_straight: false
         }
@@ -111,10 +113,12 @@ module Wrappers
       }}
 
       if with_geometry
+        geojson = options[:format] == 'geojson' || ![5, 6].include?(options[:precision])
         (json['routes'] || []).each_with_index{ |route, index|
           ret[:features][index][:geometry] = {
             type: 'LineString',
-            coordinates: Polylines::Decoder.decode_polyline(route['geometry'], 1e5).collect(&:reverse)
+            coordinates: geojson && route['geometry']['coordinates'] || nil,
+            polylines: !geojson && route['geometry'] || nil
           }
         }
       end

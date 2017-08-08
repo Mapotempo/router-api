@@ -202,6 +202,8 @@ module RouterWrapper
     hash = {
       speed_multiplier: (params[:dimension] != :distance && params[:speed_multiplier] || 1),
       speed_multiplier_area: speed_multiplier_area(params),
+      format: params[:format],
+      precision: params[:precision],
     }
     (Wrappers::Wrapper::OPTIONS -
       [:speed_multiplier, :avoid_area, :speed_multiplier_area, :departure, :arrival]).each{ |k|
