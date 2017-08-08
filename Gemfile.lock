@@ -73,7 +73,7 @@ GEM
       mini_portile2 (~> 2.1.0)
     polylines (0.3.0)
     public_suffix (2.0.5)
-    puma (3.6.2)
+    puma (3.9.1)
     rack (1.5.5)
     rack-accept (0.4.5)
       rack (>= 0.4)
@@ -143,4 +143,4 @@ DEPENDENCIES
   simplecov
 
 BUNDLED WITH
-   1.13.7
+   1.15.1
