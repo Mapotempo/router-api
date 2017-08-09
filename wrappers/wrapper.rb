@@ -40,6 +40,9 @@ module Wrappers
       :max_walk_distance,
       :toll_costs,
       :currency,
+      :approach,
+      :snap,
+      :strict_restriction
     ]
 
     def initialize(cache, hash = {})

@@ -99,6 +99,7 @@ module Wrappers
         legAttributes: options[:toll_costs] ? 'maneuvers,waypoint,length,travelTime,links' : nil,
         # maneuverAttributes: options[:toll_costs] ? 'link' : nil, # links are already returned in legs
         linkAttributes: options[:toll_costs] && !with_geometry ? 'speedLimit' : nil, # Avoid shapes
+        truckRestrictionPenalty: options[:strict_restriction]
       }.delete_if{ |k, v| v.nil? }
       locs.each_with_index{ |loc, index|
         params["waypoint#{index}"] = "geo!#{loc[0]},#{loc[1]}"
@@ -109,7 +110,7 @@ module Wrappers
         type: 'FeatureCollection',
         router: {
           licence: 'HERE',
-          attribution: 'HERE',
+          attribution: 'HERE'
         },
         features: []
       }
@@ -202,6 +203,7 @@ module Wrappers
           width: options[:width], # Truck routing only, vehicle width in meters.
           length: options[:length], # Truck routing only, vehicle length in meters.
           shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
+          truckRestrictionPenalty: options[:strict_restriction]
         }
 
         total = srcs.size * dsts.size
