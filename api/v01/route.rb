@@ -75,7 +75,7 @@ module Api
           optional :max_walk_distance, type: Float, default: 750, desc: 'Max distance by walk.'
           optional :toll_costs, type: Boolean, default: false
           optional :currency, type: String, default: 'EUR', desc: 'ISO currency code.'
-          optional :approach, type: String, desc: 'Arrive/Leave in the traffic direction.'
+          optional :approach, type: Symbol, values: [:unrestricted, :curb], default: :unrestricted, desc: 'Arrive/Leave in the traffic direction.'
           optional :snap, type: Float, desc: 'Snap waypoint to junction close by snap distance.'
           optional :strict_restriction, type: Boolean, desc: 'Strict compliance with truck limitations.'
           optional :lang, type: String, default: :en
@@ -116,7 +116,7 @@ module Api
         optional :max_walk_distance, type: Float, default: 750, desc: 'Max distance by walk.'
         optional :toll_costs, type: Boolean, default: false
         optional :currency, type: String, default: 'EUR', desc: 'ISO currency code.'
-        optional :approach, type: String, desc: 'Arrive/Leave in the traffic direction.'
+        optional :approach, type: Symbol, values: [:unrestricted, :curb], default: :unrestricted, desc: 'Arrive/Leave in the traffic direction.'
         optional :snap, type: Float, desc: 'Snap waypoint to junction close by snap distance.'
         optional :strict_restriction, type: Boolean, desc: 'Strict compliance with truck limitations.'
         optional :lang, type: String, default: :en
