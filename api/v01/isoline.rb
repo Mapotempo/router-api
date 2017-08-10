@@ -56,7 +56,7 @@ module Api
         optional :hazardous_goods, type: Symbol, values: [:explosive, :gas, :flammable, :combustible, :organic, :poison, :radio_active, :corrosive, :poisonous_inhalation, :harmful_to_water, :other], desc: 'List of hazardous materials in the vehicle.'
         optional :max_walk_distance, type: Float, default: 750, desc: 'Max distance by walk.'
         optional :approach, type: String, desc: 'Arrive/Leave in the traffic direction.'
-        optional :snap, type: Float, desc: 'Snap checkpoint to junction.'
+        optional :snap, type: Float, desc: 'Snap waypoint to junction close by snap distance.'
         optional :strict_restriction, type: Boolean, desc: 'Strict compliance with truck limitations.'
         optional :lang, type: String, default: :en
         requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'Start latitude and longitude separated with a comma, e.g. lat1,lng1.'
