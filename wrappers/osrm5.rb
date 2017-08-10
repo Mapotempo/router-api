@@ -76,7 +76,9 @@ module Wrappers
           annotations: false,
           geometries: options[:format] != 'geojson' && {5 => :polyline, 6 => :polyline6}[options[:precision]] || :geojson,
           overview: with_geometry ? :full : false,
-          continue_straight: false
+          continue_straight: false,
+          generate_hints: false,
+          approaches: ([options[:approach].to_s] * locs.size).join(';'),
         }
         coordinates = locs.collect{ |loc| [loc[1], loc[0]].join(',') }.join(';')
         request = RestClient.get(@url_trace[dimension] + '/route/v1/driving/' + coordinates, {
@@ -155,6 +157,7 @@ module Wrappers
           params = {
             sources: srcs.collect{ |d| locs_uniq.index(d) }.join(';'),
             destinations: dsts.collect{ |d| locs_uniq.index(d) }.join(';'),
+            approaches: ([options[:approach].to_s] * locs.size).join(';'),
           }
         end
 
