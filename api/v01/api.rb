@@ -45,6 +45,8 @@ module Api
           rack_response(format_message(response, nil), 404)
         elsif e.is_a?(RouterWrapper::RouterWrapperError)
           rack_response(format_message(response, nil), 417)
+        elsif e.is_a?(RouterWrapper::InvalidArgumentError)
+          rack_response(format_message(response, nil), 400)
         elsif e.is_a?(Wrappers::UnreachablePointError)
           rack_response(format_message(response, nil), 204)
         else

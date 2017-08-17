@@ -306,21 +306,23 @@ module Wrappers
 
       key = [:here, :request, Digest::MD5.hexdigest(Marshal.dump([url, params.to_a.sort_by{ |i| i[0].to_s }]))]
       request = @cache.read(key)
-      if !request
+      unless request
         begin
-          response = RestClient.get(url, {params: params})
+          response = RestClient.get(url, { params: params })
         rescue RestClient::Exception => e
           error = JSON.parse(e.response)
           if error['type'] == 'ApplicationError'
             additional_data = error['AdditionalData'] || error['additionalData']
             if additional_data
-              if additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED'}) ||
-                additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED_CHECK_OPTIONS'})
+              if additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED' }) ||
+                  additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED_CHECK_OPTIONS' })
                 return
-              elsif additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTING_CANCELLED'})
+              elsif additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTING_CANCELLED' })
                 return
-              elsif additional_data.include?({'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_START_POINT'})
+              elsif additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_START_POINT' })
                 raise UnreachablePointError
+              elsif error['subtype'] == 'InvalidInputData'
+                raise RouterWrapper::InvalidArgumentError.new(error), "Here, #{error['subtype']} : #{error['details']} (#{additional_data.first['key']} : #{additional_data.first['value']})"
               else
                 raise
               end

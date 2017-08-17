@@ -80,6 +80,14 @@ class Wrappers::HereTest < Minitest::Test
     assert_equal vector.size, result[:matrix_time][0].size
   end
 
+  def test_manage_route_errors
+    here = RouterWrapper::HERE_TRUCK
+
+    assert_raises RouterWrapper::InvalidArgumentError do
+      here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, { trailers: 3.5 })
+    end
+  end
+
   # def test_matrix_with_null
   #   here = RouterWrapper::HERE_TRUCK
   #   # "startIndex":2 "destinationIndex":1 failed with here

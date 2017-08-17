@@ -159,6 +159,9 @@ module RouterWrapper
   class OutOfSupportedAreaOrNotSupportedDimensionError < RouterWrapperError
   end
 
+  class InvalidArgumentError < RouterWrapperError
+  end
+
   private
 
   def self.speed_multiplier_area(params)
