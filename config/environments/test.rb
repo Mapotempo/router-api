@@ -24,8 +24,10 @@ require './wrappers/osrm5'
 require './wrappers/otp'
 require './wrappers/here'
 
+require './lib/cache_manager'
+
 module RouterWrapper
-  CACHE = ActiveSupport::Cache::NullStore.new
+  CACHE = CacheManager.new(ActiveSupport::Cache::NullStore.new)
 
   DEMO = Wrappers::Demo.new(CACHE, boundary: 'poly/france-marseille.kml')
   OSRM4 = Wrappers::Osrm4.new(CACHE, url_time: 'http://localhost:5004', url_distance: 'http://localhost:5004', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
