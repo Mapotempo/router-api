@@ -86,7 +86,7 @@ module Wrappers
         resolution: 1,
         language: language,
         representation: with_geometry || options[:toll_costs] ? 'display' : 'overview',
-        routeAttributes: 'summary' + (with_geometry ? ',shape' : ''),
+        routeAttributes: 'summary' + (with_geometry ? ',shape' : '') + (options[:strict_restriction] == 'soft' ? ',notes' : ''),
         truckType: @mode,
         trailersCount: options[:trailers], # Truck routing only, number of trailers.
         limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
@@ -100,10 +100,11 @@ module Wrappers
         # maneuverAttributes: options[:toll_costs] ? 'link' : nil, # links are already returned in legs
         linkAttributes: options[:toll_costs] && !with_geometry ? 'speedLimit' : nil, # Avoid shapes
         truckRestrictionPenalty: options[:strict_restriction]
-      }.delete_if{ |k, v| v.nil? }
+      }.delete_if { |k, v| v.nil? }
       locs.each_with_index{ |loc, index|
         params["waypoint#{index}"] = "geo!#{loc[0]},#{loc[1]}"
       }
+
       request = get(@url_router, '7.2/calculateroute', params)
 
       ret = {
@@ -203,7 +204,8 @@ module Wrappers
           width: options[:width], # Truck routing only, vehicle width in meters.
           length: options[:length], # Truck routing only, vehicle length in meters.
           shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
-          truckRestrictionPenalty: options[:strict_restriction]
+          truckRestrictionPenalty: options[:strict_restriction],
+          routeattributes: options[:strict_restriction] == 'soft' ? 'notes' : nil
         }
 
         total = srcs.size * dsts.size
@@ -306,6 +308,7 @@ module Wrappers
 
       key = [:here, :request, Digest::MD5.hexdigest(Marshal.dump([url, params.to_a.sort_by{ |i| i[0].to_s }]))]
       request = @cache.read(key)
+
       unless request
         begin
           response = RestClient.get(url, { params: params })

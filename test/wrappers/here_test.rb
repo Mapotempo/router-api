@@ -24,19 +24,19 @@ class Wrappers::HereTest < Minitest::Test
   def test_router
     here = RouterWrapper::HERE_TRUCK
     result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, {motorway: true, toll: true})
-    assert 0 < result[:features].size
+    assert !result[:features].size.empty?
   end
 
   def test_router_without_motorway
     here = RouterWrapper::HERE_TRUCK
     result = here.route([[47.096305, 2.491150], [47.010226, 2.900391]], :time, nil, nil, 'en', true)
-    assert 0 < result[:features].size
+    assert !result[:features].size.empty?
   end
 
   def test_router_disconnected
     here = RouterWrapper::HERE_TRUCK
     result = here.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], :time, nil, nil, 'en', true, {motorway: true, toll: true})
-    assert_equal 0, result[:features].size
+    assert result[:features].size.empty?
   end
 
   def test_router_no_route_point
@@ -50,7 +50,19 @@ class Wrappers::HereTest < Minitest::Test
     here = RouterWrapper::HERE_TRUCK
     options = {speed_multiplier_area: {[[52, 14], [42, 5]] => 0}, motorway: true, toll: true}
     result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, options)
-    assert 1900000 < result[:features][0][:properties][:router][:total_distance]
+    assert 1_900_000 < result[:features][0][:properties][:router][:total_distance]
+  end
+
+  def test_router_truck_restriction
+    here = RouterWrapper::HERE_TRUCK
+    options = { strict_restriction: 'strict', hazardous_goods: :explosive }
+    result = here.route([[43.6064, 3.8662047], [43.630469, 3.87083]], :time, nil, nil, 'en', true, options)
+    assert result[:features].empty?
+
+    options = { strict_restriction: 'soft', hazardous_goods: :explosive }
+    result = here.route([[43.6064, 3.8662047], [43.630469, 3.87083]], :time, nil, nil, 'en', true, options)
+    assert !result[:features].empty?
+    assert result[:features][0][:properties][:router][:total_distance] > 0
   end
 
   def test_matrix_square
@@ -84,7 +96,7 @@ class Wrappers::HereTest < Minitest::Test
     here = RouterWrapper::HERE_TRUCK
 
     assert_raises RouterWrapper::InvalidArgumentError do
-      here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, { trailers: 3.5 })
+      here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, trailers: 3.5)
     end
   end
 
