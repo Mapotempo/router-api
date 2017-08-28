@@ -55,11 +55,11 @@ class Wrappers::HereTest < Minitest::Test
 
   def test_router_truck_restriction
     here = RouterWrapper::HERE_TRUCK
-    options = { strict_restriction: 'strict', hazardous_goods: :explosive }
+    options = { strict_restriction: true, hazardous_goods: :explosive }
     result = here.route([[43.6064, 3.8662047], [43.630469, 3.87083]], :time, nil, nil, 'en', true, options)
     assert result[:features].empty?
 
-    options = { strict_restriction: 'soft', hazardous_goods: :explosive }
+    options = { strict_restriction: false, hazardous_goods: :explosive }
     result = here.route([[43.6064, 3.8662047], [43.630469, 3.87083]], :time, nil, nil, 'en', true, options)
     assert !result[:features].empty?
     assert result[:features][0][:properties][:router][:total_distance] > 0

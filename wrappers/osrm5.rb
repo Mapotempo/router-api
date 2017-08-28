@@ -51,6 +51,14 @@ module Wrappers
       true
     end
 
+    def approach?
+      true
+    end
+
+    def snap?
+      true
+    end
+
     def route_dimension
       @url_trace.keys
     end

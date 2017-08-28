@@ -34,7 +34,7 @@ module Wrappers
 
     # Declare available router options for capability operation
     # Here api supports most of options... remove unsupported options below
-    (OPTIONS - [:speed_multiplier_area, :max_walk_distance]).each do |s|
+    (OPTIONS - [:speed_multiplier_area, :max_walk_distance, :approach, :snap]).each do |s|
       define_method("#{s}?") do
         true
       end
@@ -86,7 +86,7 @@ module Wrappers
         resolution: 1,
         language: language,
         representation: with_geometry || options[:toll_costs] ? 'display' : 'overview',
-        routeAttributes: 'summary' + (with_geometry ? ',shape' : '') + (options[:strict_restriction] == 'soft' ? ',notes' : ''),
+        routeAttributes: 'summary' + (with_geometry ? ',shape' : '') + (here_strict_restriction(options[:strict_restriction]) == 'soft' ? ',notes' : ''),
         truckType: @mode,
         trailersCount: options[:trailers], # Truck routing only, number of trailers.
         limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
@@ -99,7 +99,7 @@ module Wrappers
         legAttributes: options[:toll_costs] ? 'maneuvers,waypoint,length,travelTime,links' : nil,
         # maneuverAttributes: options[:toll_costs] ? 'link' : nil, # links are already returned in legs
         linkAttributes: options[:toll_costs] && !with_geometry ? 'speedLimit' : nil, # Avoid shapes
-        truckRestrictionPenalty: options[:strict_restriction]
+        truckRestrictionPenalty: here_strict_restriction(options[:strict_restriction])
       }.delete_if { |k, v| v.nil? }
       locs.each_with_index{ |loc, index|
         params["waypoint#{index}"] = "geo!#{loc[0]},#{loc[1]}"
@@ -358,6 +358,10 @@ module Wrappers
         harmful_to_water: :harmfulToWater,
         other: :other
       }
+    end
+
+    def here_strict_restriction(param_value)
+      param_value ? 'strict' : 'soft'
     end
 
     def distance(src, dst)
