@@ -31,55 +31,90 @@ class Api::V01::CapabilityTest < Minitest::Test
 
     assert last_response.ok?, last_response.body
 
-    capabilities = JSON.parse(last_response.body)
-    capabilities['route'].each do |router|
-      if router['mode'] == 'osrm5'
-        assert router['support_speed_multiplier']
-        assert router['support_approach']
-        assert router['support_snap']
+    response = JSON.parse(last_response.body)
 
-        assert !router['support_motorway']
-        assert !router['support_toll']
-        assert !router['support_trailers']
-        assert !router['support_weight']
-        assert !router['support_weight_per_axle']
-        assert !router['support_height']
-        assert !router['support_weight_per_axle']
-        assert !router['support_width']
-        assert !router['support_length']
-        assert !router['support_hazardous_goods']
-        assert !router['support_weight_per_axle']
-        assert !router['support_toll_costs']
-        assert !router['support_currency']
-        assert !router['support_strict_restriction']
-        assert !router['support_weight_per_axle']
-      elsif router['mode'] == 'here'
-        assert router['support_speed_multiplier']
-        assert router['support_arrival']
-        assert router['support_traffic']
-        assert router['support_motorway']
-        assert router['support_toll']
-        assert router['support_trailers']
-        assert router['support_weight']
-        assert router['support_weight_per_axle']
-        assert router['support_height']
-        assert router['support_weight_per_axle']
-        assert router['support_width']
-        assert router['support_length']
-        assert router['support_hazardous_goods']
-        assert router['support_weight_per_axle']
-        assert router['support_toll_costs']
-        assert router['support_currency']
-        assert router['support_strict_restriction']
-        assert router['support_weight_per_axle']
+    # Here
+    (Wrappers::Wrapper::OPTIONS - [
+      :speed_multiplier,
+      :avoid_area,
+      :speed_multiplier_area,
+      :departure,
+      :arrival,
+      :traffic,
+      :motorway,
+      :toll,
+      :trailers,
+      :weight,
+      :weight_per_axle,
+      :height,
+      :width,
+      :length,
+      :hazardous_goods,
+      :toll_costs,
+      :currency,
+      :strict_restriction]).each { |option|
+        supports = []
+        ['route', 'matrix', 'isoline'].each{ |op|
+          supports << response[op].select{ |r| r['mode'] == 'here' }.map{ |r| r["support_#{option}"] }
+        }
+        assert_equal [false], supports.flatten.uniq, "support_#{option} is true for here"
+    }
 
-        assert !router['support_max_walk_distance']
-        assert !router['support_approach']
-        assert !router['support_snap']
-        assert !router['support_speed_multiplier_area']
-        assert !router['support_speed_multiplicator_area']
-      end
-    end
+    # OTP
+    (Wrappers::Wrapper::OPTIONS - [
+      :speed_multiplier,
+      :avoid_area,
+      :speed_multiplier_area,
+      :departure,
+      :arrival,
+      :traffic,
+      :motorway,
+      :toll,
+      :trailers,
+      :weight,
+      :weight_per_axle,
+      :height,
+      :width,
+      :length,
+      :hazardous_goods,
+      :toll_costs,
+      :currency,
+      :approach,
+      :snap,
+      :strict_restriction]).each { |option|
+        supports = []
+        ['route', 'matrix', 'isoline'].each{ |op|
+          supports << response[op].select{ |r| r['mode'] == 'otp' }.map{ |r| r["support_#{option}"] }
+        }
+        assert_equal [true], supports.flatten.uniq, "support_#{option} is false for otp"
+    }
 
+    # OSRM
+    (Wrappers::Wrapper::OPTIONS - [
+      :speed_multiplier,
+      :avoid_area,
+      :speed_multiplier_area,
+      :departure,
+      :arrival,
+      :traffic,
+      :motorway,
+      :toll,
+      :trailers,
+      :weight,
+      :weight_per_axle,
+      :height,
+      :width,
+      :length,
+      :hazardous_goods,
+      :max_walk_distance,
+      :toll_costs,
+      :currency,
+      :strict_restriction]).each { |option|
+        supports = []
+        ['route', 'matrix', 'isoline'].each{ |op|
+          supports << response[op].select{ |r| r['mode'] == 'osrm5' }.map{ |r| r["support_#{option}"] }
+        }
+        assert_equal [true], supports.flatten.uniq, "support_#{option} is false for osrm"
+    }
   end
 end
