@@ -11,6 +11,7 @@ services:
       - ./production.rb:/srv/app/config/environments/production.rb
       - ./production.rb:/srv/app/config/environments/development.rb
       - ./poly:/srv/app/poly
+    restart: always
     links:
       - redis-cache
       - otp
