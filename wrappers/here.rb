@@ -204,8 +204,8 @@ module Wrappers
           width: options[:width], # Truck routing only, vehicle width in meters.
           length: options[:length], # Truck routing only, vehicle length in meters.
           shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
-          truckRestrictionPenalty: options[:strict_restriction],
-          routeattributes: options[:strict_restriction] == 'soft' ? 'notes' : nil
+          # truckRestrictionPenalty: here_strict_restriction(options[:strict_restriction]),
+          # routeAttributes: options[:strict_restriction] == 'soft' ? 'notes' : nil
         }
 
         total = srcs.size * dsts.size
