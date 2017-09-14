@@ -27,7 +27,7 @@ require './lib/cache_manager'
 
 module RouterWrapper
   ActiveSupport::Cache.lookup_store :redis_store
-  CACHE = CacheManager.new(ActiveSupport::Cache::RedisStore.new(ENV['REDIS_HOST'] || 'localhost', namespace: 'router', expires_in: 60*60*24*1))
+  CACHE = CacheManager.new(ActiveSupport::Cache::RedisStore.new(host: ENV['REDIS_HOST'] || 'localhost', namespace: 'router', expires_in: 60*60*24*1, raise_errors: true))
 
   DEMO = Wrappers::Demo.new(CACHE)
   OSRM5 = Wrappers::Osrm5.new(CACHE, url_time: 'http://router.project-osrm.org', url_distance: 'http://router.project-osrm.org', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
