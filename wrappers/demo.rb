@@ -35,8 +35,8 @@ module Wrappers
           type: 'Feature',
           properties: {
             router: {
-              total_distance: 1,
-              total_time: 1,
+              total_distance: distance_between(locs[0][1], locs[0][0], locs[-1][1], locs[-1][0]),
+              total_time: 60,
               start_point: locs[0],
               end_point: locs[-1]
             }
@@ -57,12 +57,12 @@ module Wrappers
     def matrix(src, dst, dimension, departure, arrival, language, options = {})
       {
         router: {
-          licence: 'demo',
-          attribution: 'demo',
+          licence: 'CC0',
+          attribution: 'none',
         },
         matrix_time: src.collect{ |s|
           dst.collect{ |d|
-            1
+            distance_between(s[1], s[0], d[1], d[0])
           }
         }
       }
@@ -91,6 +91,21 @@ module Wrappers
           }
         }]
       }
+    end
+
+    private
+
+    RAD_PER_DEG = Math::PI / 180
+    RM = 6371000 # Earth radius in meters
+
+    def distance_between(lat1, lon1, lat2, lon2)
+      lat1_rad, lat2_rad = lat1 * RAD_PER_DEG, lat2 * RAD_PER_DEG
+      lon1_rad, lon2_rad = lon1 * RAD_PER_DEG, lon2 * RAD_PER_DEG
+
+      a = Math.sin((lat2_rad - lat1_rad) / 2) ** 2 + Math.cos(lat1_rad) * Math.cos(lat2_rad) * Math.sin((lon2_rad - lon1_rad) / 2) ** 2
+      c = 2 * Math::atan2(Math::sqrt(a), Math::sqrt(1 - a))
+
+      RM * c # Delta in meters
     end
   end
 end
