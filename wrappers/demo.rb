@@ -25,6 +25,7 @@ module Wrappers
     end
 
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
+      d = distance_between(locs[0][1], locs[0][0], locs[-1][1], locs[-1][0])
       ret = {
         type: 'FeatureCollection',
         router: {
@@ -35,8 +36,8 @@ module Wrappers
           type: 'Feature',
           properties: {
             router: {
-              total_distance: distance_between(locs[0][1], locs[0][0], locs[-1][1], locs[-1][0]),
-              total_time: 60,
+              total_distance: d,
+              total_time: d,
               start_point: locs[0],
               end_point: locs[-1]
             }
