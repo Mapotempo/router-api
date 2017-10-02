@@ -80,15 +80,7 @@ module Wrappers
           type: 'Feature',
           geometry: {
             type: 'Polygon',
-            coordinates: [[
-              [-51.67968749999999, 68.13885164925573],
-              [-50.625, 62.2679226294176],
-              [-44.29687499999999, 60.06484046010452],
-              [-40.078125, 65.36683689226321],
-              [-23.5546875, 70.02058730174062],
-              [-51.328125, 70.72897946208789],
-              [-51.67968749999999, 68.13885164925573]
-            ]]
+            coordinates: [draw_circle(loc[0], loc[1], size)]
           }
         }]
       }
@@ -97,6 +89,7 @@ module Wrappers
     private
 
     RAD_PER_DEG = Math::PI / 180
+    DEG_PER_RAD = 180 / Math::PI
     RM = 6371000 # Earth radius in meters
 
     def distance_between(lat1, lon1, lat2, lon2)
@@ -107,6 +100,16 @@ module Wrappers
       c = 2 * Math::atan2(Math::sqrt(a), Math::sqrt(1 - a))
 
       RM * c # Delta in meters
+    end
+
+    def draw_circle(lat, lng, radius, points = 64)
+      rlat = radius.to_f / RM * DEG_PER_RAD
+      rlng = rlat / Math.cos(lat * RAD_PER_DEG)
+      rtheta = 1 / (points.to_f / 2) * Math::PI
+
+      points.times.collect{ |i|
+        [lng + rlng * Math.cos(i* rtheta), lat + rlat * Math.sin(i * rtheta)]
+      }
     end
   end
 end
