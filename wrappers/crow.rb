@@ -19,7 +19,7 @@ require './wrappers/wrapper'
 
 
 module Wrappers
-  class Demo < Wrapper
+  class Crow < Wrapper
     def initialize(cache, hash = {})
       super(cache, hash)
     end
@@ -29,8 +29,8 @@ module Wrappers
       ret = {
         type: 'FeatureCollection',
         router: {
-          licence: 'demo',
-          attribution: 'demo',
+          licence: 'CC0',
+          attribution: 'none',
         },
         features: [{
           type: 'Feature',
@@ -73,8 +73,8 @@ module Wrappers
       ret = {
         type: 'FeatureCollection',
         router: {
-          licence: 'demo',
-          attribution: 'demo',
+          licence: 'CC0',
+          attribution: 'none',
         },
         features: [{
           type: 'Feature',

@@ -18,8 +18,8 @@
 
 fr:
   router:
-    demo:
-      name: Demo
+    crow:
+      name: Crow
     osrm5:
       name: Open Source Routing Engine 5
     otp:

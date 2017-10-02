@@ -18,7 +18,7 @@
 require 'active_support'
 require 'tmpdir'
 
-require './wrappers/demo'
+require './wrappers/crow'
 require './wrappers/osrm4'
 require './wrappers/osrm5'
 require './wrappers/otp'
@@ -29,7 +29,7 @@ require './lib/cache_manager'
 module RouterWrapper
   CACHE = CacheManager.new(ActiveSupport::Cache::NullStore.new)
 
-  DEMO = Wrappers::Demo.new(CACHE, boundary: 'poly/france-marseille.kml')
+  CROW = Wrappers::Crow.new(CACHE, boundary: 'poly/france-marseille.kml')
   OSRM4 = Wrappers::Osrm4.new(CACHE, url_time: 'http://localhost:5004', url_distance: 'http://localhost:5004', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
   OSRM5 = Wrappers::Osrm5.new(CACHE, url_time: 'http://router.project-osrm.org', url_distance: 'http://router.project-osrm.org', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
   OTP_BORDEAUX = Wrappers::Otp.new(CACHE, url: 'http://localhost:8080', router_id: 'bordeaux', licence: 'ODbL', attribution: 'Bordeaux Métropole', area: 'Bordeaux', crs: 'EPSG:2154')
@@ -44,37 +44,37 @@ module RouterWrapper
     profiles: [{
       api_keys: ['light'],
       services: {
-        route_default: :demo,
+        route_default: :crow,
         route: {
-          demo: [DEMO],
+          crow: [CROW],
         },
         matrix: {
-          demo: [DEMO],
+          crow: [CROW],
         },
         isoline: {
-          demo: [DEMO],
+          crow: [CROW],
         }
       }
     }, {
       api_keys: ['demo'],
       services: {
-        route_default: :demo,
+        route_default: :crow,
         route: {
-          demo: [DEMO],
+          crow: [CROW],
           osrm4: [OSRM4],
           osrm5: [OSRM5],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
         },
         matrix: {
-          demo: [DEMO],
+          crow: [CROW],
           osrm4: [OSRM4],
           osrm5: [OSRM5],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
         },
         isoline: {
-          demo: [DEMO],
+          crow: [CROW],
           osrm4: [OSRM4],
           osrm5: [OSRM5],
           otp: [OTP_BORDEAUX],
