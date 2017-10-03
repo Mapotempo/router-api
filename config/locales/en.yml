@@ -19,7 +19,7 @@
 en:
   router:
     crow:
-      name: Crow
+      name: Crow flie
     osrm5:
       name: Open Source Routing Engine 5
     otp:

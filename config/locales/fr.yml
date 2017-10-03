@@ -19,7 +19,7 @@
 fr:
   router:
     crow:
-      name: Crow
+      name: Vol d'oiseau
     osrm5:
       name: Open Source Routing Engine 5
     otp:
