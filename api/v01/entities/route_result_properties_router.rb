@@ -33,7 +33,7 @@ module Api
       # OPTIONAL
       expose(:end_point, documentation: { type: Float, is_array: true, desc: 'Latitude and longitude of ending point.' })
       # OPTIONAL
-      expose(:total_toll_costs, documentation: { type: Float, desc: 'Total toll costs amount in specified currency.' })
+      expose :total_toll_costs, documentation: { type: Float, desc: 'Total toll costs amount in specified currency.' }, if: :toll_costs
     end
   end
 end

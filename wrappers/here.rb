@@ -53,8 +53,8 @@ module Wrappers
         emissionType: 6,
         height: options[:height] ? "#{options[:height]}m" : nil,
         trailerHeight: options[:trailers] ? "#{options[:height] || 3}m" : nil,
-        vehicleWeight: options[:weight] ? "#{options[:weight]}m" : nil,
-        limitedWeight: options[:weight] ? "#{options[:weight]}m" : nil,
+        vehicleWeight: options[:weight] ? "#{options[:weight]}t" : nil,
+        limitedWeight: options[:weight] ? "#{options[:weight]}t" : nil,
         # disabledEquipped:
         passengersCount: 1,
         # tiresCount: 8, # Default 4
@@ -311,7 +311,7 @@ module Wrappers
 
       unless request
         begin
-          response = RestClient.get(url, { params: params })
+          response = RestClient.get(url, params: params)
         rescue RestClient::Exception => e
           error = JSON.parse(e.response)
           if error['type'] == 'ApplicationError'

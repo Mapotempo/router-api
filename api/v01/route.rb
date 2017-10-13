@@ -87,7 +87,7 @@ module Api
           params[:locs] = [params[:loc].each_slice(2).to_a]
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area]
-          present compute_routes(params)[0], with: RouteResult
+          present compute_routes(params)[0], with: RouteResult, geometry: params[:geometry], toll_costs: params[:toll_costs]
         end
       end
 
@@ -227,7 +227,7 @@ module Api
               end
             }
           }
-          present ret, with: RoutesResult
+          present ret, with: RoutesResult, geometry: params[:geometry], toll_costs: params[:toll_costs]
         end
       end
     end

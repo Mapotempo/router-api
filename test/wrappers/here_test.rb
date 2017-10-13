@@ -24,19 +24,26 @@ class Wrappers::HereTest < Minitest::Test
   def test_router
     here = RouterWrapper::HERE_TRUCK
     result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, {motorway: true, toll: true})
-    assert !result[:features].size.empty?
+    assert !result[:features].empty?
+    assert !result[:features][0][:geometry].empty?
+  end
+
+  def test_router_without_geometry
+    here = RouterWrapper::HERE_TRUCK
+    result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', false, {motorway: true, toll: true})
+    assert !result[:features][0].key?(:geometry)
   end
 
   def test_router_without_motorway
     here = RouterWrapper::HERE_TRUCK
     result = here.route([[47.096305, 2.491150], [47.010226, 2.900391]], :time, nil, nil, 'en', true)
-    assert !result[:features].size.empty?
+    assert !result[:features].empty?
   end
 
   def test_router_disconnected
     here = RouterWrapper::HERE_TRUCK
     result = here.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], :time, nil, nil, 'en', true, {motorway: true, toll: true})
-    assert result[:features].size.empty?
+    assert result[:features].empty?
   end
 
   def test_router_no_route_point
@@ -98,6 +105,12 @@ class Wrappers::HereTest < Minitest::Test
     assert_raises RouterWrapper::InvalidArgumentError do
       here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, trailers: 3.5)
     end
+  end
+
+  def test_router_with_toll_costs
+    here = RouterWrapper::HERE_TRUCK
+    result = here.route([[44.92727960202825, -1.091766357421875], [43.29959713447473,3.41400146484375]], :time, nil, nil, 'en', false, {motorway: true, toll: true, toll_costs: true, weight: 3.4, height: 3, width: 2.5, length: 10})
+    assert result[:features][0][:properties][:router][:total_toll_costs]
   end
 
   # def test_matrix_with_null
