@@ -112,18 +112,18 @@ module RouterWrapper
                 attribution: [],
             }
         }
-        params[:dimension].to_s.split('_').each {|dim|
-          ret[('matrix_' + dim).to_sym] = Array.new(src.size) {Array.new(dst.size)}
+        params[:dimension].to_s.split('_').each{ |dim|
+          ret[('matrix_' + dim).to_sym] = Array.new(src.size) { Array.new(dst.size) }
         }
-        routers.each {|router|
+        routers.each{ |router|
           partial = router.matrix(src, dst, params[:dimension], params[:departure], params[:arrival], params[:language], options(params))
           if partial
             ret[:router][:licence] << partial[:router][:licence]
             ret[:router][:attribution] << partial[:router][:attribution]
-            params[:dimension].to_s.split('_').each {|dim|
+            params[:dimension].to_s.split('_').each{ |dim|
               matrix_dim = ('matrix_' + dim).to_sym
-              src.each_with_index {|src, m|
-                dst.each_with_index {|dst, n|
+              src.each_with_index{ |src, m|
+                dst.each_with_index{ |dst, n|
                   if partial[matrix_dim][m][n] && (!ret[matrix_dim][m][n] || partial[matrix_dim][m][n] < ret[matrix_dim][m][n])
                     ret[matrix_dim][m][n] = partial[matrix_dim][m][n]
                   end
