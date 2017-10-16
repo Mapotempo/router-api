@@ -30,7 +30,7 @@ services:
   osrm-car-iceland:
     build:
       context: osrm/server
-    image: mapotempo/osrm-server:${OSRM_VERSION:-5.10.0-mt1}
+    image: mapotempo/osrm-server:${OSRM_VERSION:-5.12.0-mt1}
     environment:
       BASENAME: car-iceland
     volumes:

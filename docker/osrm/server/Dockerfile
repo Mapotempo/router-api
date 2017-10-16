@@ -3,10 +3,11 @@ FROM ubuntu:16.04
 LABEL maintainer="Mapotempo <contact@mapotempo.com>"
 
 ARG OSRM_VERSION
-ENV OSRM_VERSION ${OSRM_VERSION:-mt-v5.10.0}
+ENV OSRM_VERSION ${OSRM_VERSION:-v5.12.0}
 
 ARG OSRM_REPOSITORY
-ENV OSRM_REPOSITORY ${OSRM_REPOSITORY:-https://github.com/Mapotempo/osrm-backend.git}
+ENV OSRM_REPOSITORY ${OSRM_REPOSITORY:-https://github.com/Project-OSRM/osrm-backend.git}
+#ENV OSRM_REPOSITORY ${OSRM_REPOSITORY:-https://github.com/Mapotempo/osrm-backend.git}
 
 # OSRM part
 ###########
