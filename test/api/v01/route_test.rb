@@ -29,6 +29,7 @@ class Api::V01::RouteTest < Minitest::Test
   def test_route
     get '/0.1/route', {api_key: 'demo', loc: '43.2804,5.3806,43.291576,5.355835'}
     assert last_response.ok?, last_response.body
+    assert !JSON.parse(last_response.body)['features'][0]['geometry'].empty?
   end
 
   def test_route_same_start_end_geojson

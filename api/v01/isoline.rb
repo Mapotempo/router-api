@@ -115,7 +115,7 @@ module Api
 
           results = RouterWrapper::wrapper_isoline(APIBase.services(params[:api_key]), params)
           results[:router][:version] = 'draft'
-          present results, with: IsolineResult
+          present results, with: IsolineResult, geometry: true
         end
       end
     end

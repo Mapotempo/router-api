@@ -28,7 +28,7 @@ module Api
 
       expose :properties, using: RouteResultProperties, documentation: { type: RouteResultProperties, desc: 'As per GeoJSON spec.' }
       expose :type, documentation: { type: String, desc: 'As per GeoJSON spec. Is a Feature.' }
-      expose :geometry, using: GeoJsonGeometry, documentation: { type: GeoJsonGeometry, desc: 'As per GeoJSON spec.' }
+      expose :geometry, using: GeoJsonGeometry, documentation: { type: GeoJsonGeometry, desc: 'As per GeoJSON spec.' }, if: :geometry
     end
   end
 end
