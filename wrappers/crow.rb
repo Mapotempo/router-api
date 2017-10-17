@@ -24,6 +24,11 @@ module Wrappers
       super(cache, hash)
     end
 
+    # Declare available router options for capability operation
+    def speed_multiplier?
+      true
+    end
+
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       d = distance_between(locs[0][1], locs[0][0], locs[-1][1], locs[-1][0])
       ret = {
@@ -37,7 +42,7 @@ module Wrappers
           properties: {
             router: {
               total_distance: d,
-              total_time: d,
+              total_time: d * 1.0 / (options[:speed_multiplier] || 1),
               start_point: locs[0],
               end_point: locs[-1]
             }
@@ -63,7 +68,7 @@ module Wrappers
         },
         matrix_time: src.collect{ |s|
           dst.collect{ |d|
-            distance_between(s[1], s[0], d[1], d[0])
+            distance_between(s[1], s[0], d[1], d[0]) * 1.0 / (options[:speed_multiplier] || 1)
           }
         }
       }
@@ -80,7 +85,7 @@ module Wrappers
           type: 'Feature',
           geometry: {
             type: 'Polygon',
-            coordinates: [draw_circle(loc[0], loc[1], size)]
+            coordinates: [draw_circle(loc[0], loc[1], size * 1.0 / (options[:speed_multiplier] || 1))]
           }
         }]
       }
