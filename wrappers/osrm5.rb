@@ -55,7 +55,15 @@ module Wrappers
       true
     end
 
-    def snap?
+    def track?
+      true
+    end
+
+    def motorway?
+      true
+    end
+
+    def toll?
       true
     end
 
@@ -78,8 +86,9 @@ module Wrappers
           overview: with_geometry ? :full : false,
           continue_straight: false,
           generate_hints: false,
-          approaches: ([options[:approach].to_s] * locs.size).join(';'),
-        }
+          approaches: options[:approach] == :curb ? (['curb'] * locs.size).join(';') : nil,
+          exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(','),
+        }.delete_if { |k, v| v.nil? || v == '' }
         coordinates = locs.collect{ |loc| [loc[1], loc[0]].join(',') }.join(';')
         request = RestClient.get(@url_trace[dimension] + '/route/v1/driving/' + coordinates, {
           accept: :json,
@@ -157,8 +166,9 @@ module Wrappers
           params = {
             sources: srcs.collect{ |d| locs_uniq.index(d) }.join(';'),
             destinations: dsts.collect{ |d| locs_uniq.index(d) }.join(';'),
-            approaches: ([options[:approach].to_s] * locs.size).join(';'),
-          }
+            approaches: options[:approach] == :curb ? (['curb'] * locs.size).join(';') : nil,
+            exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(','),
+          }.delete_if { |k, v| v.nil? || v == '' }
         end
 
         if locs_uniq.size == 1
@@ -268,8 +278,10 @@ module Wrappers
         params = {
           lat: loc[0],
           lng: loc[1],
-          time: (size * (options[:speed_multiplier] || 1)).round(1)
-        }
+          time: (size * (options[:speed_multiplier] || 1)).round(1),
+          approaches: options[:approach] == :curb ? (['curb'] * locs.size).join(';') : nil,
+          exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(','),
+        }.delete_if { |k, v| v.nil? || v == '' }
         request = RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
           accept: :json,
           params: params

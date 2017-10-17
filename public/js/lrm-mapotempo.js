@@ -323,6 +323,8 @@ if (typeof module !== undefined) module.exports = polyline;
       }
       return this.options.serviceUrl + '/route.geojson?api_key=' + this.options.apiKey +
         '&mode=' + this.options.mode + '&dimension=' + this.options.dimension +
+        '&track=' + this.options.track + '&motorway=' + this.options.motorway +
+        '&toll=' + this.options.toll +
         '&geometry=true&loc=' + locs.join(',')
     }
   });

@@ -12,8 +12,19 @@
       return $('#router-dimension').val();
     }
 
+    function getTrack() {
+      return $('#track').is(':checked');
+    }
+
+    function getMotorway() {
+      return $('#motorway').is(':checked');
+    }
+
+    function getToll() {
+      return $('#toll').is(':checked');
+    }
+
     function resetMap() {
-      var mode = getMode();
       map.removeControl(routing);
     }
 
@@ -21,7 +32,10 @@
       routing = L.Routing.control({
         router: L.Routing.mt($.extend(options, {
           mode: getMode(),
-          dimension: getDimension()
+          dimension: getDimension(),
+          track: getTrack(),
+          motorway: getMotorway(),
+          toll: getToll()
         })),
         waypoints: waypoints,
         routeWhileDragging: true
@@ -42,11 +56,6 @@
             )
           });
         }
-      });
-      select.trigger('change');
-      select.change(function(e) {
-        resetMap();
-        initMap();
       });
     }
 
@@ -75,6 +84,10 @@
     initDimensions(mode);
     initMap(mode);
     $('select').select2({ minimumResultsForSearch: -1 });
+    $('select, input').change(function(e) {
+      resetMap();
+      initMap();
+    });
 
     routing.getPlan().on('waypointschanged', function(e) {
       waypoints = e.waypoints;

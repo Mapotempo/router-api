@@ -28,6 +28,7 @@ module Wrappers
       :departure,
       :arrival,
       :traffic,
+      :track,
       :motorway,
       :toll,
       :trailers,
