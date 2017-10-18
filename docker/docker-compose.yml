@@ -26,6 +26,7 @@ services:
     image: mapotempo/otp-server:1.0.0
     volumes:
       - ./otp/data:/srv/otp/data
+    restart: always
 
   osrm-car-iceland:
     build:
@@ -36,7 +37,9 @@ services:
     volumes:
       - ./osrm/data:/srv/osrm/data
       - /dev/log:/dev/log
+    restart: always
 
   redis-cache:
     image: redis:${REDIS_VERSION:-3.2-alpine}
     command: redis-server --save ""
+    restart: always
