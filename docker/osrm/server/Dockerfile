@@ -40,7 +40,7 @@ VOLUME /srv/osrm/data
 ################
 
 ARG OSRM_ISOCHRONE_VERSION
-ENV OSRM_ISOCHRONE_VERSION ${OSRM_ISOCHRONE_VERSION:-5.5.1}
+ENV OSRM_ISOCHRONE_VERSION ${OSRM_ISOCHRONE_VERSION:-5.12.0}
 
 # Install osrm-isochrone-server
 RUN cd / && echo "{\"dependencies\":{\"osrm\":\"file:////osrm-backend\",\"osrm-isochrone-server\":\"git+https://github.com/Mapotempo/osrm-isochrone-server.git#v${OSRM_ISOCHRONE_VERSION}\"}}" > package.json && \
