@@ -18,6 +18,8 @@ RUN apt-get update && \
     echo -n > /var/lib/apt/extended_states && \
     rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
 
+RUN update-java-alternatives -s java-1.8.0-openjdk-amd64
+
 COPY otp-start.sh /usr/bin/otp-start.sh
 RUN chmod +x /usr/bin/otp-start.sh
 
