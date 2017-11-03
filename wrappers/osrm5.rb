@@ -191,7 +191,7 @@ module Wrappers
           licence: @licence,
           attribution: @attribution,
         },
-        "matrix_#{dim1}".to_sym => json['durations'].collect { |r|
+        "matrix_#{dim1}".to_sym => dim1 == :distance ? json['distances'] : json['durations'].collect { |r|
           r.collect { |rr|
             rr ? (rr * 1.0 / (options[:speed_multiplier] || 1)).round : nil
           }
@@ -240,7 +240,11 @@ module Wrappers
               end
 
               if json['code'] == 'Ok'
-                json['routes'][0]['distance']
+                if dim2 == :distance
+                  json['routes'][0]['distance']
+                else
+                  (json['routes'][0]['duration'] * 1.0 / (options[:speed_multiplier] || 1)).round
+                end
               end
             end
           }
