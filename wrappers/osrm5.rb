@@ -44,6 +44,9 @@ module Wrappers
       }.delete_if { |k, v| v.nil? }
       @licence = hash[:licence]
       @attribution = hash[:attribution]
+      @track = hash[:track] || false
+      @motorway = hash[:motorway] || false
+      @toll = hash[:toll] || false
     end
 
     # Declare available router options for capability operation
@@ -56,15 +59,15 @@ module Wrappers
     end
 
     def track?
-      true
+      @track
     end
 
     def motorway?
-      true
+      @motorway
     end
 
     def toll?
-      true
+      @toll
     end
 
     def route_dimension
@@ -87,7 +90,11 @@ module Wrappers
           continue_straight: false,
           generate_hints: false,
           approaches: options[:approach] == :curb ? (['curb'] * locs.size).join(';') : nil,
-          exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(','),
+          exclude: [
+            toll? && options[:toll] == false ? 'toll' : nil,
+            motorway? && options[:motorway] == false ? 'motorway' : nil,
+            track? && options[:track] == false ? 'track' : nil,
+          ].compact.join(','),
         }.delete_if { |k, v| v.nil? || v == '' }
         coordinates = locs.collect{ |loc| [loc[1], loc[0]].join(',') }.join(';')
         request = RestClient.get(@url_trace[dimension] + '/route/v1/driving/' + coordinates, {
