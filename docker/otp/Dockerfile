@@ -11,7 +11,7 @@ RUN mkdir -p $(dirname ${OTP}) && wget http://maven.conveyal.com.s3.amazonaws.co
 
 # Install needed packages
 RUN apt-get update && \
-    apt-get install -y make osmosis unzip && \
+    apt-get install -y make osmosis unzip jq && \
     \
 # Cleanup Debian packages
     apt-get clean && \
