@@ -285,7 +285,8 @@ module Wrappers
         params = {
           lat: loc[0],
           lng: loc[1],
-          time: (size * (options[:speed_multiplier] || 1)).round(1),
+          time: dimension == :time ? (size * (options[:speed_multiplier] || 1)).round(1) : nil,
+          distance: dimension == :distance ? size : nil,
           approaches: options[:approach] == :curb ? (['curb'] * locs.size).join(';') : nil,
           exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(','),
         }.delete_if { |k, v| v.nil? || v == '' }
