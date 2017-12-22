@@ -4,7 +4,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    image: mapotempo/router-wrapper:${MAPOTEMPO_VERSION:-55.1.0}
+    image: mapotempo/router-wrapper:${MAPOTEMPO_VERSION:-56.0.0}
     ports:
       - "8082:80" # HOST:CONTAINER, edit only HOST part
     volumes:
@@ -16,7 +16,7 @@ services:
       - redis-cache
       - otp
     environment:
-      APP_ENV: production # Swith to "development" for more traces
+      APP_ENV: production # Switch to "development" for more traces
 
   otp:
     build:
