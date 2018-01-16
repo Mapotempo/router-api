@@ -184,14 +184,9 @@ module Wrappers
         dsts_split = dsts_max = [100, dsts.size].min
         srcs_split = [srcs_split, 15].min if srcs_split * dsts_split > 99
 
-        result = {
-          time: Array.new(srcs.size) { Array.new(dsts.size) },
-          distance: Array.new(srcs.size) { Array.new(dsts.size) }
-        }
-
         dim = dimension.to_s.split('_').collect(&:to_sym)
 
-        commons_param = {
+        params = {
           mode: here_mode(dim, @mode, options),
           departure: departure,
           avoidAreas: here_avoid_areas(options[:speed_multiplier_area]),
@@ -205,49 +200,10 @@ module Wrappers
           length: options[:length], # Truck routing only, vehicle length in meters.
           shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
           # truckRestrictionPenalty: here_strict_restriction(options[:strict_restriction]),
-          # routeAttributes: options[:strict_restriction] == 'soft' ? 'notes' : nil
+          # matrixAttributes: options[:strict_restriction] == 'soft' ? 'notes' : nil
         }
 
-        total = srcs.size * dsts.size
-        srcs_start = 0
-        while srcs_start < srcs.size do
-          param_start = {}
-          srcs_start.upto([srcs_start + srcs_split - 1, srcs.size - 1].min).each{ |i|
-            param_start["start#{i - srcs_start}"] = srcs[i].join(',')
-          }
-          dsts_start = 0
-          dsts_split = [dsts_split * 2, dsts_max].min
-          while dsts_start < dsts.size do
-            param_destination = {}
-            dsts_start.upto([dsts_start + dsts_split - 1, dsts.size - 1].min).each{ |i|
-              param_destination["destination#{i - dsts_start}"] = dsts[i].join(',')
-            }
-            request = get(@url_matrix, '7.2/calculatematrix', commons_param.dup.merge(param_start).merge(param_destination))
-
-            if request
-              request['response']['matrixEntry'].each{ |e|
-                s = e['summary']
-                if s
-                  result[:time][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s && s.key?('travelTime') ? s['travelTime'].round : nil
-                  result[:distance][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s && s.key?('distance') ? s['distance'].round : nil
-                elsif e['status'] == 'failed'
-                  request = nil
-                  break
-                end
-              }
-            end
-
-            # in some cases, matrix cannot be computed (cancelled) or is incomplete => try to decrease matrix size
-            if !request && dsts_split > 2
-              dsts_start = [dsts_start - dsts_split, 0].max
-              dsts_split = (dsts_split / 2).ceil
-            else
-              dsts_start += dsts_split
-            end
-          end
-
-          srcs_start += srcs_split
-        end
+        result = split_matrix(srcs_split, dsts_split, dsts_max, srcs, dsts, params, options[:strict_restriction])
 
         @cache.write(key, result)
       end
@@ -342,6 +298,55 @@ module Wrappers
       end
 
       request
+    end
+
+    def split_matrix(srcs_split, dsts_split, dsts_max, srcs, dsts, params, strict_restriction)
+      result = {
+        time: Array.new(srcs.size) { Array.new(dsts.size) },
+        distance: Array.new(srcs.size) { Array.new(dsts.size) }
+      }
+
+      srcs_start = 0
+      while srcs_start < srcs.size do
+        param_start = {}
+        srcs_start.upto([srcs_start + srcs_split - 1, srcs.size - 1].min).each{ |i|
+          param_start["start#{i - srcs_start}"] = srcs[i].join(',')
+        }
+        dsts_start = 0
+        dsts_split = [dsts_split * 2, dsts_max].min
+        while dsts_start < dsts.size do
+          param_destination = {}
+          dsts_start.upto([dsts_start + dsts_split - 1, dsts.size - 1].min).each{ |i|
+            param_destination["destination#{i - dsts_start}"] = dsts[i].join(',')
+          }
+          request = get(@url_matrix, '7.2/calculatematrix', params.dup.merge(param_start).merge(param_destination))
+
+          if request
+            request['response']['matrixEntry'].each{ |e|
+              s = e['summary']
+              if s
+                result[:time][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s && s.key?('travelTime') ? s['travelTime'].round : nil
+                result[:distance][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s && s.key?('distance') ? s['distance'].round : nil
+              elsif e['status'] == 'failed'
+                request = nil
+                break
+              end
+            }
+          end
+
+          # in some cases, matrix cannot be computed (cancelled) or is incomplete => try to decrease matrix size
+          if !request && dsts_split > 2
+            dsts_start = [dsts_start - dsts_split, 0].max
+            dsts_split = (dsts_split / 2).ceil
+          else
+            dsts_start += dsts_split
+          end
+        end
+
+        srcs_start += srcs_split
+      end
+
+      result
     end
 
     def here_hazardous_map
