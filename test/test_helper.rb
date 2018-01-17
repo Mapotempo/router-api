@@ -24,8 +24,9 @@ Dir[File.dirname(__FILE__) + '/../config/initializers/*.rb'].each {|file| requir
 require './router_wrapper'
 require './api/root'
 
-require "minitest/reporters"
-require "minitest/focus"
+require 'minitest/reporters'
+require 'minitest/focus'
+require 'byebug'
 Minitest::Reporters.use!
 
 require 'grape'
