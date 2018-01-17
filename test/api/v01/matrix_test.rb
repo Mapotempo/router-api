@@ -33,6 +33,27 @@ class Api::V01::MatrixTest < Minitest::Test
     }
   end
 
+  def test_matrix_square_with_motorway_options
+    src = '44.595845819060344,-1.1151123046875,44.549377532663684,-0.25062561035156244'
+    dst = '44.595845819060344,-1.1151123046875,44.549377532663684,-0.25062561035156244'
+    options = { api_key: 'demo', src: src, dst: dst, dimension: 'time', mode: 'osrm5' }
+    result_for_motorway = {}
+    [true, false].each do |boolean|
+      get '/0.1/matrix', options.merge(motorway: boolean)
+      result_for_motorway[boolean] = JSON.parse(last_response.body)['matrix_time']
+    end
+    assert result_for_motorway[true][0][1] < result_for_motorway[false][0][1]
+    assert result_for_motorway[true][1][0] < result_for_motorway[false][1][0]
+  end
+
+  def test_matrix_rectangular_with_mod
+    src = '44.595845819060344,-1.1151123046875'
+    dst = '44.595845819060344,-1.1151123046875,44.549377532663684,-0.25062561035156244'
+    options = { api_key: 'demo', src: src, dst: dst, dimension: 'time', mode: 'osrm5' }
+    get '/0.1/matrix', options
+    assert last_response.ok?, last_response.body
+  end
+
   def test_matrix_rectangular
     [:get, :post].each{ |method|
       send method, '/0.1/matrix', {api_key: 'demo', src: '43.2804,5.3806,43.291576,5.355835', dst: '43.290014,5.425873'}

@@ -165,17 +165,19 @@ module Wrappers
 
       json = @cache.read(key)
       if !json
+        concern = {
+          exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(',')
+        }
         if srcs == dsts
           locs_uniq = srcs
-          params = {}
+          params = concern
         else
           locs_uniq = (srcs + dsts).uniq.sort_by{ |a, b| a + b }
           params = {
             sources: srcs.collect{ |d| locs_uniq.index(d) }.join(';'),
             destinations: dsts.collect{ |d| locs_uniq.index(d) }.join(';'),
-            approaches: options[:approach] == :curb ? (['curb'] * locs.size).join(';') : nil,
-            exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(','),
-          }.delete_if { |k, v| v.nil? || v == '' }
+            approaches: options[:approach] == :curb ? (['curb'] * locs.size).join(';') : nil
+          }.merge(concern)
         end
 
         if locs_uniq.size == 1
@@ -187,7 +189,7 @@ module Wrappers
           uri.path = '/table/v1/driving/polyline(' + Polylines::Encoder.encode_points(locs_uniq, 1e5) + ')'
           request = RestClient.get(uri.normalize.to_str, {
             accept: :json,
-            params: params
+            params: params.delete_if { |k, v| v.nil? || v == '' }
           }) { |response, request, result, &block|
             case response.code
             when 200, 400

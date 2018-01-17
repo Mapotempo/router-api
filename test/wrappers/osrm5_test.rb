@@ -41,6 +41,19 @@ class Wrappers::Osrm5Test < Minitest::Test
     assert_equal vector.size, result[:matrix_time][0].size
   end
 
+  def test_matrix_square_with_motorway_options
+    osrm = RouterWrapper::OSRM5
+    src = [[44.595845819060344, -1.1151123046875], [44.549377532663684, -0.25062561035156244]]
+    dst = [[44.595845819060344, -1.1151123046875], [44.549377532663684, -0.25062561035156244]]
+    result_for_motorway = {}
+    [true, false].each do |boolean|
+      result = osrm.matrix(src, dst, :time, nil, nil, 'en', motorway: boolean)
+      result_for_motorway[boolean] = result
+    end
+    assert result_for_motorway[true][:matrix_time][0][1] < result_for_motorway[false][:matrix_time][0][1]
+    assert result_for_motorway[true][:matrix_time][1][0] < result_for_motorway[false][:matrix_time][1][0]
+  end
+
   def test_matrix_rectangular_time
     osrm = RouterWrapper::OSRM5
     src = [[49.610710, 18.237305], [47.010226, 2.900391]]
