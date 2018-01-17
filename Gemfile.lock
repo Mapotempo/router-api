@@ -58,6 +58,8 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.3.0)
     minitest (5.11.1)
+    minitest-focus (1.1.2)
+      minitest (>= 4, < 6)
     minitest-reporters (1.1.13)
       ansi
       builder
@@ -131,6 +133,7 @@ DEPENDENCIES
   grape_logging
   i18n
   minitest
+  minitest-focus
   minitest-reporters
   polylines
   puma
@@ -146,4 +149,4 @@ DEPENDENCIES
   simplecov
 
 BUNDLED WITH
-   1.15.3
+   1.16.1
