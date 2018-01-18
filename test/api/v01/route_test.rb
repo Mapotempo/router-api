@@ -81,6 +81,16 @@ class Api::V01::RouteTest < Minitest::Test
     assert_equal features[0], features[1]
   end
 
+  def test_routes_out_of_supported_area_or_not_supported_dimension_error
+    get '/0.1/routes', api_key: 'demo', locs: '-5.101887070062321,-37.353515625,-5.8236866460048295,-35.26611328125', mode: 'osrm5'
+    assert_equal 417, last_response.status, 'Bad response: ' + last_response.body
+  end
+
+  def test_routes_here_invalid_argument_error
+    get '/0.1/routes', api_key: 'demo', locs: '49.610710,18.237305,47.010226, 2.900391', mode: 'here', trailers: '10'
+    assert_equal 400, last_response.status, 'Bad response: ' + last_response.body
+  end
+
   def test_routes_none_locs
     [:get, :post].each{ |method|
       send method, '/0.1/routes', {api_key: 'demo'}
