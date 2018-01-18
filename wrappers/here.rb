@@ -121,7 +121,7 @@ module Wrappers
         s = r['summary']
         infos = {
           total_distance: s['distance'],
-          total_time: (s['trafficTime'] * 1.0 / (options[:speed_multiplier] || 1)).round(1),
+          total_time: (s['travelTime'] * 1.0 / (options[:speed_multiplier] || 1)).round(1),
           start_point: locs[0].reverse,
           end_point: locs[-1].reverse
         }
