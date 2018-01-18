@@ -321,15 +321,50 @@ module Wrappers
           }
           request = get(@url_matrix, '7.2/calculatematrix', params.dup.merge(param_start).merge(param_destination))
 
-          if request
+          if request && (dsts_split <= 2 || request['response']['matrixEntry'].select{ |e| e['status'] == 'failed' }.size < param_start.size * param_destination.size / 2)
             request['response']['matrixEntry'].each{ |e|
               s = e['summary']
-              if s
-                result[:time][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s && s.key?('travelTime') ? s['travelTime'].round : nil
-                result[:distance][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s && s.key?('distance') ? s['distance'].round : nil
+              if s && (s.key?('travelTime') || s.key?('distance'))
+                result[:time][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?('travelTime') ? s['travelTime'].round : nil
+                result[:distance][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?('distance') ? s['distance'].round : nil
               elsif e['status'] == 'failed'
-                request = nil
-                break
+                # FIXME: replace by truckRestrictionPenalty/matrixAttributes when available in matrix
+                if !strict_restriction
+                  route = get(@url_router, '7.2/calculateroute', params.select{ |k, _v|
+                    [
+                      :mode,
+                      :departure,
+                      :arrival,
+                      :avoidAreas,
+                      :language,
+                      :truckType,
+                      :trailersCount,
+                      :limitedWeight,
+                      :weightPerAxle,
+                      :height,
+                      :width,
+                      :length,
+                      :shippedHazardousGoods,
+                      #:tunnelCategory,
+                    ].include? k
+                  }.merge({
+                    alternatives: 0,
+                    resolution: 1,
+                    representation: 'overview',
+                    routeAttributes: 'summary,notes',
+                    truckRestrictionPenalty: 'soft',
+                    waypoint0: 'geo!' + param_start['start' + e['startIndex'].to_s],
+                    waypoint1: 'geo!' + param_destination['destination' + e['destinationIndex'].to_s],
+                  }))
+                  s = !route['response']['route'].empty? && route['response']['route'][0]['summary']
+                  if s
+                    result[:time][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?('travelTime') ? s['travelTime'].round : nil
+                    result[:distance][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?('distance') ? s['distance'].round : nil
+                  end
+                else
+                  request = nil
+                  break
+                end
               end
             }
           end

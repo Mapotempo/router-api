@@ -89,12 +89,26 @@ class Wrappers::HereTest < Minitest::Test
     assert_equal dst.size, result[:matrix_time][0].size
   end
 
+  def test_matrix_truck_restriction
+    here = RouterWrapper::HERE_TRUCK
+    src = [[43.6064, 3.8662047], [43.630469, 3.87083]]
+    dst = [[43.6064, 3.8662047]]
+
+    options = { strict_restriction: true, hazardous_goods: :explosive }
+    result = here.matrix(src, dst, :time, nil, nil, 'en', options)
+    assert_nil result[:matrix_time][1][0]
+
+    options = { strict_restriction: false, hazardous_goods: :explosive }
+    result = here.matrix(src, dst, :time, nil, nil, 'en', options)
+    assert result[:matrix_time][1][0] > 0
+  end
+
   def test_large_matrix_split
     # activate cache because of large matrix
     here = Wrappers::Here.new(ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*10), app_id: RouterWrapper::HERE_APP_ID, app_code: RouterWrapper::HERE_APP_CODE, mode: 'truck')
     # 101 points inside south-west(50.0,10.0) and north-east(51.0,11.0) (small zone to avoid timeout with here)
     vector = (0..100).collect{ |i| [50 + Float(i) / 100, 10 + Float(i) / 100]}
-    result = here.matrix(vector, vector, :time, nil, nil, 'en')
+    result = here.matrix(vector, vector, :time, nil, nil, 'en', strict_restriction: true)
     assert_equal vector.size, result[:matrix_time].size
     assert_equal vector.size, result[:matrix_time][0].size
   end
