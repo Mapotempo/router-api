@@ -356,7 +356,7 @@ module Wrappers
                     waypoint0: 'geo!' + param_start['start' + e['startIndex'].to_s],
                     waypoint1: 'geo!' + param_destination['destination' + e['destinationIndex'].to_s],
                   }))
-                  s = !route['response']['route'].empty? && route['response']['route'][0]['summary']
+                  s = route && !route['response']['route'].empty? && route['response']['route'][0]['summary']
                   if s
                     result[:time][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?('travelTime') ? s['travelTime'].round : nil
                     result[:distance][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?('distance') ? s['distance'].round : nil
@@ -367,6 +367,8 @@ module Wrappers
                 end
               end
             }
+          else
+            request = nil
           end
 
           # in some cases, matrix cannot be computed (cancelled) or is incomplete => try to decrease matrix size
