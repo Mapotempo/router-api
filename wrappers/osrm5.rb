@@ -289,7 +289,7 @@ module Wrappers
           lng: loc[1],
           time: dimension == :time ? (size * (options[:speed_multiplier] || 1)).round(1) : nil,
           distance: dimension == :distance ? size : nil,
-          approaches: options[:approach] == :curb ? (['curb'] * locs.size).join(';') : nil,
+          approaches: options[:approach] == :curb ? (['curb'] * loc.size).join(';') : nil,
           exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(','),
         }.delete_if { |k, v| v.nil? || v == '' }
         request = RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {

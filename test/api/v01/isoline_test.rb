@@ -26,6 +26,11 @@ class Api::V01::IsolineTest < Minitest::Test
     Api::Root
   end
 
+  def test_isoline_with_approach
+    get '/0.1/isoline', api_key: 'demo', loc: '43.2804,5.3806', size: 33, departure: Time.now, approach: :curb, mode: 'osrm5'
+    assert last_response.ok?, last_response.body
+  end
+
   def test_isoline
     [:get, :post].each{ |method|
       send method, '/0.1/isoline', {api_key: 'demo', loc: '43.2804,5.3806', size: 33, departure: Time.now}
