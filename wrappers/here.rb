@@ -220,13 +220,7 @@ module Wrappers
         }
       }
 
-      if dimension == :time_distance
-        ret[:matrix_distance] = result[:distance].collect { |r|
-          r.collect { |rr|
-            rr ? (rr / (options[:speed_multiplier] || 1)).round : nil
-          }
-        }
-      end
+      ret[:matrix_distance] = result[:distance] if dim.include?(:distance)
 
       ret
     end
