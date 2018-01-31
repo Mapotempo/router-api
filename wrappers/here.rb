@@ -159,6 +159,8 @@ module Wrappers
       srcs = srcs.collect{ |r| [r[0].round(5), r[1].round(5)] }
       dsts = dsts.collect{ |c| [c[0].round(5), c[1].round(5)] }
 
+      dim = dimension.to_s.split('_').collect(&:to_sym)
+
       # In addition of cache defined inside private get method
       key = Digest::MD5.hexdigest(Marshal.dump([srcs, dsts, dimension, departure, arrival, language, options]))
       result = @cache.read(key)
@@ -183,8 +185,6 @@ module Wrappers
         srcs_split = [100 / [(dsts.size / coef_distance).ceil, 100].min, (1000 / srcs.size.to_f).ceil].min
         dsts_split = dsts_max = [100, dsts.size].min
         srcs_split = [srcs_split, 15].min if srcs_split * dsts_split > 99
-
-        dim = dimension.to_s.split('_').collect(&:to_sym)
 
         params = {
           mode: here_mode(dim, @mode, options),
