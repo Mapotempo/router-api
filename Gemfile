@@ -20,7 +20,7 @@ gem 'activesupport', '<5' # Wait for Ruby version >= 2.2.2
 
 group :test do
   gem 'rack-test'
-  gem 'byebug', '<9' # Wait for Ruby 2.2
+  gem 'byebug'
   gem 'minitest'
   gem 'minitest-focus'
   gem 'minitest-reporters'

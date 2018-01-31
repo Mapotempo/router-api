@@ -16,7 +16,7 @@ GEM
     border_patrol (0.2.1)
       nokogiri (>= 1.4.3.1)
     builder (3.2.3)
-    byebug (8.2.5)
+    byebug (9.1.0)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.0.5)
@@ -127,7 +127,7 @@ DEPENDENCIES
   activesupport (< 5)
   addressable
   border_patrol
-  byebug (< 9)
+  byebug
   grape
   grape-entity
   grape-swagger (< 0.26)
