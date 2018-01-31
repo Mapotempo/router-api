@@ -4,7 +4,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    image: mapotempo/router-wrapper:${MAPOTEMPO_VERSION:-56.0.0}
+    image: mapotempo/router-wrapper:${MAPOTEMPO_VERSION:-56.0.1}
     ports:
       - "8082:80" # HOST:CONTAINER, edit only HOST part
     volumes:
