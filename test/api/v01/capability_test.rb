@@ -99,6 +99,7 @@ class Api::V01::CapabilityTest < Minitest::Test
       :departure,
       :arrival,
       :traffic,
+      :snap,
       :trailers,
       :weight,
       :weight_per_axle,
