@@ -78,6 +78,7 @@ class Wrappers::HereTest < Minitest::Test
     result = here.matrix(vector, vector, :time, nil, nil, 'en')
     assert_equal vector.size, result[:matrix_time].size
     assert_equal vector.size, result[:matrix_time][0].size
+    assert result[:matrix_time][0].any?{ |m| m }
   end
 
   def test_matrix_rectangular
@@ -87,6 +88,16 @@ class Wrappers::HereTest < Minitest::Test
     result = here.matrix(src, dst, :time, nil, nil, 'en')
     assert_equal src.size, result[:matrix_time].size
     assert_equal dst.size, result[:matrix_time][0].size
+    assert result[:matrix_time][0].any?{ |m| m }
+  end
+
+  def test_matrix_traffic
+    here = RouterWrapper::HERE_TRUCK
+    vector = [[49.610710, 18.237305], [47.010226, 2.900391]]
+    result = here.matrix(vector, vector, :time, nil, nil, 'en', traffic: true)
+    assert_equal vector.size, result[:matrix_time].size
+    assert_equal vector.size, result[:matrix_time][0].size
+    assert result[:matrix_time][0].any?{ |m| m }
   end
 
   def test_matrix_truck_restriction
