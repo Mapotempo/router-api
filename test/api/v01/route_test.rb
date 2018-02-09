@@ -66,6 +66,11 @@ class Api::V01::RouteTest < Minitest::Test
     assert last_response.ok?, last_response.body
   end
 
+  def test_route_should_return_summed_by_area
+    get '/0.1/route', api_key: 'demo', loc: '44.82603994818902,-0.6808733940124512,44.825240952347244,-0.6830835342407227', mode: 'osrm5', with_summed_by_area: true
+    assert_equal [{'distance' => 195.7, 'way_type' => 'interurban'}, {'distance' => 195.7, 'way_type' => 'secondary'}], JSON.parse(last_response.body)['features'][0]['properties']['router']['summed_by_area']
+  end
+
   def test_routes
     features = []
     [:get, :post].each{ |method|

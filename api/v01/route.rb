@@ -83,12 +83,13 @@ module Api
 #          requires :loc, type: Array[Array[Float]], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
           requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
           optional :precision, type: Integer, default: 6, desc: 'Precison for encoded polyline.'
+          optional :with_summed_by_area, type: Boolean, default: false, desc: 'Returns way type detail when set to true.'
         }
         get do
           params[:locs] = [params[:loc].each_slice(2).to_a]
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area]
-          present compute_routes(params)[0], with: RouteResult, geometry: params[:geometry], toll_costs: params[:toll_costs]
+          present compute_routes(params)[0], with: RouteResult, geometry: params[:geometry], toll_costs: params[:toll_costs], with_summed_by_area: params[:with_summed_by_area]
         end
       end
 

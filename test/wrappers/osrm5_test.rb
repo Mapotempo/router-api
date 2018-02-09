@@ -33,6 +33,48 @@ class Wrappers::Osrm5Test < Minitest::Test
     assert_equal 0, result[:features].size
   end
 
+  def test_router_with_summed_by_area_true
+    osrm = RouterWrapper::OSRM5
+    # With only one mapped way type (w2), it should return the interurban & secondary distance
+    result = osrm.route([[44.82603994818902, -0.6808733940124512], [44.825240952347244, -0.6830835342407227]], :distance, nil, nil, 'en', true, with_summed_by_area: true)
+    assert_equal [{way_type: 'interurban', distance: 195.7}, {way_type: 'secondary', distance: 195.7}], result[:features][0][:properties][:router][:summed_by_area]
+
+    # It should regroup same way type as one : ['w2', 'w2'] => ['w2']
+    result = osrm.route([[44.82559098998385, -0.679854154586792], [44.82682371430229, -0.6844997406005859]], :distance, nil, nil, 'en', true, with_summed_by_area: true)
+    assert_equal [{way_type: 'urban', distance: 65.3}, {way_type: 'residential', distance: 407.9}, {way_type: 'interurban', distance: 419.4}, {way_type: 'secondary', distance: 76.8}], result[:features][0][:properties][:router][:summed_by_area], result[:features][0][:properties][:router][:summed_by_area]
+
+    # With 2 blocks of different way type ['motorway', 'l1'] & ['w2', 'l1']
+    # it should calculate the right distance (652) for ['w2', 'l1'] and do not revert ['motorway']
+    result = osrm.route([[44.77936764497835, -0.6411123275756836], [44.779672267772845, -0.647892951965332]], :distance, nil, nil, 'en', true, with_summed_by_area: true)
+    assert_equal [{way_type: 'urban', distance: 652.5}, {way_type: 'motorway', distance: 517.9}, {way_type: 'secondary', distance: 134.6}], result[:features][0][:properties][:router][:summed_by_area]
+    assert_in_epsilon result[:features][0][:properties][:router][:total_distance], result[:features][0][:properties][:router][:summed_by_area].collect{ |c| c[:distance] if c[:way_type] == 'urban' }.first, 0.001
+  end
+
+  # Should handle coordinates in step['geometry']
+  def test_router_with_summed_by_area_true_handle_geojson_option
+    osrm = RouterWrapper::OSRM5
+    result = osrm.route([[44.77936764497835, -0.6411123275756836], [44.779672267772845, -0.647892951965332]], :distance, nil, nil, 'en', true, with_summed_by_area: true, format: 'geojson')
+    assert_equal 4, result[:features][0][:properties][:router][:summed_by_area].count
+  end
+
+  def test_reverse_area_mapping
+    osrm = RouterWrapper::OSRM5
+    assert_equal %w[urban], osrm.reverse_area_mapping(['l1'])
+    assert_equal %w[urban_dense], osrm.reverse_area_mapping(%w[l1 l2])
+    assert_equal %w[water_body], osrm.reverse_area_mapping(['l2'])
+    assert_equal %w[interurban tertiary], osrm.reverse_area_mapping(['w1'])
+    assert_equal %w[interurban primary], osrm.reverse_area_mapping(%w[w1 w2])
+    assert_equal %w[interurban trunk], osrm.reverse_area_mapping(%w[w1 w2 w3])
+    assert_equal %w[interurban minor], osrm.reverse_area_mapping(['w2'])
+    assert_equal %w[interurban residential], osrm.reverse_area_mapping(%w[w2 w3])
+    assert_equal %w[interurban], osrm.reverse_area_mapping(['w3'])
+    assert_equal %w[interurban], osrm.reverse_area_mapping([])
+    assert_equal %w[interurban motorway], osrm.reverse_area_mapping(['motorway'])
+    assert_equal %w[urban motorway], osrm.reverse_area_mapping(%w[l1 motorway])
+    assert_equal %w[interurban trunk motorway], osrm.reverse_area_mapping(%w[w1 w2 w3 motorway])
+    assert_equal %w[urban minor], osrm.reverse_area_mapping(%w[l1 w2])
+  end
+
   def test_matrix_square
     osrm = RouterWrapper::OSRM5
     vector = [[49.610710, 18.237305], [47.010226, 2.900391]]

@@ -16,6 +16,7 @@
 # <http://www.gnu.org/licenses/agpl.html>
 #
 require './api/v01/entities/entity'
+require './api/v01/entities/route_result_properties_router_summed_by_area'
 
 module Api
   module V01
@@ -34,6 +35,8 @@ module Api
       expose(:end_point, documentation: { type: Float, is_array: true, desc: 'Latitude and longitude of ending point.' })
       # OPTIONAL
       expose :total_toll_costs, documentation: { type: Float, desc: 'Total toll costs amount in specified currency.' }, if: :toll_costs
+      # OPTIONAL
+      expose :summed_by_area, using: RouteResultPropertiesRouterSummedByArea, documentation: { type: Array, desc: 'Distance summed by area type.' }, if: :with_summed_by_area
     end
   end
 end

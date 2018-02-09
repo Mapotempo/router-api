@@ -16,6 +16,7 @@
 # <http://www.gnu.org/licenses/agpl.html>
 #
 require './wrappers/wrapper'
+require './lib/earth'
 
 require 'uri'
 require 'rest-client'
@@ -47,6 +48,8 @@ module Wrappers
       @track = hash[:track] || false
       @motorway = hash[:motorway] || false
       @toll = hash[:toll] || false
+      @area_mapping = hash[:area_mapping] || {}
+      @whitelist_classes = hash[:whitelist_classes] || []
     end
 
     # Declare available router options for capability operation
@@ -70,6 +73,10 @@ module Wrappers
       @toll
     end
 
+    def with_summed_by_area?
+      @with_summed_by_area
+    end
+
     def route_dimension
       @url_trace.keys
     end
@@ -83,7 +90,7 @@ module Wrappers
       if !json
         params = {
           alternatives: false,
-          steps: false,
+          steps: options[:with_summed_by_area] || false,
           annotations: false,
           geometries: options[:format] != 'geojson' && {5 => :polyline, 6 => :polyline6}[options[:precision]] || :geojson,
           overview: with_geometry ? :full : false,
@@ -113,7 +120,7 @@ module Wrappers
         if ['Ok', 'NoRoute'].include?(json['code'])
           @cache.write(key, json)
         else
-          raise 'OSRM request fails with: ' + (json['code'] || '')  + ' ' + (json['message'] || '')
+          raise 'OSRM request fails with: ' + (json['code'] || '') + ' ' + (json['message'] || '')
         end
       end
 
@@ -137,6 +144,11 @@ module Wrappers
           }
         }
       }}
+      if options[:with_summed_by_area]
+        (json['routes'] || []).each_with_index{ |route, index|
+          ret[:features][index][:properties][:router][:summed_by_area] = distance_by_way_type(route, options[:precision])
+        }
+      end
 
       if with_geometry
         geojson = options[:format] == 'geojson' || ![5, 6].include?(options[:precision])
@@ -307,6 +319,85 @@ module Wrappers
         }
         data
       end
+    end
+
+    def distance_by_way_type(route, precision)
+      regrouped_classes = regroup_by_way_type(route, precision)
+      available_classes = regrouped_classes.collect{ |g| {way_type: g[:way_type], distance: 0} }.uniq
+      available_classes.select{ |item|
+        # Sums distance of same way_type
+        item[:distance] = regrouped_classes.collect{ |i|
+          i[:distance] if i[:way_type] == item[:way_type]
+        }.compact.inject(:+).round(1)
+      }
+    end
+
+    def regroup_by_way_type(route, precision)
+      route['legs'].collect{ |leg|
+        leg['steps'].reject{ |step|
+          step['maneuver']['type'] == 'arrive' # Reject unnecessary steps
+        }.collect{ |step|
+          classes = step['intersections'].collect{ |i| i['classes'] || [] }.flatten.compact.uniq
+          if classes.count == 1 # All intersections have the same classes
+            reverse_area_mapping(classes).collect{ |cls| { way_type: cls, distance: step['distance'] } }
+          elsif step['intersections'].count == 1 # Only one intersection, use step distance
+            reverse_area_mapping(step['intersections'][0]['classes']).collect{ |cls| { way_type: cls, distance: step['distance'] } }
+          else
+            classes_from_coordinates(step, precision)
+          end
+        }
+      }.flatten
+    end
+
+    def reverse_area_mapping(classes)
+      return [] if classes.nil?
+      standard_classes = classes.select{ |c| @whitelist_classes.include?(c) }
+
+      reversed_classes = @area_mapping.collect{ |m|
+        mask = classes.select{ |c| c if m[:mask].include?(c) }
+        m[:mapping][m[:mask].collect{ |st| mask.include?(st) }]
+      }.compact
+
+      reversed_classes.push(standard_classes).flatten
+    end
+
+    def classes_from_coordinates(step, precision)
+      if step['geometry'].is_a? String
+        coordinates = Polylines::Decoder.decode_polyline(step['geometry'], 10**precision)
+      else
+        coordinates = step['geometry']['coordinates'].collect(&:reverse)
+      end
+
+      intersections = step['intersections'].each{ |i| i['location'].reverse! }
+      # Adds as last intersection the last coordinate if not exists
+      if !same_coordinates?(intersections.last['location'], coordinates.last, precision)
+        intersections << {'location' => coordinates.last}
+      end
+
+      from_index = 1
+      intersections.reject{ |intersection|
+        intersections.index(intersection).zero?
+      }.collect{ |intersection|
+        distance = 0
+        same_coordinates = coordinates.select{ |coordinate|
+          same_coordinates?(coordinate, intersection['location'], precision)
+        }.flatten
+        to_index = coordinates.index(same_coordinates) + 1
+
+        (from_index...to_index).each{ |idx|
+          distance += RouterWrapper::Earth.distance_between(coordinates[idx - 1][0], coordinates[idx - 1][1],
+            coordinates[idx][0], coordinates[idx][1])
+        }
+
+        from_index = to_index
+        reverse_area_mapping(intersections[intersections.index(intersection) - 1]['classes']).collect{ |cls|
+          { way_type: cls, distance: distance }
+        }
+      }.flatten
+    end
+
+    def same_coordinates?(one, other, precision)
+      one.collect{ |l| l.round(precision) } == other.collect{ |l| l.round(precision) }
     end
   end
 end

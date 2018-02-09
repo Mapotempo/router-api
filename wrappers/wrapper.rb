@@ -43,7 +43,8 @@ module Wrappers
       :currency,
       :approach,
       :snap,
-      :strict_restriction
+      :strict_restriction,
+      :with_summed_by_area
     ]
 
     def initialize(cache, hash = {})

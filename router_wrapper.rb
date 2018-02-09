@@ -200,6 +200,7 @@ module RouterWrapper
       speed_multiplier_area: speed_multiplier_area(params),
       format: params[:format],
       precision: params[:precision],
+      with_summed_by_area: params[:with_summed_by_area]
     }
     (Wrappers::Wrapper::OPTIONS -
       [:speed_multiplier, :avoid_area, :speed_multiplier_area, :departure, :arrival]).each{ |k|
