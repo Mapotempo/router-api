@@ -16,6 +16,7 @@
 # <http://www.gnu.org/licenses/agpl.html>
 #
 require './wrappers/wrapper'
+require './lib/earth'
 
 
 module Wrappers
@@ -30,7 +31,7 @@ module Wrappers
     end
 
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
-      d = distance_between(locs[0][1], locs[0][0], locs[-1][1], locs[-1][0])
+      d = RouterWrapper::Earth.distance_between(locs[0][1], locs[0][0], locs[-1][1], locs[-1][0])
       ret = {
         type: 'FeatureCollection',
         router: {
@@ -68,7 +69,7 @@ module Wrappers
         },
         matrix_time: src.collect{ |s|
           dst.collect{ |d|
-            distance_between(s[1], s[0], d[1], d[0]) * 1.0 / (options[:speed_multiplier] || 1)
+            RouterWrapper::Earth.distance_between(s[1], s[0], d[1], d[0]) * 1.0 / (options[:speed_multiplier] || 1)
           }
         }
       }
@@ -85,35 +86,9 @@ module Wrappers
           type: 'Feature',
           geometry: {
             type: 'Polygon',
-            coordinates: [draw_circle(loc[0], loc[1], size * 1.0 / (options[:speed_multiplier] || 1))]
+            coordinates: [RouterWrapper::Earth.draw_circle(loc[0], loc[1], size * 1.0 / (options[:speed_multiplier] || 1))]
           }
         }]
-      }
-    end
-
-    private
-
-    RAD_PER_DEG = Math::PI / 180
-    DEG_PER_RAD = 180 / Math::PI
-    RM = 6371000 # Earth radius in meters
-
-    def distance_between(lat1, lon1, lat2, lon2)
-      lat1_rad, lat2_rad = lat1 * RAD_PER_DEG, lat2 * RAD_PER_DEG
-      lon1_rad, lon2_rad = lon1 * RAD_PER_DEG, lon2 * RAD_PER_DEG
-
-      a = Math.sin((lat2_rad - lat1_rad) / 2) ** 2 + Math.cos(lat1_rad) * Math.cos(lat2_rad) * Math.sin((lon2_rad - lon1_rad) / 2) ** 2
-      c = 2 * Math::atan2(Math::sqrt(a), Math::sqrt(1 - a))
-
-      RM * c # Delta in meters
-    end
-
-    def draw_circle(lat, lng, radius, points = 64)
-      rlat = radius.to_f / RM * DEG_PER_RAD
-      rlng = rlat / Math.cos(lat * RAD_PER_DEG)
-      rtheta = 1 / (points.to_f / 2) * Math::PI
-
-      points.times.collect{ |i|
-        [lng + rlng * Math.cos(i* rtheta), lat + rlat * Math.sin(i * rtheta)]
       }
     end
   end

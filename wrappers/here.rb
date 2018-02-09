@@ -179,7 +179,7 @@ module Wrappers
 
         lats = (srcs + dsts).minmax_by{ |p| p[0] }
         lons = (srcs + dsts).minmax_by{ |p| p[1] }
-        dist = distance([lats[1][0], lons[1][1]], [lats[0][0], lons[0][1]])
+        dist = RouterWrapper::Earth.distance_between(lats[1][0], lons[1][1], lats[0][0], lons[0][1])
         coef_distance = 7 - [dist / 200, 6.0].min # 100km: 7, 1200km: 2, 1400km: 1
 
         srcs_split = [100 / [(dsts.size / coef_distance).ceil, 100].min, (1000 / srcs.size.to_f).ceil].min
@@ -399,25 +399,6 @@ module Wrappers
 
     def here_strict_restriction(param_value)
       param_value ? 'strict' : 'soft'
-    end
-
-    def distance(src, dst)
-      dtor = Math::PI/180
-      r = 6378.14
-
-      rlat1 = src[0] * dtor
-      rlon1 = src[1] * dtor
-      rlat2 = dst[0] * dtor
-      rlon2 = dst[1] * dtor
-
-      dlon = rlon1 - rlon2
-      dlat = rlat1 - rlat2
-
-      a = (Math::sin(dlat/2) ** 2) + Math::cos(rlat1) * Math::cos(rlat2) * (Math::sin(dlon/2) ** 2)
-      c = 2 * Math::atan2(Math::sqrt(a), Math::sqrt(1-a))
-      d = r * c
-
-      d
     end
   end
 end
