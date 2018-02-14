@@ -41,9 +41,7 @@ module Api
           detail: 'Find the route between two or more points depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for information).',
           nickname: 'route',
           success: RouteResult,
-          failures: [
-            {code: 400, model: Status}
-          ],
+          failure: Status.failure,
           produces: [
             'application/json; charset=UTF-8',
             'application/vnd.geo+json; charset=UTF-8',
@@ -132,9 +130,7 @@ module Api
           detail: 'Find many routes between many couples of two or more points. Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time).',
           nickname: 'routes',
           success: RouteResult,
-          failures: [
-            {code: 400, model: Status}
-          ],
+          failure: Status.failure,
           produces: [
             'application/json; charset=UTF-8',
             'application/vnd.geo+json; charset=UTF-8',
@@ -152,9 +148,7 @@ module Api
           detail: 'Find many routes between many couples of two or more points. Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time).',
           nickname: 'routes_post',
           success: RouteResult,
-          failures: [
-            {code: 400, model: Status}
-          ],
+          failure: Status.failure,
           produces: [
             'application/json; charset=UTF-8',
             'application/vnd.geo+json; charset=UTF-8',

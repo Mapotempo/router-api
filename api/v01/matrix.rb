@@ -69,9 +69,7 @@ module Api
           detail: 'Build time/distance matrix between several points depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'matrix',
           success: MatrixResult,
-          failures: [
-            {code: 400, model: Status}
-          ],
+          failure: Status.failure,
         }
         get do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
@@ -83,9 +81,7 @@ module Api
           detail: 'Build time/distance matrix between several points depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'matrix_post',
           success: MatrixResult,
-          failures: [
-            {code: 400, model: Status}
-          ],
+          failure: Status.failure,
         }
         post do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]

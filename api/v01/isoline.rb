@@ -69,9 +69,7 @@ module Api
           detail: 'Build isoline from a point with defined size depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'isoline',
           success: IsolineResult,
-          failures: [
-            {code: 400, model: Status}
-          ],
+          failure: Status.failure,
           produces: [
             'application/json; charset=UTF-8',
             'application/vnd.geo+json; charset=UTF-8',
@@ -88,9 +86,7 @@ module Api
           detail: 'Build isoline from a point with defined size depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for informations).',
           nickname: 'isoline_post',
           success: IsolineResult,
-          failures: [
-            {code: 400, model: Status}
-          ],
+          failure: Status.failure,
           produces: [
             'application/json; charset=UTF-8',
             'application/vnd.geo+json; charset=UTF-8',

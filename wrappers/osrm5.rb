@@ -24,7 +24,6 @@ require 'addressable'
 #RestClient.log = $stdout
 require 'polylines'
 
-
 module Wrappers
   class Osrm5 < Wrapper
     def initialize(cache, hash = {})
