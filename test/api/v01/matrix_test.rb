@@ -90,6 +90,11 @@ class Api::V01::MatrixTest < Minitest::Test
     }
   end
 
+  def test_post_matrix_with_empty_dst
+    post '/0.1/matrix', api_key: 'demo', src: '43.2804,5.3806,43.291576,5.355835,43.2810,5.3810', dst: ''
+    assert_equal 200, last_response.status
+  end
+
   def test_matrix_with_duplicate
     [:get, :post].each{ |method|
       send method, '/0.1/matrix', {api_key: 'demo', mode: 'osrm5', src: '43.2804,5.3806,43.291576,5.355835,43.2804,5.3806'}

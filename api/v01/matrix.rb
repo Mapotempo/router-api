@@ -95,17 +95,17 @@ module Api
         def matrix(params)
           params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
           if params[:area]
-            params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
+            params[:area].all?{ |area| (area.size % 2).zero? } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:src] = params[:src].each_slice(2).to_a
           params[:src][-1].size == 2 || error!({detail: 'Source couples of lat/lng are needed.'}, 400)
 
-          if params.key?(:dst)
+          if params.key?(:dst) && !params[:dst].empty?
             params[:dst] = params[:dst].each_slice(2).to_a
             params[:dst][-1].size == 2 || error!({detail: 'Destination couples of lat/lng are needed.'}, 400)
           else
-            params[:dst] =  params[:src]
+            params[:dst] = params[:src]
           end
 
           results = RouterWrapper::wrapper_matrix(APIBase.services(params[:api_key]), params)
