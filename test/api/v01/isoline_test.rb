@@ -52,4 +52,9 @@ class Api::V01::IsolineTest < Minitest::Test
       assert_equal 417, last_response.status, 'Bad response: ' + last_response.body
     }
   end
+
+  def test_isoline_invalid_query_string_malformed
+    get '/0.1/isoline', api_key: 'demo', loc: '48.726675,-0.000079', size: 1, mode: 'osrm5'
+    assert last_response.ok?
+  end
 end

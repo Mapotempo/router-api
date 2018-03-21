@@ -102,7 +102,7 @@ module Wrappers
             track? && options[:track] == false ? 'track' : nil,
           ].compact.join(','),
         }.delete_if { |k, v| v.nil? || v == '' }
-        coordinates = locs.collect{ |loc| [loc[1], loc[0]].join(',') }.join(';')
+        coordinates = locs.collect{ |loc| ['%f' % loc[1], '%f' % loc[0]].join(',') }.join(';')
         request = RestClient.get(@url_trace[dimension] + '/route/v1/driving/' + coordinates, {
           accept: :json,
           params: params

@@ -61,6 +61,13 @@ class Api::V01::MatrixTest < Minitest::Test
     }
   end
 
+  def test_matrix_invalid_query_string_malformed
+    %w[osrm5 here].each do |mode|
+      get '/0.1/matrix', api_key: 'demo', src: '48.726675,-0.000079', dst: '48.84738,0.029615', mode: mode
+      assert last_response.ok?
+    end
+  end
+
   def test_route_none_loc
     [:get, :post].each{ |method|
       send method, '/0.1/matrix', {api_key: 'demo'}
