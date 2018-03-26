@@ -36,7 +36,7 @@ module Wrappers
     # Here api supports most of options... remove unsupported options below
     (OPTIONS - [:speed_multiplier_area, :max_walk_distance, :approach, :snap]).each do |s|
       define_method("#{s}?") do
-        true
+        ![:trailers, :weight, :weight_per_axle, :height, :width, :length, :hazardous_goods, :strict_restriction].include?(s) || @mode == 'truck'
       end
     end
 
@@ -87,7 +87,7 @@ module Wrappers
         language: language,
         representation: with_geometry || options[:toll_costs] ? 'display' : 'overview',
         routeAttributes: 'summary' + (with_geometry ? ',shape' : '') + (here_strict_restriction(options[:strict_restriction]) == 'soft' ? ',notes' : ''),
-        truckType: @mode,
+        truckType: @mode == 'truck' ? 'truck' : nil,
         trailersCount: options[:trailers], # Truck routing only, number of trailers.
         limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
         weightPerAxle: options[:weight_per_axle], # Truck routing only, vehicle weight per axle in tons.
@@ -190,7 +190,7 @@ module Wrappers
           mode: here_mode(dim, @mode, options),
           departure: departure,
           avoidAreas: here_avoid_areas(options[:speed_multiplier_area]),
-          truckType: @mode,
+          truckType: @mode == 'truck' ? 'truck' : nil,
           summaryAttributes: dim.collect{ |d| d == :time ? 'traveltime' : d == :distance ? 'distance' : nil }.compact.join(','),
           trailersCount: options[:trailers], # Truck routing only, number of trailers.
           limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.

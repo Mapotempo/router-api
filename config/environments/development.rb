@@ -61,6 +61,7 @@ module RouterWrapper
   HERE_APP_ID = nil
   HERE_APP_CODE = nil
   HERE_TRUCK = Wrappers::Here.new(CACHE, app_id: HERE_APP_ID, app_code: HERE_APP_CODE, mode: 'truck')
+  HERE_CAR = Wrappers::Here.new(CACHE, app_id: HERE_APP_ID, app_code: HERE_APP_CODE, mode: 'car')
 
   @@c = {
     product_title: 'Router Wrapper API',
