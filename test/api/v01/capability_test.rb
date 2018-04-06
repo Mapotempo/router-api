@@ -83,7 +83,8 @@ class Api::V01::CapabilityTest < Minitest::Test
       :currency,
       :approach,
       :snap,
-      :strict_restriction]).each { |option|
+      :strict_restriction,
+      :with_summed_by_area]).each { |option|
         supports = []
         ['route', 'matrix', 'isoline'].each{ |op|
           supports << response[op].select{ |r| r['mode'] == 'otp' }.map{ |r| r["support_#{option}"] }

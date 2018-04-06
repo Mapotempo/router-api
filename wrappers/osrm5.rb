@@ -49,6 +49,7 @@ module Wrappers
       @toll = hash[:toll] || false
       @area_mapping = hash[:area_mapping] || {}
       @whitelist_classes = hash[:whitelist_classes] || []
+      @with_summed_by_area = hash[:with_summed_by_area] || false
     end
 
     # Declare available router options for capability operation

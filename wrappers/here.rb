@@ -34,7 +34,7 @@ module Wrappers
 
     # Declare available router options for capability operation
     # Here api supports most of options... remove unsupported options below
-    (OPTIONS - [:speed_multiplier_area, :max_walk_distance, :approach, :snap]).each do |s|
+    (OPTIONS - [:speed_multiplier_area, :max_walk_distance, :approach, :snap, :with_summed_by_area]).each do |s|
       define_method("#{s}?") do
         ![:trailers, :weight, :weight_per_axle, :height, :width, :length, :hazardous_goods, :strict_restriction].include?(s) || @mode == 'truck'
       end
