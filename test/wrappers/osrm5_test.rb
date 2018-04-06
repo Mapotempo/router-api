@@ -29,7 +29,7 @@ class Wrappers::Osrm5Test < Minitest::Test
 
   def test_router_no_route
     osrm = RouterWrapper::OSRM5
-    result = osrm.route([[-18.90928, 47.53381], [-16.92609, 145.75843]], :time, nil, nil, 'en', true)
+    result = osrm.route([[46.71350244599995, -2.3565673828124996], [45.9874205909687, -1.3623046875]], :time, nil, nil, 'en', true)
     assert_equal 0, result[:features].size
   end
 
@@ -54,7 +54,8 @@ class Wrappers::Osrm5Test < Minitest::Test
   def test_router_with_summed_by_area_true_handle_geojson_option
     osrm = RouterWrapper::OSRM5
     result = osrm.route([[44.77936764497835, -0.6411123275756836], [44.779672267772845, -0.647892951965332]], :distance, nil, nil, 'en', true, with_summed_by_area: true, format: 'geojson')
-    assert_equal 4, result[:features][0][:properties][:router][:summed_by_area].count
+    # [{:way_type=>"urban", :distance=>652.3}, {:way_type=>"motorway", :distance=>517.7}, {:way_type=>"secondary", :distance=>134.6}]
+    assert_equal 3, result[:features][0][:properties][:router][:summed_by_area].count
   end
 
   def test_reverse_area_mapping
