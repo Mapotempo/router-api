@@ -25,6 +25,7 @@ GEM
     docile (1.1.5)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
+    dotenv (2.2.1)
     equalizer (0.0.11)
     grape (1.0.2)
       activesupport
@@ -119,6 +120,7 @@ DEPENDENCIES
   addressable
   border_patrol
   byebug
+  dotenv
   grape
   grape-entity
   grape-swagger (< 0.26)

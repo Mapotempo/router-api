@@ -38,3 +38,6 @@ build/
 .idea/*
 .ruby-gemset
 .ruby-version
+
+# Ignore application configuration
+.env

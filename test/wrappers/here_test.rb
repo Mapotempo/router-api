@@ -116,7 +116,7 @@ class Wrappers::HereTest < Minitest::Test
 
   def test_large_matrix_split
     # activate cache because of large matrix
-    here = Wrappers::Here.new(ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*10), app_id: RouterWrapper::HERE_APP_ID, app_code: RouterWrapper::HERE_APP_CODE, mode: 'truck')
+    here = Wrappers::Here.new(ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*10), app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'truck')
     # 101 points inside south-west(50.0,10.0) and north-east(51.0,11.0) (small zone to avoid timeout with here)
     vector = (0..100).collect{ |i| [50 + Float(i) / 100, 10 + Float(i) / 100]}
     result = here.matrix(vector, vector, :time, nil, nil, 'en', strict_restriction: true)
