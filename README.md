@@ -37,6 +37,31 @@ Available production extra environment variables are:
 REDIS_HOST=example.com
 ```
 
+Testing
+=======
+
+Build docker images
+```
+cd docker/
+docker-compose build
+```
+
+Build and launch containers
+```
+docker-compose -p router up -d
+```
+
+Generate otp graph
+```
+cd otp
+./otp-rebuild.sh bordeaux
+```
+
+Run tests
+```
+rake test
+```
+
 Usage
 =====
 

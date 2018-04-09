@@ -34,6 +34,24 @@ Then use the configuration file and edit it to match your needs:
     # Copy production configuration file
     cp ../config/environments/production.rb ./
 
+## Requirement
+
+    apt-get install -y jq
+
+## OTP
+
+### Build OTP graphs
+
+    # cd router-wrapper/docker/otp
+    ./otp-rebuild-all.sh
+
+### Build a single OTP graph
+
+The following script will build `bordeaux` graph from `./otp/data/graphs` in `/srv/docker`
+
+    # cd router-wrapper/docker/otp
+    ./otp-rebuild.sh bordeaux
+
 Finally run the services:
 
     docker-compose -p router up -d

@@ -19,6 +19,13 @@ build/
 /_yardoc/
 /doc/
 /rdoc/
+/docker/**/*.pbf
+/docker/**/*.obj
+/docker/**/*.zip
+/docker/**/*.ZIP
+/docker/**/*.log
+/docker/**/chouette*
+/docker/**/production.rb
 
 ## Environment normalisation:
 /.bundle/

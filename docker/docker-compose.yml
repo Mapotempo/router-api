@@ -14,16 +14,17 @@ services:
     restart: always
     links:
       - redis-cache
-      - otp
     environment:
       APP_ENV: production # Switch to "development" for more traces
 
-  otp:
+  otp-bordeaux:
     build:
       context: otp
-      args:
-        OTP_VERSION: 1.0.0
-    image: mapotempo/otp-server:1.0.0
+    image: mapotempo/otp-server:${OTP_VERSION:-1.2.0}
+    environment:
+      GRAPH: bordeaux
+    ports:
+      - "7001:7000"
     volumes:
       - ./otp/data:/srv/otp/data
     restart: always
