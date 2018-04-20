@@ -233,7 +233,7 @@ module Wrappers
       # Cache defined inside private get method
       params = {
         start: "geo!#{loc[0]},#{loc[1]}",
-        range: size,
+        range: dimension == :time ? (size * (options[:speed_multiplier] || 1)).round : size,
         rangeType: dimension,
         mode: here_mode(dimension.to_s.split('_').collect(&:to_sym), @mode, options),
         departure: departure,
