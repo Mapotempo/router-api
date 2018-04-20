@@ -176,6 +176,7 @@ module Api
             loc[-1].size == 2 || error!({detail: "locs: segment ##{index}, couples of lat/lng required."}, 400)
           }
 
+          errors_count = 0
           routes = params[:locs].collect{ |loc|
             params[:loc] = loc
             begin
@@ -198,7 +199,8 @@ module Api
               }
               results
             rescue => e
-              if params[:locs] && params[:locs].size > 1
+              if params[:locs] && params[:locs].size > 1 && errors_count < params[:locs].count - 1
+                errors_count += 1
                 {
                   type: 'Feature',
                   properties: nil,
