@@ -226,7 +226,60 @@ module Wrappers
     end
 
     def isoline?(loc, dimension)
-      false # TODO: not implemented
+      true
+    end
+
+    def isoline(loc, dimension, size, departure, _language, options = {})
+      # Cache defined inside private get method
+      params = {
+        start: "geo!#{loc[0]},#{loc[1]}",
+        range: size,
+        rangeType: dimension,
+        mode: here_mode(dimension.to_s.split('_').collect(&:to_sym), @mode, options),
+        departure: departure,
+        # arrival: arrival,
+        # avoidAreas: here_avoid_areas(options[:speed_multiplier_area]),
+        resolution: 1,
+        # quality: 2,
+        truckType: @mode == 'truck' ? 'truck' : nil,
+        trailersCount: options[:trailers], # Truck routing only, number of trailers.
+        limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
+        weightPerAxle: options[:weight_per_axle], # Truck routing only, vehicle weight per axle in tons.
+        height: options[:height], # Truck routing only, vehicle height in meters.
+        width: options[:width], # Truck routing only, vehicle width in meters.
+        length: options[:length], # Truck routing only, vehicle length in meters.
+        shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
+        #tunnelCategory : # Specifies the tunnel category to restrict certain route links. The route will pass only through tunnels of a les
+        # truckRestrictionPenalty: here_strict_restriction(options[:strict_restriction])
+      }.delete_if { |k, v| v.nil? }
+
+      request = get(@url_isoline, '7.2/calculateisoline', params)
+
+      ret = {
+        type: 'FeatureCollection',
+        router: {
+          licence: 'HERE',
+          attribution: 'HERE'
+        },
+        features: []
+      }
+
+      if request && request['response'] && request['response']['isoline']
+        isoline = request['response']['isoline'][0]
+        ret[:features] = isoline['component'].map{ |component|
+          {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'Polygon',
+              coordinates: [component['shape'].map{ |s|
+                s.split(',').map(&:to_f).reverse
+              }]
+            }
+          }
+        }
+        ret
+      end
     end
 
     private

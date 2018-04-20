@@ -145,4 +145,11 @@ class Wrappers::HereTest < Minitest::Test
   #   result = here.matrix(vector, vector, :time, nil, nil, 'en')
   #   assert_equal nil, result[:matrix_time][2][1]
   # end
+
+  def test_isoline
+    here = RouterWrapper::HERE_CAR
+    result = here.isoline([49.610710, 18.237305], :time, 300, Time.now.iso8601, 'en', {motorway: true, toll: true})
+    assert !result[:features].empty?
+    assert !result[:features][0][:geometry].empty?
+  end
 end

@@ -53,7 +53,7 @@ module Api
           optional :dimension, type: Symbol, values: [:time, :distance], default: :time, desc: 'Compute fastest or shortest (default on time.)'
           optional :geometry, type: Boolean, default: true, desc: 'Return the route trace geometry.'
           optional :traffic, type: Boolean, default: false, desc: 'Traffic (default: false), not available on all transport modes.'
-          optional :departure, type: DateTime, desc: 'Departure date time (not used by all transport modes). Traffic (if used) is taken into account at this time.'
+          optional :departure, type: DateTime, desc: 'Departure date time (only used if router supports traffic). Traffic (if used) is taken into account at this time.'
           optional :arrival, type: DateTime, desc: 'Arrival date time (not used by all transport modes). In exclusion with departure.'
           optional :speed_multiplier, type: Float, desc: 'Speed multiplier (default: 1), not available on all transport modes.'
           optional :speed_multiplicator, type: Float, desc: 'Deprecated, use speed_multiplier instead.'
