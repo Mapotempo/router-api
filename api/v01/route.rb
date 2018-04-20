@@ -140,7 +140,7 @@ module Api
         get do
           params[:locs] = params[:locs].collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
-          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0
+          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
           many_routes params
         end
 
@@ -158,7 +158,7 @@ module Api
         post do
           params[:locs] = params[:locs].collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
-          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0
+          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
           many_routes params
           status 200
         end

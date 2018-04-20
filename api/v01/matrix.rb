@@ -73,7 +73,7 @@ module Api
         }
         get do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
-          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0
+          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
           matrix params
         end
 
@@ -85,7 +85,7 @@ module Api
         }
         post do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
-          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0
+          params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
           matrix params
           status 200
         end
