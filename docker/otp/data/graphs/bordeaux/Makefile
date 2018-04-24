@@ -2,15 +2,17 @@
 
 all: Graph.obj
 
+FORCE:
+
 /srv/otp/data/osm/europe/france-latest.osm.pbf:
 	mkdir -p `dirname $@`
 	wget http://download.geofabrik.de/europe/france-latest.osm.pbf --no-verbose -O $@
 
-bordeaux-bus-gtfs.zip:
-	wget "http://data.bordeaux-metropole.fr/files.php?gid=68&format=14" --no-verbose -O $@
+bordeaux-bus-gtfs.zip: FORCE
+	wget "http://data.bordeaux-metropole.fr/files.php?gid=68&format=14" --no-verbose -N -O $@
 
-bordeaux-tram-gtfs.zip:
-	wget "http://data.bordeaux-metropole.fr/files.php?gid=67&format=14" --no-verbose -O $@
+bordeaux-tram-gtfs.zip: FORCE
+	wget "http://data.bordeaux-metropole.fr/files.php?gid=67&format=14" --no-verbose -N -O $@
 
 bordeaux_france.osm.pbf: /srv/otp/data/osm/europe/france-latest.osm.pbf
 	osmosis --read-pbf $< --bounding-box top=45.065 left=-0.900 bottom=44.569 right=-0.162 --write-pbf $@
