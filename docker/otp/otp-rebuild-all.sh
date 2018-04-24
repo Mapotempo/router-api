@@ -1,4 +1,7 @@
 #!/bin/sh
-for i in ./data/graphs/*; do
-  ./otp-rebuild.sh `basename $i`
+
+DIR=$(dirname $0)
+
+for i in ${DIR}/data/graphs/*; do
+  ${DIR}/otp-rebuild.sh `basename $i`
 done
