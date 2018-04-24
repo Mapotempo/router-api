@@ -2,6 +2,8 @@
 
 all: Graph.obj
 
+.phony: clean
+
 FORCE:
 
 /srv/otp/data/osm/europe/france-latest.osm.pbf:
