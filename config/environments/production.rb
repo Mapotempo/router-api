@@ -16,6 +16,7 @@
 # <http://www.gnu.org/licenses/agpl.html>
 #
 require 'active_support'
+require 'dotenv'
 require 'tmpdir'
 
 require './wrappers/crow'
@@ -26,6 +27,7 @@ require './wrappers/here'
 require './lib/cache_manager'
 
 module RouterWrapper
+  Dotenv.load('local.env', 'default.env')
   ActiveSupport::Cache.lookup_store :redis_store
   CACHE = CacheManager.new(ActiveSupport::Cache::RedisStore.new(host: ENV['REDIS_HOST'] || 'localhost', namespace: 'router', expires_in: 60*60*24*1, raise_errors: true))
 

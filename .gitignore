@@ -47,4 +47,4 @@ build/
 .ruby-version
 
 # Ignore application configuration
-.env
+local.env

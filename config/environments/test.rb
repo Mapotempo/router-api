@@ -17,7 +17,7 @@
 #
 require 'active_support'
 require 'byebug'
-require 'dotenv/load'
+require 'dotenv'
 require 'tmpdir'
 
 require './wrappers/crow'
@@ -28,6 +28,7 @@ require './wrappers/here'
 require './lib/cache_manager'
 
 module RouterWrapper
+  Dotenv.load('local.env', 'default.env')
   whitelist_classes = %w[toll motorway track]
 
   area_mapping = [

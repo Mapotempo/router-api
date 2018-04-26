@@ -28,7 +28,7 @@ group :test do
   gem 'simplecov', require: false
 end
 
-gem "dotenv"
+gem 'dotenv'
 gem 'polylines'
 
 group :production do
