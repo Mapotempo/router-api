@@ -23,6 +23,7 @@ Graph.obj: bordeaux-bus-gtfs.zip bordeaux-tram-gtfs.zip bordeaux_france.osm.pbf
 	java -jar ${OTP} --build .
 
 reload: Graph.obj
+	sleep 10
 	curl -X PUT http://otp-${GRAPH}:7000/otp/routers/${GRAPH}
 
 clean:
