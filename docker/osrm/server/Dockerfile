@@ -3,7 +3,7 @@ FROM ubuntu:16.04
 LABEL maintainer="Mapotempo <contact@mapotempo.com>"
 
 ARG OSRM_VERSION
-ENV OSRM_VERSION ${OSRM_VERSION:-v5.12.0}
+ENV OSRM_VERSION ${OSRM_VERSION:-v5.18.0}
 
 ARG OSRM_REPOSITORY
 ENV OSRM_REPOSITORY ${OSRM_REPOSITORY:-https://github.com/Project-OSRM/osrm-backend.git}
@@ -15,7 +15,7 @@ ENV OSRM_REPOSITORY ${OSRM_REPOSITORY:-https://github.com/Project-OSRM/osrm-back
 # Install needed packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends build-essential git cmake \
-        libboost-all-dev libbz2-dev liblua5.1.0-dev libxml2-dev \
+        libboost-all-dev libbz2-dev liblua5.2-dev libxml2-dev \
         libstxxl-dev libosmpbf-dev libprotobuf-dev libtbb-dev ca-certificates \
         curl pkg-config runit && \
     \
