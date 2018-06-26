@@ -151,4 +151,15 @@ class Wrappers::Osrm5Test < Minitest::Test
     assert result[:features][0][:geometry][:coordinates]
     assert !result[:features][0][:geometry][:polylines]
   end
+
+  def test_large_matrix_split
+    osrm = RouterWrapper::OSRM5
+    # 101 points inside south-west(50.0,1.0) and north-east(51.0,2.0)
+    vector = (0..100).collect{ |i| [50 + Float(i) / 100, 1 + Float(i) / 100]}
+    result = osrm.matrix(vector, vector, :time_distance, nil, nil, 'en', strict_restriction: true)
+    assert_equal vector.size, result[:matrix_time].size
+    assert_equal vector.size, result[:matrix_time][0].size
+    assert_equal vector.size, result[:matrix_distance].size
+    assert_equal vector.size, result[:matrix_distance][0].size
+  end
 end
