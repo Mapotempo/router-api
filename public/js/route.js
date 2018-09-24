@@ -130,3 +130,7 @@
   serviceUrl: '0.1',
   apiKey: 'demo'
 });
+
+$(function() {
+  $('#map').css('height', window.innerHeight - 80);
+});
