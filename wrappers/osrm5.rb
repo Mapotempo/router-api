@@ -170,12 +170,14 @@ module Wrappers
 
     def matrix(srcs, dsts, dimension, _departure, _arrival, language, options = {})
       dim1, dim2 = dimension.to_s.split('_').collect(&:to_sym)
-      key = [:osrm5, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_matrix[dim1], dim1, dim2, srcs, dsts, options.slice(:speed_multiplier)]))]
+      options_dim1 = dim1 == :distance ?
+        options.merge(speed_multiplier: 1, speed_multiplier_area: options[:speed_multiplier_area] && options[:speed_multiplier_area].reject{ |k, v| v != 0 }) :
+        options
+      key = [:osrm5, :matrix, Digest::MD5.hexdigest(Marshal.dump([@url_matrix[dim1], dim1, srcs, dsts, options_dim1]))]
 
       json = @cache.read(key)
       if !json
         concern = {
-          annotations: ([[dim1, dim2].include?(:time) ? 'duration' : nil] + [[dim1, dim2].include?(:distance) ? 'distance' : nil]).compact.join(','),
           exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(',')
         }
         if srcs == dsts
@@ -192,8 +194,7 @@ module Wrappers
 
         if locs_uniq.size == 1
           json = {
-            'durations' => [[0]],
-            'distances' => [[0]]
+            'durations' => [[0]]
           }
         else
           uri = ::Addressable::URI.parse(@url_matrix[dim1])
@@ -224,13 +225,65 @@ module Wrappers
           licence: @licence,
           attribution: @attribution,
         },
-        matrix_time: json['durations'] && json['durations'].collect { |r|
+        "matrix_#{dim1}".to_sym => dim1 == :distance ? json['distances'] : json['durations'].collect { |r|
           r.collect { |rr|
             rr ? (rr * 1.0 / (options[:speed_multiplier] || 1)).round : nil
           }
-        },
-        matrix_distance: json['distances']
+        }
       }
+
+      if dim2
+        ret["matrix_#{dim2}".to_sym] = srcs.collect{ |src|
+          dsts.collect{ |dst|
+            if src == dst
+              0.0
+            else
+              locs = [src, dst]
+              options_dim2 = dim2 == :distance ?
+                options.merge(speed_multiplier: 1, speed_multiplier_area: options[:speed_multiplier_area] && options[:speed_multiplier_area].reject{ |k, v| v != 0 }) :
+                options
+              key = [:osrm5, :route, Digest::MD5.hexdigest(Marshal.dump([@url_trace[dim1], dim2, false, locs, language, options_dim2]))]
+
+              json = @cache.read(key)
+              if !json
+                params = {
+                  alternatives: false,
+                  steps: false,
+                  annotations: false,
+                  geometries: :polyline,
+                  overview: false,
+                  continue_straight: false
+                }
+                coordinates = locs.collect{ |loc| loc.reverse.join(',') }.join(';')
+                request = RestClient.get(@url_trace[dim1] + '/route/v1/driving/' + coordinates, {
+                  accept: :json,
+                  params: params
+                }) { |response, request, result, &block|
+                  case response.code
+                  when 200, 400
+                    response
+                  else
+                    response.return!(request, result, &block)
+                  end
+                }
+
+                json = JSON.parse(request)
+                if ['Ok', 'NoRoute'].include?(json['code'])
+                  @cache.write(key, json)
+                end
+              end
+
+              if json['code'] == 'Ok'
+                if dim2 == :distance
+                  json['routes'][0]['distance']
+                else
+                  (json['routes'][0]['duration'] * 1.0 / (options[:speed_multiplier] || 1)).round
+                end
+              end
+            end
+          }
+        }
+      end
 
       ret
     end
