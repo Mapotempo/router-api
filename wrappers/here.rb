@@ -75,6 +75,10 @@ module Wrappers
       end
     end
 
+    def route_dimension
+      [:time, here_dimension_distance? ? :distance : nil].compact
+    end
+
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       # Cache defined inside private get method
       params = {
@@ -225,8 +229,8 @@ module Wrappers
       ret
     end
 
-    def isoline?(loc, dimension)
-      true
+    def isoline_dimension
+      [:time, here_dimension_distance? ? :distance : nil].compact
     end
 
     def isoline(loc, dimension, size, departure, _language, options = {})
