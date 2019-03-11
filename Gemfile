@@ -21,11 +21,14 @@ gem 'activesupport', '<5' # Wait for Ruby version >= 2.2.2
 
 group :test do
   gem 'rack-test'
-  gem 'byebug'
   gem 'minitest'
   gem 'minitest-focus'
   gem 'minitest-reporters'
   gem 'simplecov', require: false
+end
+
+group :development, :test do
+  gem 'byebug'
 end
 
 gem 'dotenv'
