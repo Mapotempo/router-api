@@ -152,4 +152,11 @@ class Wrappers::HereTest < Minitest::Test
     assert !result[:features].empty?
     assert !result[:features][0][:geometry].empty?
   end
+
+  def test_should_remove_empty_values
+    here = RouterWrapper::HERE_TRUCK
+    vector = [[49.610710, 18.02], [47.010226, 2.900391]]
+
+    assert here.matrix(vector, vector, :time, nil, nil, 'en', hazardous_goods: nil)
+  end
 end
