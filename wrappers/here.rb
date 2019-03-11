@@ -311,8 +311,7 @@ module Wrappers
 
     def get(url_base, object, params = {})
       url = "#{url_base}/#{object}.json"
-      params = {app_id: @app_id, app_code: @app_code}.merge(params)
-
+      params = {app_id: @app_id, app_code: @app_code}.merge(params).delete_if{ |_k, v| v.blank? }
       key = [:here, :request, Digest::MD5.hexdigest(Marshal.dump([url, params.to_a.sort_by{ |i| i[0].to_s }]))]
       request = @cache.read(key)
 
