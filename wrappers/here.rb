@@ -166,7 +166,7 @@ module Wrappers
       dim = dimension.to_s.split('_').collect(&:to_sym)
 
       # In addition of cache defined inside private get method
-      key = Digest::MD5.hexdigest(Marshal.dump([srcs, dsts, dimension, departure, arrival, language, options]))
+      key = Digest::MD5.hexdigest(Marshal.dump([srcs, dsts, dimension, departure, arrival, language, options.except(:speed_multiplier)]))
       result = @cache.read(key)
       if !result
 
