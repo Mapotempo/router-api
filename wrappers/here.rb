@@ -355,7 +355,6 @@ module Wrappers
         time: Array.new(srcs.size) { Array.new(dsts.size) },
         distance: Array.new(srcs.size) { Array.new(dsts.size) }
       }
-      time_attribute = params[:mode].include?('traffic:enabled') ? 'trafficTime' : 'travelTime'
 
       srcs_start = 0
       while srcs_start < srcs.size do
@@ -375,8 +374,8 @@ module Wrappers
           if request && (dsts_split <= 2 || request['response']['matrixEntry'].select{ |e| e['status'] == 'failed' }.size < param_start.size * param_destination.size / 2)
             request['response']['matrixEntry'].each{ |e|
               s = e['summary']
-              if s && (s.key?(time_attribute) || s.key?('distance'))
-                result[:time][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?(time_attribute) ? s[time_attribute].round : nil
+              if s && (s.key?('travelTime') || s.key?('distance'))
+                result[:time][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?('travelTime') ? s['travelTime'].round : nil
                 result[:distance][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?('distance') ? s['distance'].round : nil
               elsif e['status'] == 'failed'
                 # FIXME: replace by truckRestrictionPenalty/matrixAttributes when available in matrix
@@ -409,6 +408,7 @@ module Wrappers
                   }))
                   s = route && !route['response']['route'].empty? && route['response']['route'][0]['summary']
                   if s
+                    time_attribute = params[:mode].include?('traffic:enabled') ? 'trafficTime' : 'travelTime'
                     result[:time][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?(time_attribute) ? s[time_attribute].round : nil
                     result[:distance][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?('distance') ? s['distance'].round : nil
                   end
