@@ -85,15 +85,15 @@ module RouterWrapper
     raise NotSupportedTransportationMode unless modes
 
     point_uniq(params[:src], params[:dst], params[:dimension]) { |src, dst|
-      routers = if modes.size == 1
-        top, bottom = (src + dst).minmax_by{ |loc| loc[0] }
-        left, right = (src + dst).minmax_by{ |loc| loc[1] }
-        [modes.find{ |router|
-          router.matrix?(top, left, params[:dimension]) && router.matrix?(bottom, right, params[:dimension])
-        }].compact
-      else
-        # check all combinations in matrix, could be long...
-        src.collect{ |src|
+      top, bottom = (src + dst).minmax_by{ |loc| loc[0] }
+      left, right = (src + dst).minmax_by{ |loc| loc[1] }
+
+      routers = [modes.find{ |router|
+        router.matrix?(top, left, params[:dimension]) && router.matrix?(bottom, right, params[:dimension])
+      }].compact
+      if routers.empty?
+        puts('Check all combinations in matrix, because src and dst are present in multiple routers')
+        routers = src.collect{ |src|
           dst.collect{ |dst|
             modes.find{ |router|
               router.matrix?(src, dst, params[:dimension])
