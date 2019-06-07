@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="css/router.css">
+  </head>
+  <body>
+    <div class="router-form route">
+      <select id="router-mode"></select>
+      <select id="router-dimension"></select>
+      <input id="track" type="checkbox" checked="checked"><label for="track">Use tracks?</label>
+      <input id="motorway" type="checkbox" checked="checked"><label for="motorway">Use motorways?</label>
+      <input id="toll" type="checkbox" checked="checked"><label for="toll">Pass by tolls?</label>
+    </div>
+    <div style="clear:both;"></div>
+    <div class="geocoder-wrapper">
+        <form id="geocoder-form">
+            <input type="text" id="q" name="q" placeholder="Search for an address..." />
+            <input type="text" id="country" name="country" value="France" />
+            <button type="submit" id="submit" name="submit">Geocode</button>
+        </form>
+        <div id="map"></div>
+    </div>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <script type="text/javascript" src="js/leaflet-routing-machine.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
+    <script type="text/javascript" src="js/lrm-mapotempo.js"></script>
+    <script type="text/javascript" src="https://geocode.beta.mapotempo.com/0.1/map.js?api_key=<%= params['api_key'] || 'demo' %>"></script>
+    <script type="text/javascript" src="js/route.js"></script>
+    <script type="text/javascript" src="js/geocode.js"></script>
+  </body>
+</html>
