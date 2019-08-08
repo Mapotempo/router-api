@@ -25,6 +25,12 @@ require 'rack/cors'
 require 'rack/contrib/locale'
 require 'rack/contrib/try_static'
 
+use Rack::ServerPages do |config|
+  config.view_path = 'public'
+end
+
+run Rack::ServerPages::NotFound
+
 use Rack::Cors do
   allow do
     origins '*'
