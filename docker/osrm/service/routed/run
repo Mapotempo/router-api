@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec /usr/bin/osrm-routed --port 5000 --shared-memory --max-table-size 100000 --max-viaroute-size 1000 2>&1
