@@ -7,6 +7,10 @@ var options = {
 
 var map = L.mapotempo.map('map').setView([44.837778, -0.579197], 13);
 
+L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
+  attribution: 'Tiles by Stamen Design', // detectRetina: true,
+}).addTo(map);
+
 var markers = [];
 var markersGroup = L.layerGroup();
 
@@ -41,15 +45,18 @@ var geocodeHandler = function geocodeHandler(resp) {
   }
 };
 
-
-$('#geocoder-form').on('submit', function(e) {
+$('#geocoder-reverse-form').on('submit', function(e) {
   e.preventDefault();
+  var country = $('#country-reverse').val();
+  var query = $('#q-reverse').val();
+  if (country == "" || country == "") return;
+
   $.ajax({
     url: options.betaUrl + "?api_key=" + options.apiKey,
     method: 'GET',
     data: {
-      country: $('#country').val(),
-      query: $('#q').val()
+      country: country,
+      query: query
     },
     context: document.body
   }).done(function(resp) {
@@ -57,16 +64,20 @@ $('#geocoder-form').on('submit', function(e) {
   });
 });
 
-$("#q").autocomplete({
+$('#geocoder-form').on('submit', function(e) {
+  e.preventDefault();
+  coordinates = $("#q").val().split(',');
+  geocodeHandler({features: [{geometry: {coordinates: coordinates.reverse()}}]});
+});
+
+$("#q-reverse").autocomplete({
   source: function(request, response) {
-    markers.length = 0;
-    markersGroup.clearLayers();
     $.ajax({
       url: options.betaUrl + "?api_key=" + options.apiKey,
       dataType: "json",
       method: 'PATCH',
       data: {
-        country: $('#country').val(),
+        country: $('#country-reverse').val(),
         query: request.term
       },
       context: document.body,
@@ -84,7 +95,7 @@ $("#q").autocomplete({
       url:options.betaUrl + "?api_key=" + options.apiKey,
       method: 'GET',
       data: {
-        country: $('#country').val(),
+        country: $('#country-reverse').val(),
         query: ui.item.value
       },
       success: function(data) {

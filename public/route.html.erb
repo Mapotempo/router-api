@@ -17,12 +17,16 @@
     </div>
     <div style="clear:both;"></div>
     <div class="geocoder-wrapper">
-        <form id="geocoder-form">
-            <input type="text" id="q" name="q" placeholder="Search for an address..." />
-            <input type="text" id="country" name="country" value="France" />
-            <button type="submit" id="submit" name="submit">Geocode</button>
-        </form>
-        <div id="map"></div>
+      <form id="geocoder-reverse-form" class="form">
+        <input type="text" id="q-reverse" name="q" placeholder="Search for an address..." />
+        <input type="text" id="country-reverse" name="country" value="France" />
+        <button type="submit" name="submit">Geocode</button>
+      </form>
+      <form id="geocoder-form" class="form">
+        <input type="text" id="q" name="q" placeholder="Search for a localtion..." />
+        <button type="submit" name="submit">Locate</button>
+      </form>
+      <div id="map"></div>
     </div>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>

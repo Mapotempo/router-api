@@ -10,20 +10,32 @@
   position: absolute;
 }
 
-#geocoder-form {
+#geocoder-reverse-form, #geocoder-form, #clear-markers {
   left: 50px;
   position: absolute;
   top: 8px;
 }
 
+#geocoder-form {
+  top: 50px;
+}
+
 #geocoder-form > input {
+  width: 300px;
+}
+
+#clear-markers {
+  top: 90px;
+}
+
+.geocoder-wrapper .form > input {
   height: 25px;
   border-radius: 0px;
   border: 1px solid #13B0CA;
   padding-left: 10px;
 }
 
-#geocoder-form > button {
+.geocoder-wrapper .form > button {
   font-weight: 600;
   height: 29px;
   color: white;
@@ -33,11 +45,11 @@
   text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
 }
 
-#geocoder-form > button[type="submit"]:hover {
+.geocoder-wrapper .form > button[type="submit"]:hover {
   cursor: pointer;
 }
 
-#geocoder-form > input[type=text]:focus {
+.geocoder-wrapper .form > input[type=text]:focus {
   border:2px solid #13CA89;
 }
 

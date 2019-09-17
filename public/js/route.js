@@ -27,9 +27,12 @@ function init(data) {
   }
 
   function initMap() {
+    var mode = getMode();
+    initDimensions(mode);
+
     routing = L.Routing.control({
       router: L.Routing.mt($.extend(options, {
-        mode: getMode(),
+        mode: mode,
         dimension: getDimension(),
         track: getTrack(),
         motorway: getMotorway(),
@@ -74,9 +77,7 @@ function init(data) {
     initDimensions(getMode());
   });
 
-  var mode = getMode();
-  initDimensions(mode);
-  initMap(mode);
+  initMap();
   $('select').select2({ minimumResultsForSearch: -1 });
   $('select, input').change(function(e) {
     resetMap();
@@ -100,11 +101,13 @@ function init(data) {
 
     L.DomEvent.on(startBtn, 'click', function() {
       routing.spliceWaypoints(0, 1, e.latlng);
+      waypoints = routing.getPlan()._waypoints;
       map.closePopup();
     });
 
     L.DomEvent.on(destBtn, 'click', function() {
       routing.spliceWaypoints(routing.getWaypoints().length - 1, 1, e.latlng);
+      waypoints = routing.getPlan()._waypoints;
       map.closePopup();
     });
   });
