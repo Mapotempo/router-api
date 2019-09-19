@@ -59,8 +59,8 @@ module Api
           optional :speed_multiplicator, type: Float, desc: 'Deprecated, use speed_multiplier instead.'
 #          optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
           optional :area, type: Array, coerce_with: ->(c) { c.split(/;|\|/).collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with pipes (only available for truck mode at this time).'
-          optional :speed_multiplier_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Speed multiplier per area, 0 avoid area. Areas separated with pipes (only available for truck mode at this time).'
-          optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Deprecated, use speed_multiplier_area instead.'
+          optional :speed_multiplier_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Speed multiplier per area, 0 avoid area. Areas separated with pipes (only available for truck mode at this time).', documentation: { param_type: 'query' }
+          optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Deprecated, use speed_multiplier_area instead.', documentation: { param_type: 'query' }
           optional :track, type: Boolean, default: true, desc: 'Use track or not.'
           optional :motorway, type: Boolean, default: true, desc: 'Use motorway or not.'
           optional :toll, type: Boolean, default: true, desc: 'Use toll section or not.'
@@ -79,7 +79,7 @@ module Api
           optional :strict_restriction, type: Boolean, default: true, desc: 'Strict compliance with truck limitations.'
           optional :lang, type: String, default: :en
 #          requires :loc, type: Array[Array[Float]], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
-          requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
+          requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...', documentation: { param_type: 'query' }
           optional :precision, type: Integer, default: 6, desc: 'Precison for encoded polyline.'
           optional :with_summed_by_area, type: Boolean, default: false, desc: 'Returns way type detail when set to true.'
         }
@@ -101,9 +101,9 @@ module Api
         optional :speed_multiplier, type: Float, desc: 'Speed multiplier (default: 1), not available on all transport modes.'
         optional :speed_multiplicator, type: Float, desc: 'Deprecated, use speed_multiplier instead.'
 #        optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time, see capability operation for informations).'
-        optional :area, type: Array, coerce_with: ->(c) { c.split(/;|\|/).collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with pipes (only available for truck mode at this time, see capability operation for informations).'
-        optional :speed_multiplier_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Speed multiplier per area, 0 avoid area. Areas separated with pipes (only available for truck mode at this time).'
-        optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Deprecated, use speed_multiplier_area instead.'
+        optional :area, type: Array, coerce_with: ->(c) { c.split(/;|\|/).collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with pipes (only available for truck mode at this time, see capability operation for informations).', documentation: { param_type: 'query' }
+        optional :speed_multiplier_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Speed multiplier per area, 0 avoid area. Areas separated with pipes (only available for truck mode at this time).', documentation: { param_type: 'query' }
+        optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Deprecated, use speed_multiplier_area instead.', documentation: { param_type: 'query' }
         optional :track, type: Boolean, default: true, desc: 'Use track or not.'
         optional :motorway, type: Boolean, default: true, desc: 'Use motorway or not.'
         optional :toll, type: Boolean, default: true, desc: 'Use toll section or not.'
@@ -122,7 +122,7 @@ module Api
         optional :strict_restriction, type: Boolean, default: true, desc: 'Strict compliance with truck limitations.'
         optional :lang, type: String, default: :en
 #        requires :locs, type: Array[Array[Array[Float]]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a } }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
-        requires :locs, type: Array[String], coerce_with: ->(c) { c.split(/;|\|/) }, desc: 'List of latitudes and longitudes separated with commas. Each route separated by pipes. E.g. r1lat1,r1lng1,r1lat2,r1lng2|r2lat1,r2lng1,r2lat2,r2lng2'
+        requires :locs, type: Array[String], coerce_with: ->(c) { c.split(/;|\|/) }, desc: 'List of latitudes and longitudes separated with commas. Each route separated by pipes. E.g. r1lat1,r1lng1,r1lat2,r1lng2|r2lat1,r2lng1,r2lat2,r2lng2', documentation: { param_type: 'query' }
         optional :precision, type: Integer, default: 6, desc: 'Precison for encoded polyline.'
       }
       resource :routes do
