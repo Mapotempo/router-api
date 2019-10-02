@@ -2,6 +2,10 @@ function init(data) {
   var routing;
   var waypoints = [];
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   function getMode() {
     return $('#router-mode').val();
   }
@@ -27,12 +31,9 @@ function init(data) {
   }
 
   function initMap() {
-    var mode = getMode();
-    initDimensions(mode);
-
     routing = L.Routing.control({
       router: L.Routing.mt($.extend(options, {
-        mode: mode,
+        mode: getMode(),
         dimension: getDimension(),
         track: getTrack(),
         motorway: getMotorway(),
@@ -44,9 +45,6 @@ function init(data) {
   }
 
   function initDimensions(mode) {
-    function capitalizeFirstLetter(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    }
     var select = $('#router-dimension');
     select.find('option').remove();
     $.each(data.route, function(i, item) {
@@ -78,6 +76,7 @@ function init(data) {
   });
 
   initMap();
+  initDimensions(getMode());
   $('select').select2({ minimumResultsForSearch: -1 });
   $('select, input').change(function(e) {
     resetMap();
