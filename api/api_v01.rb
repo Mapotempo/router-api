@@ -57,6 +57,19 @@ module Api
 
 This REST API is described with Swagger. The Swagger descriptor defines the request end-points, the parameters and the return values. The API can be addressed by HTTP request or with a generated client using the Swagger descriptor.
 
+### Parameters compatibility
+
+Use **capability operations** to know the availabled parameter options (toll, motorway, etc.) for each mode (car, truck, etc.)
+
+For car mode only, the following route options are the one allowed:
+
+|Tracks|Motorways|Tools|
+|---|---|---|
+|true|true|true|
+|true|false|true|
+|true|false|false|
+|false|true|true|
+
 ### API key
 
 All access to the API are subject to an `api_key` parameter in order to authenticate the user.
