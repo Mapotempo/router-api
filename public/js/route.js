@@ -56,6 +56,9 @@ function init(data) {
         });
       }
     });
+    if(!routing) {
+      initMap();
+    }
   }
 
   function createButton(label, container) {
@@ -75,8 +78,8 @@ function init(data) {
     initDimensions(getMode());
   });
 
-  initMap();
   initDimensions(getMode());
+
   $('select').select2({ minimumResultsForSearch: -1 });
   $('select, input').change(function(e) {
     resetMap();

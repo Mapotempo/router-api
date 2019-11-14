@@ -84,10 +84,10 @@ module RouterWrapper
     }, {
       api_keys: ['demo'],
       services: {
-        route_default: :crow,
+        route_default: :osrm5,
         route: {
-          crow: [CROW],
           osrm5: [OSRM5],
+          crow: [CROW],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
         },

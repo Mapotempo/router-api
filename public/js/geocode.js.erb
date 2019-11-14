@@ -7,10 +7,6 @@ var options = {
 
 var map = L.mapotempo.map('map').setView([44.837778, -0.579197], 13);
 
-L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-  attribution: 'Tiles by Stamen Design', // detectRetina: true,
-}).addTo(map);
-
 var markers = [];
 var markersGroup = L.layerGroup();
 
