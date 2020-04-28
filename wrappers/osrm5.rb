@@ -178,15 +178,18 @@ module Wrappers
           annotations: ([[dim1, dim2].include?(:time) ? 'duration' : nil] + [[dim1, dim2].include?(:distance) ? 'distance' : nil]).compact.join(','),
           exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(',')
         }
+
         if srcs == dsts
           locs_uniq = srcs
-          params = concern
+          params = {
+            approaches: options[:approach] == :curb ? (['curb'] * locs_uniq.size).join(';') : nil
+          }.merge(concern)
         else
           locs_uniq = (srcs + dsts).uniq.sort_by{ |a, b| a + b }
           params = {
             sources: srcs.collect{ |d| locs_uniq.index(d) }.join(';'),
             destinations: dsts.collect{ |d| locs_uniq.index(d) }.join(';'),
-            approaches: options[:approach] == :curb ? (['curb'] * locs.size).join(';') : nil
+            approaches: options[:approach] == :curb ? (['curb'] * locs_uniq.size).join(';') : nil
           }.merge(concern)
         end
 
