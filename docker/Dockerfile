@@ -1,33 +1,35 @@
-FROM mapotempo/nginx-passenger:2.0.1
+FROM phusion/passenger-ruby25
 
-LABEL maintainer="Mapotempo <contact@mapotempo.com>"
+ARG BUNDLE_WITHOUT="development test"
 
-ENV RAILS_ENV production
+# Set correct environment variables.
+ENV LANG C.UTF-8
+ENV HOME /root
+
+LABEL maintainer="Mapotempo <tech@mapotempo.com>"
 
 ENV REDIS_HOST redis-cache
 
 ADD . /srv/app
-
+WORKDIR /srv/app
 # Install app
-RUN apt-get update && \
-    apt-get install -y git build-essential zlib1g-dev \
-            zlib1g && \
-    cd /srv/app && \
-    bundle install --full-index --without test development && \
-    \
-# Fix permissions
-    chown -R www-data:www-data . && \
-    \
+RUN apt-get update  > /dev/null && \
+    apt-get install -y git build-essential zlib1g-dev zlib1g  > /dev/null
+RUN gem install bundler --version 1.17.3
+RUN bundle install --path vendor/bundle --full-index --without ${BUNDLE_WITHOUT}
+
 # Cleanup Debian packages
-    apt-get remove -y git build-essential zlib1g-dev && \
+RUN apt-get remove -y git build-essential zlib1g-dev && \
     apt-get autoremove -y && \
     apt-get clean && \
     echo -n > /var/lib/apt/extended_states && \
     rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
 
-ADD docker/env.d/* /etc/nginx/env.d/
+# Enable Nginx and Passenger
+RUN rm -f /etc/service/nginx/down
+RUN rm /etc/nginx/sites-enabled/default
 
-VOLUME /srv/app/poly
-
-WORKDIR /srv/app
-
+# Enable app
+ADD docker/env.d/* /etc/nginx/main.d/
+ADD docker/snippets/* /etc/nginx/snippets/
+ADD docker/webapp.conf /etc/nginx/sites-enabled/webapp.conf
