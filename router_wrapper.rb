@@ -42,6 +42,11 @@ module RouterWrapper
     end]
   end
 
+  def self.access(force_load = false)
+    load config[:access_by_api_key][:file] || './config/access.rb' if force_load
+    @access_by_api_key
+  end
+
   def self.wrapper_route(services, params)
     modes = services[:route][params[:mode]]
     raise NotSupportedTransportationMode unless modes

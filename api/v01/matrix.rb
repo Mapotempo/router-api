@@ -93,7 +93,7 @@ module Api
 
       helpers do
         def matrix(params)
-          params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
+          params[:mode] ||= APIBase.profile(params[:api_key])[:route_default]
           if params[:area]
             params[:area].all?{ |area| (area.size % 2).zero? } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
@@ -108,7 +108,7 @@ module Api
             params[:dst] = params[:src]
           end
 
-          results = RouterWrapper::wrapper_matrix(APIBase.services(params[:api_key]), params)
+          results = RouterWrapper::wrapper_matrix(APIBase.profile(params[:api_key]), params)
           results[:router][:version] = 'draft'
           present results, with: MatrixResult
         end

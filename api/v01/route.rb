@@ -166,7 +166,7 @@ module Api
 
       helpers do
         def compute_routes(params)
-          params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
+          params[:mode] ||= APIBase.profile(params[:api_key])[:route_default]
           if params[:area]
             params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng required.'}, 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
@@ -180,7 +180,7 @@ module Api
           routes = params[:locs].collect{ |loc|
             params[:loc] = loc
             begin
-              results = RouterWrapper::wrapper_route(APIBase.services(params[:api_key]), params)
+              results = RouterWrapper::wrapper_route(APIBase.profile(params[:api_key]), params)
               results[:router][:version] = 'draft'
               results[:features].each{ |feature|
                 if feature[:geometry]

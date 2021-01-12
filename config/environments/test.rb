@@ -67,9 +67,11 @@ module RouterWrapper
     product_title: 'Router Wrapper API',
     product_contact_email: 'tech@mapotempo.com',
     product_contact_url: 'https://github.com/Mapotempo/router-wrapper',
-    profiles: [{
-      api_keys: ['light'],
-      services: {
+    access_by_api_key: {
+      file: './config/access.rb'
+    },
+    profiles: {
+      light: {
         route_default: :crow,
         route: {
           crow: [CROW],
@@ -80,10 +82,8 @@ module RouterWrapper
         isoline: {
           crow: [CROW],
         }
-      }
-    }, {
-      api_keys: ['demo'],
-      services: {
+      },
+      standard: {
         route_default: :crow,
         route: {
           crow: [CROW],
@@ -104,12 +104,6 @@ module RouterWrapper
           here: [HERE_TRUCK],
         }
       }
-    }]
-  }
-
-  @@c[:api_keys] = Hash[@@c[:profiles].collect{ |profile|
-    profile[:api_keys].collect{ |api_key|
-      [api_key, profile[:services]]
     }
-  }.flatten(1)]
+  }
 end
