@@ -180,4 +180,22 @@ class Api::V01::MatrixTest < Minitest::Test
       end
     end
   end
+
+  def test_param_matrix_dont_exceed_limit
+    [:get, :post].each do |method|
+      send method, '/0.1/matrix', api_key: 'demo', src: '43.2804,5.3806,43.291576,5.355835', dst: '43.2804,5.3806,43.291577,5.355836'
+      assert 200, last_response.status
+      send method, '/0.1/matrix', api_key: 'demo', src: '43.2804,5.3806,43.291576,5.355835'
+      assert_includes last_response.body, 'matrix_time'
+    end
+  end
+
+  def test_param_matrix_exceed_limit
+    [:get, :post].each do |method|
+      send method, '/0.1/matrix', api_key: 'demo_limit', src: '43.2804,5.3806,43.291576,5.355835', dst: '43.2804,5.3806,43.291577,5.355836'
+      assert 413, last_response.status
+      send method, '/0.1/matrix', api_key: 'demo_limit', src: '43.2804,5.3806,43.291576,5.355835'
+      assert_includes last_response.body, 'Exceeded'
+    end
+  end
 end

@@ -18,6 +18,7 @@
 module RouterWrapper
   @access_by_api_key = {
     # params_limit overload values from profile
-    'demo' => { profile: :standard }
+    'demo' => { profile: :standard },
+    'demo_limit' => { profile: :standard, params_limit: { locations: 1 } },
   }
 end
