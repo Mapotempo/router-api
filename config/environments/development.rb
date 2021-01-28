@@ -64,6 +64,8 @@ module RouterWrapper
   HERE_TRUCK = Wrappers::Here.new(CACHE, app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'truck')
   HERE_CAR = Wrappers::Here.new(CACHE, app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'car')
 
+  PARAMS_LIMIT = { locations: 1000 }.freeze
+
   @@c = {
     product_title: 'Router Wrapper API',
     product_contact_email: 'tech@mapotempo.com',
@@ -74,6 +76,7 @@ module RouterWrapper
     profiles: {
       light: {
         route_default: :crow,
+        params_limit: PARAMS_LIMIT,
         route: {
           crow: [CROW],
         },

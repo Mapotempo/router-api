@@ -123,4 +123,28 @@ class Api::V01::RouteTest < Minitest::Test
       assert !last_response.ok?, last_response.body
     }
   end
+
+  def test_param_route_dont_exceed_limit
+    [
+      { method: :get, url: '/0.1/route', options: { api_key: 'demo', loc: '43.2804,5.3806,43.2804,5.3806' }},
+      { method: :get, url: '/0.1/routes', options: { api_key: 'demo', locs: '43.2804,5.3806,43.2804,5.3806' }},
+      { method: :post, url: '/0.1/routes', options: { api_key: 'demo', locs: '43.2804,5.3806,43.2804,5.3806' }}
+    ].each do |obj|
+      send obj[:method], obj[:url], obj[:options]
+      assert 200, last_response.status
+      assert_includes last_response.body, 'total_distance'
+    end
+  end
+
+  def test_param_route_exceed_limit
+    [
+      { method: :get, url: '/0.1/route', options: { api_key: 'demo_limit', loc: '43.2804,5.3806,43.2804,5.3806' }},
+      { method: :get, url: '/0.1/routes', options: { api_key: 'demo_limit', locs: '43.2804,5.3806,43.2804,5.3806' }},
+      { method: :post, url: '/0.1/routes', options: { api_key: 'demo_limit', locs: '43.2804,5.3806,43.2804,5.3806' }}
+    ].each do |obj|
+      send obj[:method], obj[:url], obj[:options]
+      assert 413, last_response.status
+      assert_includes last_response.body, 'Exceeded'
+    end
+  end
 end
