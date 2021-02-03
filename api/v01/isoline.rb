@@ -78,6 +78,7 @@ module Api
         get do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
+          count :isoline, true, APIBase.count_locations(params['loc'])
           isoline params
         end
 
@@ -95,6 +96,7 @@ module Api
         post do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
+          count :isoline, true, APIBase.count_locations(params['loc'])
           isoline params
           status 200
         end
@@ -104,13 +106,14 @@ module Api
         def isoline(params)
           params[:mode] ||= APIBase.profile(params[:api_key])[:route_default]
           if params[:area]
-            params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
+            params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng are needed.', 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
-          params[:loc].size == 2 || error!({detail: 'Start lat/lng is needed.'}, 400)
+          params[:loc].size == 2 || error!('Start lat/lng is needed.', 400)
 
           results = RouterWrapper::wrapper_isoline(APIBase.profile(params[:api_key]), params)
           results[:router][:version] = 'draft'
+          count_incr :isoline, transactions: APIBase.count_locations(params['loc'])
           present results, with: IsolineResult, geometry: true
         end
       end

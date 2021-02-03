@@ -18,6 +18,9 @@
 require 'simplecov'
 SimpleCov.start
 
+require 'minitest'
+require 'fakeredis/minitest'
+
 ENV['APP_ENV'] ||= 'test'
 require File.expand_path('../../config/environments/' + ENV['APP_ENV'], __FILE__)
 Dir[File.dirname(__FILE__) + '/../config/initializers/*.rb'].each {|file| require file }
@@ -61,4 +64,10 @@ def random_location(centroid, max_radius)
   random_lat = centroid[:lat] + dy / one_degree
   random_lng = centroid[:lng] + dx / (one_degree * Math.cos(centroid[:lat] * Math::PI / 180))
   [random_lat.round(5), random_lng.round(5)] # meter precision
+end
+
+module FakeRedis
+  def teardown
+    RouterWrapper.config[:redis_count].flushall
+  end
 end

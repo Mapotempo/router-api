@@ -19,6 +19,12 @@ module RouterWrapper
   @access_by_api_key = {
     # params_limit overload values from profile
     'demo' => { profile: :standard },
-    'demo_limit' => { profile: :standard, params_limit: { locations: 1 } },
+    'demo_limit' => { profile: :standard, params_limit: { locations: 1 }},
+    'demo_quotas' => { profile: :standard, params_limit: { locations: 2 }, quotas: [
+      { operation: :route, daily: 2 },
+      { operation: :isoline, daily: 1 },
+      { operation: :matrix, daily: 2 },
+      { monthly: 4 }
+    ]},
   }
 end

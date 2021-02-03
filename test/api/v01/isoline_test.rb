@@ -57,4 +57,28 @@ class Api::V01::IsolineTest < Minitest::Test
     get '/0.1/isoline', api_key: 'demo', loc: '48.726675,-0.000079', size: 1, mode: 'osrm'
     assert last_response.ok?
   end
+
+  def test_count_isolines
+    [:get, :post].each_with_index do |method, indx|
+      send method, '/0.1/isoline', {api_key: 'demo', loc: '43.2804,5.3806', size: 1}
+      keys = RouterWrapper.config[:redis_count].keys("router:isoline:#{Time.now.utc.to_s[0..9]}_key:demo_ip*")
+      assert_equal 1, keys.size
+      assert_equal({'hits' => (indx + 1).to_s, 'transactions' => (indx + 1).to_s}, RouterWrapper.config[:redis_count].hgetall(keys.first))
+    end
+  end
+
+  def test_use_quotas
+    loc = '43.2804,5.3806'
+
+    post '/0.1/isoline', {api_key: 'demo_quotas', loc: loc, size: 1}
+    assert last_response.ok?, last_response.body
+
+    post '/0.1/isoline', {api_key: 'demo_quotas', loc: loc, size: 1}
+    assert_equal 429, last_response.status
+
+    assert_includes JSON.parse(last_response.body)['message'], 'Too many daily requests'
+    assert_equal ['application/json; charset=UTF-8', 1, 0, Time.now.utc.to_date.next_day.to_time.to_i], last_response.headers.select{ |key|
+      key =~ /(Content-Type|X-RateLimit-Limit|X-RateLimit-Remaining|X-RateLimit-Reset)/
+    }.values
+  end
 end

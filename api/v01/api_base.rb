@@ -29,6 +29,8 @@ module Api
         )
       end
 
+      ##
+      # @param obj can be a string or an array
       def self.count_locations(obj)
         return 0 if obj.nil?
 

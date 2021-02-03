@@ -36,7 +36,7 @@ module Api
       default_format :json
 
       before do
-        params_limit = APIBase.services(params[:api_key])[:params_limit].merge(RouterWrapper.access[params[:api_key]][:params_limit] || {})
+        params_limit = APIBase.profile(params[:api_key])[:params_limit].merge(RouterWrapper.access[params[:api_key]][:params_limit] || {})
         if !params_limit[:locations].nil?
           error!({message: "Exceeded \"matrix\" limit authorized for your account: #{params_limit[:locations]}. Please contact support or sales to increase limits."}, 413) if APIBase.count_matrix_locations(params) > params_limit[:locations]
         end
@@ -80,6 +80,7 @@ module Api
         get do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
+          count :matrix, true, APIBase.count_matrix_locations(params)
           matrix params
         end
 
@@ -92,6 +93,7 @@ module Api
         post do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
+          count :matrix, true, APIBase.count_matrix_locations(params)
           matrix params
           status 200
         end
@@ -101,21 +103,22 @@ module Api
         def matrix(params)
           params[:mode] ||= APIBase.profile(params[:api_key])[:route_default]
           if params[:area]
-            params[:area].all?{ |area| (area.size % 2).zero? } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
+            params[:area].all?{ |area| (area.size % 2).zero? } || error!('area: couples of lat/lng are needed.', 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:src] = params[:src].each_slice(2).to_a
-          params[:src][-1].size == 2 || error!({detail: 'Source couples of lat/lng are needed.'}, 400)
+          params[:src][-1].size == 2 || error!('Source couples of lat/lng are needed.', 400)
 
           if params.key?(:dst) && !params[:dst].empty?
             params[:dst] = params[:dst].each_slice(2).to_a
-            params[:dst][-1].size == 2 || error!({detail: 'Destination couples of lat/lng are needed.'}, 400)
+            params[:dst][-1].size == 2 || error!('Destination couples of lat/lng are needed.', 400)
           else
             params[:dst] = params[:src]
           end
 
-          results = RouterWrapper::wrapper_matrix(APIBase.profile(params[:api_key]), params)
+          results = RouterWrapper.wrapper_matrix(APIBase.profile(params[:api_key]), params)
           results[:router][:version] = 'draft'
+          count_incr :matrix, transactions: APIBase.count_matrix_locations(params)
           present results, with: MatrixResult
         end
       end

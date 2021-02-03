@@ -27,6 +27,8 @@ GEM
       unf (>= 0.0.5, < 1.0.0)
     dotenv (2.2.1)
     equalizer (0.0.11)
+    fakeredis (0.8.0)
+      redis (~> 4.1)
     grape (1.2.3)
       activesupport
       builder
@@ -125,6 +127,7 @@ DEPENDENCIES
   border_patrol
   byebug
   dotenv
+  fakeredis
   grape
   grape-entity
   grape-swagger

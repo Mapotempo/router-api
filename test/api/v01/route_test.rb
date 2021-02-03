@@ -147,4 +147,37 @@ class Api::V01::RouteTest < Minitest::Test
       assert_includes last_response.body, 'Exceeded'
     end
   end
+
+  def test_count_routes
+    locs = '43.2804,5.3806,43.2804,5.3806'
+    [
+      { method: 'get', url: '/0.1/route',
+        options: {api_key: 'demo', loc: locs} },
+      { method: 'get', url: '/0.1/routes',
+        options: {api_key: 'demo', locs: locs} },
+      { method: 'post', url: '/0.1/routes',
+        options: {api_key: 'demo', locs: locs} },
+    ].each_with_index do |obj, indx|
+      send obj[:method], obj[:url], obj[:options]
+      keys = RouterWrapper.config[:redis_count].keys("router:route:#{Time.now.utc.to_s[0..9]}_key:demo_ip*")
+      assert_equal 1, keys.size
+      transactions = Api::V01::APIBase.count_route_locations(locs: locs)
+      assert_equal({'hits' => (indx + 1).to_s, 'transactions' => ((indx + 1) * transactions).to_s}, RouterWrapper.config[:redis_count].hgetall(keys.first))
+    end
+  end
+
+  def test_use_quotas
+    locs = '43.2804,5.3806,43.2804,5.3806'
+
+    post '/0.1/routes', {api_key: 'demo_quotas', locs: locs}
+    assert last_response.ok?, last_response.body
+
+    post '/0.1/routes', {api_key: 'demo_quotas', locs: locs}
+    assert_equal 429, last_response.status
+
+    assert_includes JSON.parse(last_response.body)['message'], 'Too many daily requests'
+    assert_equal ['application/json; charset=UTF-8', 2, 0, Time.now.utc.to_date.next_day.to_time.to_i], last_response.headers.select{ |key|
+      key =~ /(Content-Type|X-RateLimit-Limit|X-RateLimit-Remaining|X-RateLimit-Reset)/
+    }.values
+  end
 end
