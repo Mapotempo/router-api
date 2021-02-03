@@ -16,6 +16,7 @@
 # <http://www.gnu.org/licenses/agpl.html>
 #
 require 'active_support'
+require 'active_support/core_ext'
 require 'dotenv'
 require 'tmpdir'
 
@@ -40,6 +41,8 @@ module RouterWrapper
   HERE_TRUCK = Wrappers::Here.new(CACHE, app_id: HERE_APP_ID, app_code: HERE_APP_CODE, mode: 'truck')
 
   PARAMS_LIMIT = { locations: 1000 }.freeze
+  REDIS_COUNT = ENV['REDIS_COUNT_HOST'] && Redis.new(host: ENV['REDIS_COUNT_HOST'])
+  QUOTAS = [{ daily: 100000, monthly: 1000000 }].freeze # Only taken into account if REDIS_COUNT
 
   @@c = {
     product_title: 'Router Wrapper API',
@@ -52,6 +55,7 @@ module RouterWrapper
       light: {
         route_default: :crow,
         params_limit: PARAMS_LIMIT,
+        quotas: QUOTAS, # Only taken into account if REDIS_COUNT
         route: {
           crow: [CROW],
         },
@@ -81,6 +85,7 @@ module RouterWrapper
           otp: [OTP_BORDEAUX],
         }
       }
-    }
+    },
+    redis_count: REDIS_COUNT,
   }
 end

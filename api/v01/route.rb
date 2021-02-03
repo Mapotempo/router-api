@@ -37,7 +37,7 @@ module Api
       default_format :json
 
       before do
-        params_limit = APIBase.services(params[:api_key])[:params_limit].merge(RouterWrapper.access[params[:api_key]][:params_limit] || {})
+        params_limit = APIBase.profile(params[:api_key])[:params_limit].merge(RouterWrapper.access[params[:api_key]][:params_limit] || {})
         if !params_limit[:locations].nil?
           error!({message: "Exceeded \"routes\" limit authorized for your account: #{params_limit[:locations]}. Please contact support or sales to increase limits."}, 413) if APIBase.count_route_locations(params) > params_limit[:locations]
         end
@@ -85,7 +85,6 @@ module Api
           optional :snap, type: Float, desc: 'Snap waypoint to junction close by snap distance.'
           optional :strict_restriction, type: Boolean, default: true, desc: 'Strict compliance with truck limitations.'
           optional :lang, type: String, default: :en
-
           requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...', documentation: { param_type: 'query' }
           optional :precision, type: Integer, default: 6, desc: 'Precison for encoded polyline.'
           optional :with_summed_by_area, type: Boolean, default: false, desc: 'Returns way type detail when set to true.'
@@ -94,6 +93,7 @@ module Api
           params[:locs] = [params[:loc].each_slice(2).to_a]
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area]
+          count :route, true, APIBase.count_route_locations(params)
           present compute_routes(params)[0], with: RouteResult, geometry: params[:geometry], toll_costs: params[:toll_costs], with_summed_by_area: params[:with_summed_by_area]
         end
       end
@@ -146,6 +146,7 @@ module Api
           params[:locs] = params[:locs].collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
+          count :route, true, APIBase.count_route_locations(params)
           many_routes params
         end
 
@@ -164,6 +165,7 @@ module Api
           params[:locs] = params[:locs].collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
+          count :route, true, APIBase.count_route_locations(params)
           many_routes params
           status 200
         end
@@ -173,12 +175,12 @@ module Api
         def compute_routes(params)
           params[:mode] ||= APIBase.profile(params[:api_key])[:route_default]
           if params[:area]
-            params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng required.'}, 400)
+            params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng required.', 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:locs].each_with_index{ |loc, index|
-            loc.size >= 2 || error!({detail: "locs: segment ##{index}, at least two couples of lat/lng required."}, 400)
-            loc[-1].size == 2 || error!({detail: "locs: segment ##{index}, couples of lat/lng required."}, 400)
+            loc.size >= 2 || error!("locs: segment ##{index}, at least two couples of lat/lng required.", 400)
+            loc[-1].size == 2 || error!("locs: segment ##{index}, couples of lat/lng required.", 400)
           }
 
           errors_count = 0
@@ -216,6 +218,8 @@ module Api
               end
             end
           }
+          count_incr :route, transactions: APIBase.count_route_locations(params)
+          routes
         end
 
         def many_routes(params)
