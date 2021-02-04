@@ -24,6 +24,7 @@ require './api/root'
 require 'rack/cors'
 require 'rack/contrib/locale'
 require 'rack/contrib/try_static'
+require 'action_dispatch/middleware/remote_ip.rb'
 
 use Rack::ServerPages do |config|
   config.view_path = 'public'
@@ -47,3 +48,5 @@ use Rack::TryStatic,
   root: 'public',
   urls: %w[/],
   try: ['.html', 'route.html', '/route.html', 'isoline.html', '/isoline.html']
+
+use ActionDispatch::RemoteIp

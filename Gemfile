@@ -19,6 +19,7 @@ gem 'rest-client'
 gem 'addressable'
 gem 'border_patrol'
 gem 'activesupport'
+gem 'actionpack'
 
 group :test do
   gem 'fakeredis'
