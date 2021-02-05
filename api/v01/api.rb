@@ -23,6 +23,8 @@ require './api/v01/matrix'
 require './api/v01/isoline'
 require './api/v01/capability'
 
+require 'active_support/core_ext/string/conversions'
+
 require 'date'
 
 class QuotaExceeded < StandardError
@@ -38,7 +40,11 @@ module Api
   module V01
     class Api < Grape::API
       before do
-        error!('401 Unauthorized', 401) unless params && RouterWrapper.access(true).keys.include?(params[:api_key])
+        if !params || !RouterWrapper.access(true).key?(params[:api_key])
+          error!('401 Unauthorized', 401)
+        elsif RouterWrapper.access[params[:api_key]][:expire_at]&.to_date&.send(:<, Date.today)
+          error!('402 Subscription expired', 402)
+        end
       end
 
       helpers do

@@ -1,4 +1,4 @@
-# Copyright © Mapotempo, 2019
+# Copyright © Mapotempo, 2020
 #
 # This file is part of Mapotempo.
 #
@@ -15,17 +15,24 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
-module RouterWrapper
-  @access_by_api_key = {
-    # params_limit overload values from profile
-    'demo' => { profile: :standard },
-    'demo_limit' => { profile: :standard, params_limit: { locations: 1 }},
-    'demo_quotas' => { profile: :standard, params_limit: { locations: 2 }, quotas: [
-      { operation: :route, daily: 2 },
-      { operation: :isoline, daily: 1 },
-      { operation: :matrix, daily: 2 },
-      { monthly: 4 }
-    ]},
-    'expired' => { profile: :standard, expire_at: '2000-01-01' }
-  }
+require './test/test_helper'
+
+class Api::V01::ApiTest < Minitest::Test
+  include Rack::Test::Methods
+
+  def app
+    Api::Root
+  end
+
+  def test_should_not_access
+    get '/0.1/route', {loc: '43.2804,5.3806,43.291576,5.355835'}
+    assert_equal 401, last_response.status
+    assert_equal '401 Unauthorized', JSON.parse(last_response.body)['error']
+  end
+
+  def test_should_not_access_if_expired
+    get '/0.1/route', {api_key: 'expired', loc: '43.2804,5.3806,43.291576,5.355835'}
+    assert_equal 402, last_response.status
+    assert_equal '402 Subscription expired', JSON.parse(last_response.body)['error']
+  end
 end
