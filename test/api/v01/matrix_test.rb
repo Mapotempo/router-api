@@ -36,7 +36,7 @@ class Api::V01::MatrixTest < Minitest::Test
   def test_matrix_square_with_motorway_options
     src = '44.595845819060344,-1.1151123046875,44.549377532663684,-0.25062561035156244'
     dst = '44.595845819060344,-1.1151123046875,44.549377532663684,-0.25062561035156244'
-    options = { api_key: 'demo', src: src, dst: dst, dimension: 'time', mode: 'osrm5' }
+    options = { api_key: 'demo', src: src, dst: dst, dimension: 'time', mode: 'osrm' }
     result_for_motorway = {}
     [true, false].each do |boolean|
       get '/0.1/matrix', options.merge(motorway: boolean)
@@ -49,7 +49,7 @@ class Api::V01::MatrixTest < Minitest::Test
   def test_matrix_rectangular_with_mod
     src = '44.595845819060344,-1.1151123046875'
     dst = '44.595845819060344,-1.1151123046875,44.549377532663684,-0.25062561035156244'
-    options = { api_key: 'demo', src: src, dst: dst, dimension: 'time', mode: 'osrm5' }
+    options = { api_key: 'demo', src: src, dst: dst, dimension: 'time', mode: 'osrm' }
     get '/0.1/matrix', options
     assert last_response.ok?, last_response.body
   end
@@ -62,7 +62,7 @@ class Api::V01::MatrixTest < Minitest::Test
   end
 
   def test_matrix_invalid_query_string_malformed
-    %w[osrm5 here].each do |mode|
+    %w[osrm here].each do |mode|
       get '/0.1/matrix', api_key: 'demo', src: '48.726675,-0.000079', dst: '48.84738,0.029615', mode: mode
       assert last_response.ok?
     end
@@ -104,7 +104,7 @@ class Api::V01::MatrixTest < Minitest::Test
 
   def test_matrix_with_duplicate
     [:get, :post].each{ |method|
-      send method, '/0.1/matrix', {api_key: 'demo', mode: 'osrm5', src: '43.2804,5.3806,43.291576,5.355835,43.2804,5.3806'}
+      send method, '/0.1/matrix', {api_key: 'demo', mode: 'osrm', src: '43.2804,5.3806,43.291576,5.355835,43.2804,5.3806'}
       assert last_response.ok?, last_response.body
       json = JSON.parse(last_response.body)
       assert_equal 3, json['matrix_time'].size
@@ -127,7 +127,7 @@ class Api::V01::MatrixTest < Minitest::Test
   end
 
   def test_routes_out_of_supported_area_or_not_supported_dimension_error
-    get '/0.1/matrix', api_key: 'demo', src: '-5.101887070062321,-37.353515625', dst: '-5.8236866460048295,-35.26611328125', mode: 'osrm5'
+    get '/0.1/matrix', api_key: 'demo', src: '-5.101887070062321,-37.353515625', dst: '-5.8236866460048295,-35.26611328125', mode: 'osrm'
     assert_equal 417, last_response.status, 'Bad response: ' + last_response.body
   end
 

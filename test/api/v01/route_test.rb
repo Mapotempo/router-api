@@ -67,7 +67,7 @@ class Api::V01::RouteTest < Minitest::Test
   end
 
   def test_route_should_return_summed_by_area
-    get '/0.1/route', api_key: 'demo', loc: '44.82603994818902,-0.6808733940124512,44.825240952347244,-0.6830835342407227', mode: 'osrm5', with_summed_by_area: true
+    get '/0.1/route', api_key: 'demo', loc: '44.82603994818902,-0.6808733940124512,44.825240952347244,-0.6830835342407227', mode: 'osrm', with_summed_by_area: true
     assert_equal [{'distance' => 195.7, 'way_type' => 'interurban'}, {'distance' => 195.7, 'way_type' => 'secondary'}], JSON.parse(last_response.body)['features'][0]['properties']['router']['summed_by_area']
   end
 
@@ -87,14 +87,14 @@ class Api::V01::RouteTest < Minitest::Test
   end
 
   def test_routes_invalid_query_string_malformed
-    %w[osrm5 here].each do |mode|
+    %w[osrm here].each do |mode|
       get '/0.1/routes', api_key: 'demo', locs: '48.726675,-0.000079,48.84738,0.029615', mode: mode
       assert last_response.ok?
     end
   end
 
   def test_routes_out_of_supported_area_or_not_supported_dimension_error
-    get '/0.1/routes', api_key: 'demo', locs: '-5.101887070062321,-37.353515625,-5.8236866460048295,-35.26611328125', mode: 'osrm5'
+    get '/0.1/routes', api_key: 'demo', locs: '-5.101887070062321,-37.353515625,-5.8236866460048295,-35.26611328125', mode: 'osrm'
     assert_equal 417, last_response.status, 'Bad response: ' + last_response.body
   end
 
