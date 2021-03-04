@@ -63,7 +63,7 @@ Use **capability operations** to know the availabled parameter options (toll, mo
 
 For car mode only, the following route options are the one allowed:
 
-|Tracks|Motorways|Tools|
+|Tracks|Motorways|Tolls|
 |---|---|---|
 |true|true|true|
 |true|false|true|
