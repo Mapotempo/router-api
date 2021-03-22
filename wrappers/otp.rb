@@ -24,6 +24,9 @@ require 'rest-client'
 
 module Wrappers
   class Otp < Wrapper
+    attr_accessor :cache
+    attr_reader :url
+
     def initialize(cache, hash = {})
       super(cache, hash)
       @url = hash[:url]
@@ -47,8 +50,8 @@ module Wrappers
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       datetime, arrive_by = departure ? [departure, false] : arrival ? [arrival, true] : [monday_morning, false]
       key = [:otp, :route, @router_id, Digest::MD5.hexdigest(Marshal.dump([@url, locs[0], locs[-1], dimension, datetime, arrive_by, language, options]))]
-      request = @cache.read(key)
-      if !request
+      data = @cache.read(key)
+      if !data
         params = {
           fromPlace: locs[0].join(','),
           toPlace: locs[-1].join(','),
@@ -64,7 +67,8 @@ module Wrappers
           accept: :json,
           params: params
         })
-        @cache.write(key, request.body)
+        data = JSON.parse(request)
+        @cache.write(key, data) if data && !data['error'] && data['plan'] && data['plan']['itineraries']
       end
 
       ret = {
@@ -76,7 +80,6 @@ module Wrappers
         features: []
       }
 
-      data = JSON.parse(request) if request
       if data && !data['error'] && data['plan'] && data['plan']['itineraries']
         i = data['plan']['itineraries'][0]
 
