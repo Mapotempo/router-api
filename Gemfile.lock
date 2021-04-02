@@ -71,7 +71,7 @@ GEM
       mini_portile2 (~> 2.3.0)
     polylines (0.3.0)
     public_suffix (3.0.1)
-    puma (3.11.2)
+    puma (3.12.6)
     rack (1.5.5)
     rack-accept (0.4.5)
       rack (>= 0.4)
