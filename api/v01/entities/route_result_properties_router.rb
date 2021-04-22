@@ -30,6 +30,8 @@ module Api
       # RECOMMENDED
       expose_not_nil(:total_time, documentation: { type: Integer, desc: 'Route total time in seconds.' })
       # OPTIONAL
+      expose_not_nil(:walk_distance, documentation: { type: Integer, desc: 'Walk distance in meters.' })
+      # OPTIONAL
       expose(:start_point, documentation: { type: Float, is_array: true, desc: 'Latitude and longitude of starting point.' })
       # OPTIONAL
       expose(:end_point, documentation: { type: Float, is_array: true, desc: 'Latitude and longitude of ending point.' })
