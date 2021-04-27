@@ -22,7 +22,7 @@ module RouterWrapper
     DEG_PER_RAD = 180 / Math::PI
     RM = 6371000 # Earth radius in meters
 
-    def self.distance_between(lat1, lon1, lat2, lon2)
+    def self.distance_between(lon1, lat1, lon2, lat2)
       lat1_rad = lat1 * RAD_PER_DEG
       lat2_rad = lat2 * RAD_PER_DEG
       lon1_rad = lon1 * RAD_PER_DEG

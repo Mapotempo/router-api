@@ -25,12 +25,14 @@ class Wrappers::CrowTest < Minitest::Test
     result = crow.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, {motorway: true, toll: true})
     assert !result[:features].empty?
     assert !result[:features][0][:geometry].empty?
+    assert_equal 1168235, result[:features][0][:properties][:router][:total_distance].to_i
   end
 
   def test_matrix
     crow = RouterWrapper::CROW
     result = crow.matrix([[49.610710, 18.237305]], [[47.010226, 2.900391]], :time, nil, nil, 'en', {motorway: true, toll: true})
     assert !result[:matrix_time].empty?
+    assert_equal 1168235, result[:matrix_time].flatten.first.to_i
   end
 
   def test_isoline
