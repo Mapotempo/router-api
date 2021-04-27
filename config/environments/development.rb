@@ -18,6 +18,7 @@
 require 'active_support'
 require 'dotenv'
 require 'tmpdir'
+require 'byebug'
 
 require './wrappers/crow'
 require './wrappers/osrm5'
