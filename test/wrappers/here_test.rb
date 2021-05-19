@@ -159,4 +159,17 @@ class Wrappers::HereTest < Minitest::Test
 
     assert here.matrix(vector, vector, :time, nil, nil, 'en', hazardous_goods: nil)
   end
+
+  def test_distance_should_return_coef
+    # 100km: 7, 1200km: 2, 1400km: 1
+    here = RouterWrapper::HERE_TRUCK
+    [
+      { m: 100_000, coef: 7 },
+      { m: 1_200_000, coef: 2 },
+      { m: 1_200_000.98123721931, coef: 2 },
+      { m: 1_400_000, coef: 1 }
+    ].each do |obj|
+      assert_equal(here.send(:coef_distance, obj[:m]), obj[:coef])
+    end
+  end
 end
