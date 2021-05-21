@@ -87,8 +87,9 @@ module Wrappers
           type: 'Feature',
           properties: {
             router: {
-              total_distance: i['walkDistance'] || 0, # FIXME walk only
+              total_distance: i['legs'].map{ |leg| leg['distance'] }.reduce(&:+),
               total_time: i['duration'],
+              walk_distance: i['walkDistance'],
               start_point: locs[0].reverse,
               end_point: locs[-1].reverse
             }
