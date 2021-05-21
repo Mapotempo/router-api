@@ -35,3 +35,30 @@ require 'grape-entity'
 
 require 'minitest/autorun'
 require 'rack/test'
+
+##
+# max_radius in km
+def random_point_in_disk(max_radius)
+  radius = max_radius * 1000 # to meter
+
+  # 0 to 2 Pi excluding 2 Pi because that's just 0.
+  radians = Random.rand(2 * Math::PI)
+
+  # Math.cos/sin work in radians, not degrees.
+  x = radius * Math.cos(radians)
+  y = radius * Math.sin(radians)
+
+  [x, y]
+end
+
+##
+# max_radius in km
+def random_location(centroid, max_radius)
+  earth_radius = 6371 # km
+  one_degree = earth_radius * 2 * Math::PI / 360 * 1000 # 1 degree latitude in meters
+
+  dx, dy = random_point_in_disk(max_radius)
+  random_lat = centroid[:lat] + dy / one_degree
+  random_lng = centroid[:lng] + dx / (one_degree * Math.cos(centroid[:lat] * Math::PI / 180))
+  [random_lat.round(5), random_lng.round(5)] # meter precision
+end

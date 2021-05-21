@@ -159,4 +159,19 @@ class Wrappers::HereTest < Minitest::Test
 
     assert here.matrix(vector, vector, :time, nil, nil, 'en', hazardous_goods: nil)
   end
+
+  def test_distance_should_define_row_number
+    [
+      { distance: 100, max_srcs: 15 },
+      { distance: 1_000, max_srcs: 15 },
+      { distance: 1_500, max_srcs: 10 },
+      { distance: 1_700, max_srcs: 8 },
+      { distance: 1_800, max_srcs: 7 },
+      { distance: 1_900, max_srcs: 6 },
+      { distance: 2_000, max_srcs: 5 },
+      { distance: 3_000, max_srcs: 1 }
+    ].each do |obj|
+      assert_equal(RouterWrapper::HERE_TRUCK.send(:max_srcs, obj[:distance]), obj[:max_srcs])
+    end
+  end
 end
