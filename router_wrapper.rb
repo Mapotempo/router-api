@@ -162,6 +162,9 @@ module RouterWrapper
   class InvalidArgumentError < RouterWrapperError
   end
 
+  class NoRouteFound < RouterWrapperError
+  end
+
   private
 
   def self.speed_multiplier_area(params)

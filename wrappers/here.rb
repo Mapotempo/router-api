@@ -17,7 +17,6 @@
 #
 require './wrappers/wrapper'
 
-
 module Wrappers
   class Here < Wrapper
 
@@ -331,7 +330,9 @@ module Wrappers
               elsif additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_START_POINT' })
                 raise UnreachablePointError
               elsif error['subtype'] == 'InvalidInputData'
-                raise RouterWrapper::InvalidArgumentError.new(error), "Here, #{error['subtype']} : #{error['details']} (#{additional_data.first['key']} : #{additional_data.first['value']})"
+                raise RouterWrapper::InvalidArgumentError.new(error), "Here, #{error['subtype']}: #{error['details']} (#{additional_data.first['key']} : #{additional_data.first['value']})"
+              elsif error['subtype'] == 'NoRouteFound'
+                raise RouterWrapper::NoRouteFound.new(error), "Here, #{error['subtype']}: #{params.keys.grep(/waypoint/).map{|key| params[key]}}"
               else
                 raise
               end
