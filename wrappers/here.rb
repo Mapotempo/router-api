@@ -174,20 +174,16 @@ module Wrappers
         # The best way to split a matrix request is to split it into parts with only few start positions and many
         # destinations. The number of the start positions should be between 3 and 15, depending on the size
         # of the area covered by the matrix. The matrices should be split into requests sufficiently small to
-        # ensure a response time of 30 seconds each. The number of the destinations in one request is limited
+        # ensure a response time of 60 seconds each. The number of the destinations in one request is limited
         # to 100.
 
         # Request should not contain more than 15 starts per request / 100 combinaisons
-        # 500 to get response before 30 seconds timeout
 
         lats = (srcs + dsts).minmax_by{ |p| p[0] }
         lons = (srcs + dsts).minmax_by{ |p| p[1] }
-        dist = RouterWrapper::Earth.distance_between(lats[1][0], lons[1][1], lats[0][0], lons[0][1])
-        coef_distance = 7 - [dist / 200, 6.0].min # 100km: 7, 1200km: 2, 1400km: 1
-
-        srcs_split = [100 / [(dsts.size / coef_distance).ceil, 100].min, (1000 / srcs.size.to_f).ceil].min
+        dist_km = RouterWrapper::Earth.distance_between(lons[1][1], lats[1][0], lons[0][1], lats[0][0]) / 1000.0
         dsts_split = dsts_max = [100, dsts.size].min
-        srcs_split = [srcs_split, 15].min if srcs_split * dsts_split > 99
+        srcs_split = max_srcs(dist_km)
 
         params = {
           mode: here_mode(dim, @mode, options),
@@ -456,6 +452,16 @@ module Wrappers
 
     def here_strict_restriction(param_value)
       param_value ? 'strict' : 'soft'
+    end
+
+    ##
+    # < 1000km: 15, 1500km: 10, 2000km : 5
+    def max_srcs(dist_km)
+      if dist_km <= 1_000
+        15
+      else
+        [25 - (dist_km / 100).floor, 1].max
+      end
     end
   end
 end

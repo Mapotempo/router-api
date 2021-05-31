@@ -135,4 +135,49 @@ class Api::V01::MatrixTest < Minitest::Test
     get '/0.1/matrix', api_key: 'demo', src: '49.610710,18.237305', dst: '47.010226, 2.900391', mode: 'here', trailers: '10'
     assert_equal 400, last_response.status, 'Bad response: ' + last_response.body
   end
+
+  # Matrix 100X15 max
+  def test_here_matrix_should_be_fifteen_per_hundred_at_max
+    RouterWrapper::HERE_TRUCK.stub(:get, lambda { |_url_base, _object, params|
+
+      # can be the rest of destinations number or 100
+      assert [100, @dest_number % 100].include?(params.keys.select { |key| key =~ /^destination/ }.count)
+
+      max_start = RouterWrapper::HERE_TRUCK.send(:max_srcs, @distance_km)
+      # can be the rest of starts number or max_start
+      assert [max_start, @start_number % 5].include?(params.keys.select { |key| key =~ /^start/ }.count)
+
+      {"response"=>{"matrixEntry"=>[{"startIndex"=>0, "destinationIndex"=>0, "summary"=>{"travelTime"=>0, "costFactor"=>1}}, {"startIndex"=>0, "destinationIndex"=>1, "summary"=>{"travelTime"=>1356, "costFactor"=>1750}}]}}
+    }) do
+      centroid = { lat: 43.851084, lng: -1.385374 }
+      [200, 1000, 2000].each do |km|
+        @distance_km = km
+
+        @start_number = 32
+        src = []
+        @start_number.times do |row|
+          loop do
+            src[row] = random_location(centroid, 4)
+            break if src.uniq.count == src.count
+          end
+        end
+
+        @dest_number = 201
+        dst = []
+        @dest_number.times do |col|
+          loop do
+            # Pythagore to get square diagonal of distance_km
+            distance_for_diagonal = ((@distance_km / Math.sqrt(2)) / 2).floor
+            dst[col] = random_location(centroid, distance_for_diagonal)
+
+            break if dst.uniq.count == dst.count
+          end
+        end
+
+        post '/0.1/matrix', api_key: 'demo', mode: 'here', src: src.flatten.join(','), dst: dst.flatten.join(',')
+
+        assert_equal 200, last_response.status, last_response.body
+      end
+    end
+  end
 end
