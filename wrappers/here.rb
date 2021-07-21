@@ -182,8 +182,8 @@ module Wrappers
         lats = (srcs + dsts).minmax_by{ |p| p[0] }
         lons = (srcs + dsts).minmax_by{ |p| p[1] }
         dist_km = RouterWrapper::Earth.distance_between(lons[1][1], lats[1][0], lons[0][1], lats[0][0]) / 1000.0
-        dsts_split = dsts_max = [100, dsts.size].min
-        srcs_split = max_srcs(dist_km)
+        dsts_split = dsts_max = max_dsts(dist_km, dsts, options)
+        srcs_split = max_srcs(dist_km, options)
 
         Api::Root.logger.debug("Options: #{options}")
         Api::Root.logger.debug("dist_km: #{dist_km}, srcs_split: #{srcs_split}, dsts_split: #{dsts_split}")
@@ -470,12 +470,23 @@ module Wrappers
     end
 
     ##
-    # < 1000km: 15, 1500km: 10, 2000km : 5
-    def max_srcs(dist_km)
+    # motorway or toll -> dist_km < 1000km: 15, 1500km: 10, 2000km: 5
+    # !motorway or !toll -> dist_km < 1000km: 15, 1000km: 6, 2000km: 3, 3000km: 1
+    def max_srcs(dist_km, options)
       if dist_km <= 1_000
         15
+      elsif options[:motorway] == false || options[:toll] == false
+        [8 - (dist_km * 0.0025).floor, 1].max
       else
         [25 - (dist_km / 100).floor, 1].max
+      end
+    end
+
+    def max_dsts(dist_km, dsts, options)
+      if dist_km > 1000 && (options[:motorway] == false || options[:toll] == false)
+        [50, dsts.size].min
+      else
+        [100, dsts.size].min
       end
     end
   end

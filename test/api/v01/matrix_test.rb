@@ -140,18 +140,28 @@ class Api::V01::MatrixTest < Minitest::Test
   def test_here_matrix_should_be_fifteen_per_hundred_at_max
     RouterWrapper::HERE_TRUCK.stub(:get, lambda { |_url_base, _object, params|
 
-      # can be the rest of destinations number or 100
-      assert [100, @dest_number % 100].include?(params.keys.select { |key| key =~ /^destination/ }.count)
+      max_start = RouterWrapper::HERE_TRUCK.send(:max_srcs, @distance_km, { motorway: @motorway, toll: @toll })
+      max_dsts = @motorway && @toll ? 100 : 50
 
-      max_start = RouterWrapper::HERE_TRUCK.send(:max_srcs, @distance_km)
+      # can be the rest of destinations number or max_dsts
+      assert [max_dsts, @dest_number % max_dsts].include?(params.keys.select { |key| key =~ /^destination/ }.count)
+
       # can be the rest of starts number or max_start
       assert [max_start, @start_number % 5].include?(params.keys.select { |key| key =~ /^start/ }.count)
 
       {"response"=>{"matrixEntry"=>[{"startIndex"=>0, "destinationIndex"=>0, "summary"=>{"travelTime"=>0, "costFactor"=>1}}, {"startIndex"=>0, "destinationIndex"=>1, "summary"=>{"travelTime"=>1356, "costFactor"=>1750}}]}}
     }) do
       centroid = { lat: 43.851084, lng: -1.385374 }
-      [200, 1000, 2000].each do |km|
-        @distance_km = km
+      [
+        { km: 200, motorway: true, toll: true },
+        { km: 1000, motorway: true, toll: true },
+        { km: 1500, motorway: false, toll: true },
+        { km: 1500, motorway: true, toll: false },
+        { km: 2070, motorway: true, toll: true }
+      ].each do |obj|
+        @distance_km = obj[:km]
+        @motorway = obj[:motorway]
+        @toll = obj[:toll]
 
         @start_number = 32
         src = []
@@ -174,7 +184,7 @@ class Api::V01::MatrixTest < Minitest::Test
           end
         end
 
-        post '/0.1/matrix', api_key: 'demo', mode: 'here', src: src.flatten.join(','), dst: dst.flatten.join(',')
+        post '/0.1/matrix', api_key: 'demo', mode: 'here', src: src.flatten.join(','), dst: dst.flatten.join(','), motorway: @motorway, toll: @toll
 
         assert_equal 200, last_response.status, last_response.body
       end
