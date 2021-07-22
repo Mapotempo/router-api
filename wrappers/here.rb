@@ -185,6 +185,9 @@ module Wrappers
         dsts_split = dsts_max = [100, dsts.size].min
         srcs_split = max_srcs(dist_km)
 
+        Api::Root.logger.debug("Options: #{options}")
+        Api::Root.logger.debug("dist_km: #{dist_km}, srcs_split: #{srcs_split}, dsts_split: #{dsts_split}")
+
         params = {
           mode: here_mode(dim, @mode, options),
           departure: departure,
@@ -354,6 +357,7 @@ module Wrappers
       }
 
       srcs_start = 0
+      nb_request = 0
       while srcs_start < srcs.size do
         param_start = {}
         srcs_start.upto([srcs_start + srcs_split - 1, srcs.size - 1].min).each{ |i|
@@ -362,6 +366,9 @@ module Wrappers
         dsts_start = 0
         dsts_split = [dsts_split * 2, dsts_max].min
         while dsts_start < dsts.size do
+          nb_request += 1
+          Api::Root.logger.debug("(nb_request: #{nb_request}) srcs_start: #{srcs_start}, dsts: #{dsts_start + dsts_split - 1} / #{dsts.size}")
+
           param_destination = {}
           dsts_start.upto([dsts_start + dsts_split - 1, dsts.size - 1].min).each{ |i|
             param_destination["destination#{i - dsts_start}"] = dsts[i].join(',')
@@ -377,6 +384,9 @@ module Wrappers
               elsif e['status'] == 'failed'
                 # FIXME: replace by truckRestrictionPenalty/matrixAttributes when available in matrix
                 if !strict_restriction
+                  nb_request += 1
+                  Api::Root.logger.debug("Status failed, getting a route (waypoint0: 'geo!#{param_start['start' + e['startIndex'].to_s]}', waypoint1: 'geo!#{param_destination['destination' + e['destinationIndex'].to_s]}'), strict_restriction: #{strict_restriction}  (nb_request: #{nb_request}) srcs_start: #{srcs_start}, dsts: #{dsts_start + dsts_split - 1} / #{dsts.size}")
+
                   route = get(@url_router, '7.2/calculateroute', params.select{ |k, _v|
                     [
                       :mode,
@@ -410,12 +420,16 @@ module Wrappers
                     result[:distance][srcs_start + e['startIndex']][dsts_start + e['destinationIndex']] = s.key?('distance') ? s['distance'].round : nil
                   end
                 else
+                  Api::Root.logger.debug("Status failed, request set to nil (waypoint0: 'geo!#{param_start['start' + e['startIndex'].to_s]}'', waypoint1: 'geo!#{param_destination['destination' + e['destinationIndex'].to_s]}''), strict_restriction: #{strict_restriction} (nb_request: #{nb_request}) srcs_start: #{srcs_start}, dsts: #{dsts_start + dsts_split - 1} / #{dsts.size}")
+                  Api::Root.logger.debug("#{@url_matrix}7.2/calculatematrix?#{params.dup.merge(param_start).merge(param_destination).to_query}")
                   request = nil
                   break
                 end
               end
             }
           else
+            Api::Root.logger.debug('Request failed')
+            Api::Root.logger.debug("#{@url_matrix}7.2/calculatematrix?#{params.dup.merge(param_start).merge(param_destination).to_query}")
             request = nil
           end
 
@@ -423,6 +437,7 @@ module Wrappers
           if !request && dsts_split > 2
             dsts_start = [dsts_start - dsts_split, 0].max
             dsts_split = (dsts_split / 2).ceil
+            Api::Root.logger.debug("Resplit dsts_split to #{dsts_split}")
           else
             dsts_start += dsts_split
           end
