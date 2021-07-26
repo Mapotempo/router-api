@@ -20,7 +20,7 @@ fr:
   router:
     crow:
       name: Vol d'oiseau
-    osrm5:
+    osrm:
       name: Open Source Routing Engine 5
     otp:
       name: OpenTripPlanner

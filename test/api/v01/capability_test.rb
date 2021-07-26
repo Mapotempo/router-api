@@ -114,7 +114,7 @@ class Api::V01::CapabilityTest < Minitest::Test
       :strict_restriction]).each { |option|
         supports = []
         ['route', 'matrix', 'isoline'].each{ |op|
-          supports << response[op].select{ |r| r['mode'] == 'osrm5' }.map{ |r| r["support_#{option}"] }
+          supports << response[op].select{ |r| r['mode'] == 'osrm' }.map{ |r| r["support_#{option}"] }
         }
         assert_equal [true], supports.flatten.uniq, "support_#{option} is false for osrm"
     }

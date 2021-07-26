@@ -27,7 +27,7 @@ class Api::V01::IsolineTest < Minitest::Test
   end
 
   def test_isoline_with_approach
-    get '/0.1/isoline', api_key: 'demo', loc: '43.2804,5.3806', size: 33, departure: Time.now, approach: :curb, mode: 'osrm5'
+    get '/0.1/isoline', api_key: 'demo', loc: '43.2804,5.3806', size: 33, departure: Time.now, approach: :curb, mode: 'osrm'
     assert last_response.ok?, last_response.body
   end
 
@@ -54,7 +54,7 @@ class Api::V01::IsolineTest < Minitest::Test
   end
 
   def test_isoline_invalid_query_string_malformed
-    get '/0.1/isoline', api_key: 'demo', loc: '48.726675,-0.000079', size: 1, mode: 'osrm5'
+    get '/0.1/isoline', api_key: 'demo', loc: '48.726675,-0.000079', size: 1, mode: 'osrm'
     assert last_response.ok?
   end
 end

@@ -20,7 +20,7 @@ require 'dotenv'
 require 'tmpdir'
 
 require './wrappers/crow'
-require './wrappers/osrm5'
+require './wrappers/osrm'
 require './wrappers/otp'
 require './wrappers/here'
 
@@ -32,8 +32,8 @@ module RouterWrapper
   CACHE = CacheManager.new(ActiveSupport::Cache::RedisStore.new(host: ENV['REDIS_HOST'] || 'localhost', namespace: 'router', expires_in: 60*60*24*1, raise_errors: true))
 
   CROW = Wrappers::Crow.new(CACHE)
-  OSRM5 = Wrappers::Osrm5.new(CACHE, url_time: 'http://router.project-osrm.org', url_distance: 'http://router.project-osrm.org', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
-  OSRM5_CAR_ICELAND = Wrappers::Osrm5.new(CACHE, url_time: 'http://osrm-car-iceland:5000', url_distance: nil, url_isochrone: 'http://osrm-car-iceland:6000', url_isodistance: nil, licence: 'ODbL', attribution: '© OpenStreetMap contributors')
+  OSRM = Wrappers::Osrm.new(CACHE, url_time: 'http://router.project-osrm.org', url_distance: 'http://router.project-osrm.org', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', licence: 'ODbL', attribution: '© OpenStreetMap contributors')
+  OSRM_CAR_ICELAND = Wrappers::Osrm.new(CACHE, url_time: 'http://osrm-car-iceland:5000', url_distance: nil, url_isochrone: 'http://osrm-car-iceland:6000', url_isodistance: nil, licence: 'ODbL', attribution: '© OpenStreetMap contributors')
   OTP_BORDEAUX = Wrappers::Otp.new(CACHE, url: 'http://otp:7001', router_id: 'bordeaux', licence: 'ODbL', attribution: 'Bordeaux Métropole', area: 'Bordeaux', crs: 'EPSG:2154')
   HERE_APP_ID = nil
   HERE_APP_CODE = nil
@@ -60,19 +60,21 @@ module RouterWrapper
         }
       },
       standard: {
-        route_default: :osrm5,
+        route_default: :osrm,
+        params_limit: PARAMS_LIMIT,
+        quotas: QUOTAS, # Only taken into account if REDIS_COUNT
         route: {
-          osrm5: [OSRM5_CAR_ICELAND, OSRM5],
+          osrm: [OSRM_CAR_ICELAND, OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
         },
         matrix: {
-          osrm5: [OSRM5_CAR_ICELAND, OSRM5],
+          osrm: [OSRM_CAR_ICELAND, OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
         },
         isoline: {
-          osrm5: [OSRM5_CAR_ICELAND, OSRM5],
+          osrm: [OSRM_CAR_ICELAND, OSRM],
           otp: [OTP_BORDEAUX],
         }
       }

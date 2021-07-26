@@ -20,7 +20,7 @@ en:
   router:
     crow:
       name: Crow flie
-    osrm5:
+    osrm:
       name: Open Source Routing Engine 5
     otp:
       name: OpenTripPlanner
