@@ -103,14 +103,14 @@ module Api
 
       helpers do
         def isoline(params)
-          params[:mode] ||= APIBase.services(params[:api_key])[:route_default]
+          params[:mode] ||= APIBase.profile(params[:api_key])[:route_default]
           if params[:area]
             params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:loc].size == 2 || error!({detail: 'Start lat/lng is needed.'}, 400)
 
-          results = RouterWrapper::wrapper_isoline(APIBase.services(params[:api_key]), params)
+          results = RouterWrapper::wrapper_isoline(APIBase.profile(params[:api_key]), params)
           results[:router][:version] = 'draft'
           present results, with: IsolineResult, geometry: true
         end

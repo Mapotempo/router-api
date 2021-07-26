@@ -34,7 +34,7 @@ module Api
           success: ServicesDesc
         }
         get do
-          present RouterWrapper::desc(APIBase.services(params[:api_key])), with: ServicesDesc
+          present RouterWrapper::desc(APIBase.profile(params[:api_key])), with: ServicesDesc
         end
       end
     end

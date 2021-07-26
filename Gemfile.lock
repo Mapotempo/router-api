@@ -85,9 +85,6 @@ GEM
     rack-test (0.8.2)
       rack (>= 1.0, < 3)
     rake (10.3.2)
-    rakeup (1.2.0)
-      rack (~> 1.5.0)
-      rake (~> 10.3.0)
     redis (4.1.2)
     redis-activesupport (5.0.4)
       activesupport (>= 3, < 6)
@@ -141,7 +138,7 @@ DEPENDENCIES
   rack-cors
   rack-server-pages (~> 0.1.0)
   rack-test
-  rakeup
+  rake
   redis
   redis-activesupport
   redis-store (~> 1.4.1)
@@ -149,7 +146,7 @@ DEPENDENCIES
   simplecov
 
 RUBY VERSION
-   ruby 2.3.3p222
+   ruby 2.5.7p206
 
 BUNDLED WITH
-   1.16.1
+   1.17.3

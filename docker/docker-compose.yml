@@ -15,7 +15,7 @@ services:
     links:
       - redis-cache
     environment:
-      APP_ENV: production # Switch to "development" for more traces
+      PASSENGER_APP_ENV: production
 
   otp-bordeaux:
     build:

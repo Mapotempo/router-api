@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
-ruby '2.3.3'
+ruby '~> 2.5'
 
 gem 'rack'
-gem 'rakeup'
+gem 'rake'
 gem 'puma'
 gem 'rack-cors'
 gem 'rack-server-pages', '~> 0.1.0'

@@ -27,7 +27,7 @@ module Api
   module V01
     class Api < Grape::API
       before do
-        error!('401 Unauthorized', 401) unless ::RouterWrapper::config[:api_keys].include?(params[:api_key])
+        error!('401 Unauthorized', 401) unless params && RouterWrapper.access(true).keys.include?(params[:api_key])
       end
 
       rescue_from :all, backtrace: ENV['APP_ENV'] != 'production' do |e|
@@ -58,12 +58,6 @@ module Api
       mount Matrix
       mount Isoline
       mount Capability
-
-      private
-
-      def services
-        ::RouterWrapper::config[:api_keys][params[:api_key]]
-      end
     end
   end
 end
