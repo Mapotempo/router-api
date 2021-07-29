@@ -254,11 +254,16 @@ module Wrappers
           approaches: options[:approach] == :curb ? (['curb'] * loc.size).join(';') : nil,
           exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(','),
         }.delete_if { |k, v| v.nil? || v == '' }
-        request = RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
-          accept: :json,
-          params: params
-        })
-        @cache.write(key, request.body)
+        begin
+          request = RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
+            accept: :json,
+            params: params
+          })
+          @cache.write(key, request.body)
+        rescue RestClient::ExceptionWithResponse => e
+          e.message += " - #{@url_isoline}"
+          raise e
+        end
       end
 
       if request
