@@ -1,8 +1,12 @@
+function getApiKey() {
+  return document.location.search.split('api_key=')[1] || 'demo';
+}
+
 var options = {
   betaUrl: "https://geocode.beta.mapotempo.com/0.1/geocode.json",
   prodUrl: "https://geocode.mapotempo.com/0.1/geocode.json",
   serviceUrl: "0.1",
-  apiKey: "<%= params['api_key'] || 'demo' %>"
+  apiKey: getApiKey()
 };
 
 var map = L.mapotempo.map('map').setView([44.837778, -0.579197], 13);
