@@ -162,24 +162,26 @@ class Wrappers::HereTest < Minitest::Test
 
   def test_distance_should_define_row_number
     [
-      { distance: 100, max_srcs: 15, options: {} },
-      { distance: 100, max_srcs: 15, options: { motorway: false } },
-      { distance: 1_000, max_srcs: 15, options: {} },
-      { distance: 1_000, max_srcs: 6, options: { motorway: false } },
-      { distance: 1_500, max_srcs: 10, options: {} },
-      { distance: 1_500, max_srcs: 5, options: { motorway: false } },
-      { distance: 1_700, max_srcs: 8, options: {} },
-      { distance: 1_700, max_srcs: 4, options: { motorway: false } },
-      { distance: 1_800, max_srcs: 7, options: {} },
-      { distance: 1_800, max_srcs: 4, options: { motorway: false } },
-      { distance: 1_900, max_srcs: 6, options: {} },
-      { distance: 1_900, max_srcs: 4, options: { motorway: false } },
-      { distance: 2_000, max_srcs: 5, options: {} },
-      { distance: 2_000, max_srcs: 3, options: { motorway: false } },
-      { distance: 3_000, max_srcs: 1, options: {} },
-      { distance: 3_000, max_srcs: 1, options: { motorway: false } }
+      { distance: 100, max_srcs: 15, max_dsts: 100 },
+      { distance: 100, max_srcs: 8, max_dsts: 100, options: { motorway: false } },
+      { distance: 500, max_srcs: 7, max_dsts: 100, options: { motorway: false } },
+      { distance: 1_000, max_srcs: 15, max_dsts: 100 },
+      { distance: 1_000, max_srcs: 6, max_dsts: 100, options: { motorway: false } },
+      { distance: 1_500, max_srcs: 10, max_dsts: 100 },
+      { distance: 1_500, max_srcs: 4, max_dsts: 50, options: { motorway: false } },
+      { distance: 1_700, max_srcs: 8, max_dsts: 100 },
+      { distance: 1_700, max_srcs: 3, max_dsts: 50, options: { motorway: false } },
+      { distance: 1_800, max_srcs: 7, max_dsts: 100 },
+      { distance: 1_800, max_srcs: 3, max_dsts: 50, options: { motorway: false } },
+      { distance: 1_900, max_srcs: 6, max_dsts: 100 },
+      { distance: 1_900, max_srcs: 3, max_dsts: 50, options: { motorway: false } },
+      { distance: 2_000, max_srcs: 5, max_dsts: 100 },
+      { distance: 2_000, max_srcs: 3, max_dsts: 50, options: { motorway: false } },
+      { distance: 3_000, max_srcs: 1, max_dsts: 100 },
+      { distance: 3_000, max_srcs: 1, max_dsts: 50, options: { motorway: false } }
     ].each do |obj|
       assert_equal(obj[:max_srcs], RouterWrapper::HERE_TRUCK.send(:max_srcs, obj[:distance], obj[:options]))
+      assert_equal(obj[:max_dsts], RouterWrapper::HERE_TRUCK.send(:max_dsts, obj[:distance], [*1..100], obj[:options]))
     end
   end
 end

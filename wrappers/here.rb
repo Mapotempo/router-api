@@ -471,19 +471,19 @@ module Wrappers
 
     ##
     # motorway or toll -> dist_km < 1000km: 15, 1500km: 10, 2000km: 5
-    # !motorway or !toll -> dist_km < 1000km: 15, 1000km: 6, 2000km: 3, 3000km: 1
-    def max_srcs(dist_km, options)
-      if dist_km <= 1_000
+    # !motorway or !toll -> dist_km : < 500km: 8, 500km: 7, 1000km: 6, 2000km: 3, 3000km: 1
+    def max_srcs(dist_km, options = {})
+      if options && (options[:motorway] == false || options[:toll] == false)
+        [9 + (dist_km * -0.003).floor, 1].max
+      elsif dist_km <= 1_000
         15
-      elsif options[:motorway] == false || options[:toll] == false
-        [8 - (dist_km * 0.0025).floor, 1].max
       else
         [25 - (dist_km / 100).floor, 1].max
       end
     end
 
-    def max_dsts(dist_km, dsts, options)
-      if dist_km > 1000 && (options[:motorway] == false || options[:toll] == false)
+    def max_dsts(dist_km, dsts, options = {})
+      if dist_km > 1000 && options && (options[:motorway] == false || options[:toll] == false)
         [50, dsts.size].min
       else
         [100, dsts.size].min
