@@ -110,10 +110,10 @@ module Wrappers
         coordinates = locs.collect{ |loc| ['%f' % loc[1], '%f' % loc[0]].join(',') }.join(';')
         request = RestClient::Request.execute(
           method: :get,
-          url: @url_trace[dimension] + '/route/v1/driving/' + coordinates,
+          url: "#{@url_trace[dimension]}/route/v1/driving/#{coordinates}?#{params.to_query}",
           open_timeout: TIMEOUT_DEFAULT_OPEN,
           read_timeout: TIMEOUT_DEFAULT,
-          payload: { accept: :json, params: params }
+          payload: { accept: :json }
         ) { |response, request, result, &block|
           case response.code
           when 200, 400
@@ -210,10 +210,10 @@ module Wrappers
           uri.path = '/table/v1/driving/polyline(' + Polylines::Encoder.encode_points(locs_uniq, 1e5) + ')'
           request = RestClient::Request.execute(
             method: :get,
-            url: uri.normalize.to_str,
+            url: "#{uri.normalize.to_str}?#{params.delete_if { |k, v| v.nil? || v == '' }.to_query}",
             open_timeout: TIMEOUT_DEFAULT_OPEN,
             read_timeout: TIMEOUT_DEFAULT_MATRIX,
-            payload: { accept: :json, params: params.delete_if { |k, v| v.nil? || v == '' } }
+            payload: { accept: :json }
           ) { |response, request, result, &block|
             case response.code
             when 200, 400
@@ -267,10 +267,10 @@ module Wrappers
         begin
           request = RestClient::Request.execute(
             method: :get,
-            url: @url_isoline[dimension] + '/0.1/isochrone',
+            url: "#{@url_isoline[dimension]}/0.1/isochrone?#{params.to_query}",
             open_timeout: TIMEOUT_DEFAULT_OPEN,
             read_timeout: TIMEOUT_DEFAULT,
-            payload: { accept: :json, params: params }
+            payload: { accept: :json }
           )
           @cache.write(key, request.body)
         rescue RestClient::ExceptionWithResponse => e
