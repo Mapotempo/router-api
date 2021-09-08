@@ -63,12 +63,18 @@ module Wrappers
           wheelchair: false,
           showIntermediateStops: false
         }
-        request = RestClient.get(@url + '/otp/routers/' + @router_id + '/plan', {
-          accept: :json,
-          params: params
-        })
-        data = JSON.parse(request)
-        @cache.write(key, data) if data && !data['error'] && data['plan'] && data['plan']['itineraries']
+
+        begin
+          request = RestClient.get(@url + '/otp/routers/' + @router_id + '/plan', {
+            accept: :json,
+            params: params
+          })
+          data = JSON.parse(request)
+          @cache.write(key, data) if data && !data['error'] && data['plan'] && data['plan']['itineraries']
+        rescue RestClient::ExceptionWithResponse => e
+          e.message += " - OTP #{@router_id}"
+          raise e
+        end
       end
 
       ret = {
