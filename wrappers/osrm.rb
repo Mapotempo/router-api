@@ -26,6 +26,10 @@ require 'polylines'
 
 module Wrappers
   class Osrm < Wrapper
+    TIMEOUT_DEFAULT_OPEN ||= 3
+    TIMEOUT_DEFAULT ||= 60
+    TIMEOUT_DEFAULT_MATRIX ||= 90 # OSRM takes 55sec for a 5kx5k matrix 1000km diagonal
+
     def initialize(cache, hash = {})
       super(cache, hash)
       @url_trace = {
@@ -104,10 +108,13 @@ module Wrappers
           ].compact.join(','),
         }.delete_if { |k, v| v.nil? || v == '' }
         coordinates = locs.collect{ |loc| ['%f' % loc[1], '%f' % loc[0]].join(',') }.join(';')
-        request = RestClient.get(@url_trace[dimension] + '/route/v1/driving/' + coordinates, {
-          accept: :json,
-          params: params
-        }) { |response, request, result, &block|
+        request = RestClient::Request.execute(
+          method: :get,
+          url: @url_trace[dimension] + '/route/v1/driving/' + coordinates,
+          open_timeout: TIMEOUT_DEFAULT_OPEN,
+          read_timeout: TIMEOUT_DEFAULT,
+          payload: { accept: :json, params: params }
+        ) { |response, request, result, &block|
           case response.code
           when 200, 400
             response
@@ -201,10 +208,13 @@ module Wrappers
         else
           uri = ::Addressable::URI.parse(@url_matrix[dim1])
           uri.path = '/table/v1/driving/polyline(' + Polylines::Encoder.encode_points(locs_uniq, 1e5) + ')'
-          request = RestClient.get(uri.normalize.to_str, {
-            accept: :json,
-            params: params.delete_if { |k, v| v.nil? || v == '' }
-          }) { |response, request, result, &block|
+          request = RestClient::Request.execute(
+            method: :get,
+            url: uri.normalize.to_str,
+            open_timeout: TIMEOUT_DEFAULT_OPEN,
+            read_timeout: TIMEOUT_DEFAULT_MATRIX,
+            payload: { accept: :json, params: params.delete_if { |k, v| v.nil? || v == '' } }
+          ) { |response, request, result, &block|
             case response.code
             when 200, 400
               response
@@ -255,10 +265,13 @@ module Wrappers
           exclude: [options[:toll] == false ? 'toll' : nil, options[:motorway] == false ? 'motorway' : nil, options[:track] == false ? 'track' : nil].compact.join(','),
         }.delete_if { |k, v| v.nil? || v == '' }
         begin
-          request = RestClient.get(@url_isoline[dimension] + '/0.1/isochrone', {
-            accept: :json,
-            params: params
-          })
+          request = RestClient::Request.execute(
+            method: :get,
+            url: @url_isoline[dimension] + '/0.1/isochrone',
+            open_timeout: TIMEOUT_DEFAULT_OPEN,
+            read_timeout: TIMEOUT_DEFAULT,
+            payload: { accept: :json, params: params }
+          )
           @cache.write(key, request.body)
         rescue RestClient::ExceptionWithResponse => e
           e.message += " - #{@url_isoline}"
