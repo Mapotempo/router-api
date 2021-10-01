@@ -1,4 +1,5 @@
-FROM phusion/passenger-ruby25
+# Take car of the latest version containing bundler 1.17
+FROM phusion/passenger-ruby25:1.0.14
 
 ARG BUNDLE_WITHOUT="development test"
 
@@ -12,9 +13,11 @@ ENV REDIS_HOST redis-cache
 
 ADD . /srv/app
 WORKDIR /srv/app
+
 # Install app
-RUN apt-get update  > /dev/null && \
-    apt-get install -y git build-essential zlib1g-dev zlib1g  > /dev/null
+# because of Certificate verification failed
+RUN apt update ; apt upgrade -y
+RUN apt-get install -y git build-essential zlib1g-dev zlib1g  > /dev/null
 RUN gem install bundler --version 1.17.3
 RUN bundle install --path vendor/bundle --full-index --without ${BUNDLE_WITHOUT}
 
