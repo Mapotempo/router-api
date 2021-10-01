@@ -1,42 +1,34 @@
-Using Docker Compose to deploy Mapotempo Router environment
-===========================================================
+# Building images
+```
+export REGISTRY='registry.mapotempo.com/'
+```
 
-Building images
----------------
+### OSRM
 
-The following commands will get the source code and build the router-wrapper
-and needed images:
+```
+cd ./docker/osrm/
+export OSRM_VERSION=v5.21.0
+export OSRM_ISOCHRONE_VERSION=5.12.1
+docker build --build-arg OSRM_VERSION=${OSRM_VERSION} \
+  --build-arg OSRM_ISOCHRONE_VERSION=${OSRM_ISOCHRONE_VERSION} \
+  -f Dockerfile -t ${REGISTRY}mapotempo/osrm-server:${OSRM_VERSION} .
+```
 
-    git clone https://github.com/mapotempo/router-wrapper
-    cd router-wrapper/docker
-    docker-compose build
+### OTP
+```
+cd ./docker/otp/
+export OTP_VERSION=1.5.0
+docker build --build-arg OTP_VERSION=${OTP_VERSION} \
+  -f Dockerfile -t ${REGISTRY}mapotempo/otp-server:${OTP_VERSION} .
+```
 
-Publishing images
------------------
+### ROUTER
+```
+docker build -f ./docker/Dockerfile -t ${REGISTRY}mapotempo/router-api:latest .
+```
 
-To pull them from another host, we need to push the built images to
-hub.docker.com:
-
-    docker login
-    docker-compose push
-
-Running on a docker host
-------------------------
-
-First, we need to retrieve the source code and the prebuilt images:
-
-    git clone https://github.com/mapotempo/router-wrapper
-    cd router-wrapper/docker
-    docker-compose pull
-
-Then use the configuration file and edit it to match your needs:
-
-    # Copy production configuration file
-    cp ../config/environments/production.rb ./
-
-## Requirement
-
-    apt-get install -y jq
+# Requirement
+  apt-get install -y jq
 
 ## OTP
 

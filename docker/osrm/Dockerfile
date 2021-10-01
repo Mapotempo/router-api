@@ -1,4 +1,6 @@
-FROM ubuntu:16.04
+# Ubuntu 20 uses gcc9 which is compatible only with OSRM 5.23 +
+# LTS 18 -> 2028
+FROM ubuntu:18.04
 
 LABEL maintainer="Mapotempo <contact@mapotempo.com>"
 
@@ -7,20 +9,21 @@ ENV OSRM_VERSION ${OSRM_VERSION:-v5.21.0}
 
 ARG OSRM_REPOSITORY
 ENV OSRM_REPOSITORY ${OSRM_REPOSITORY:-https://github.com/Project-OSRM/osrm-backend.git}
-#ENV OSRM_REPOSITORY ${OSRM_REPOSITORY:-https://github.com/Mapotempo/osrm-backend.git}
+ENV TZ=Europe/Paris
 
 # OSRM part
 ###########
 
 # Install needed packages
-RUN apt-get update && \
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
+RUN apt update ; apt upgrade -y && \
     apt-get install -y --no-install-recommends build-essential git cmake \
         libboost-all-dev libbz2-dev liblua5.2-dev libxml2-dev \
         libstxxl-dev libosmpbf-dev libprotobuf-dev libtbb-dev ca-certificates \
         curl pkg-config runit && \
     \
 # Install NodeJS for osrm-isochrone-server
-    curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get update && \
     apt-get install -y --no-install-recommends nodejs && \
     \
