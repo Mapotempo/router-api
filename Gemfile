@@ -19,12 +19,14 @@ gem 'rest-client'
 gem 'addressable'
 gem 'border_patrol'
 gem 'activesupport'
+gem 'actionpack'
 
 group :test do
-  gem 'rack-test'
+  gem 'fakeredis'
   gem 'minitest'
   gem 'minitest-focus'
   gem 'minitest-reporters'
+  gem 'rack-test'
   gem 'simplecov', require: false
 end
 

@@ -35,6 +35,13 @@ module Api
       # formatter :gpx, GpxFormatter
       default_format :json
 
+      before do
+        params_limit = APIBase.profile(params[:api_key])[:params_limit].merge(RouterWrapper.access[params[:api_key]][:params_limit] || {})
+        if !params_limit[:locations].nil?
+          error!({message: "Exceeded \"matrix\" limit authorized for your account: #{params_limit[:locations]}. Please contact support or sales to increase limits."}, 413) if APIBase.count_matrix_locations(params) > params_limit[:locations]
+        end
+      end
+
       params {
         optional :mode, type: Symbol, desc: 'Transportation mode (see capability operation for available modes).'
         optional :dimension, type: Symbol, values: [:time, :time_distance, :distance, :distance_time], default: :time, desc: 'Compute fastest or shortest and the optional additional dimension (default on time.)'
@@ -42,7 +49,6 @@ module Api
         optional :departure, type: DateTime, desc: 'Departure date time (only used if router supports traffic).'
         optional :speed_multiplier, type: Float, desc: 'Speed multiplier (default: 1), not available on all transport modes.'
         optional :speed_multiplicator, type: Float, desc: 'Deprecated, use speed_multiplier instead.'
-#        optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
         optional :area, type: Array, coerce_with: ->(c) { c.split(/;|\|/).collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with pipes (only available for truck mode at this time).', documentation: { param_type: 'query' }
         optional :speed_multiplier_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Speed multiplier per area, 0 avoid area. Areas separated with pipes (only available for truck mode at this time).', documentation: { param_type: 'query' }
         optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Deprecated, use speed_multiplier_area instead.', documentation: { param_type: 'query' }
@@ -74,6 +80,7 @@ module Api
         get do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
+          count :matrix, true, APIBase.count_matrix_locations(params)
           matrix params
         end
 
@@ -86,6 +93,7 @@ module Api
         post do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
+          count :matrix, true, APIBase.count_matrix_locations(params)
           matrix params
           status 200
         end
@@ -95,21 +103,22 @@ module Api
         def matrix(params)
           params[:mode] ||= APIBase.profile(params[:api_key])[:route_default]
           if params[:area]
-            params[:area].all?{ |area| (area.size % 2).zero? } || error!({detail: 'area: couples of lat/lng are needed.'}, 400)
+            params[:area].all?{ |area| (area.size % 2).zero? } || error!('area: couples of lat/lng are needed.', 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:src] = params[:src].each_slice(2).to_a
-          params[:src][-1].size == 2 || error!({detail: 'Source couples of lat/lng are needed.'}, 400)
+          params[:src][-1].size == 2 || error!('Source couples of lat/lng are needed.', 400)
 
           if params.key?(:dst) && !params[:dst].empty?
             params[:dst] = params[:dst].each_slice(2).to_a
-            params[:dst][-1].size == 2 || error!({detail: 'Destination couples of lat/lng are needed.'}, 400)
+            params[:dst][-1].size == 2 || error!('Destination couples of lat/lng are needed.', 400)
           else
             params[:dst] = params[:src]
           end
 
-          results = RouterWrapper::wrapper_matrix(APIBase.profile(params[:api_key]), params)
+          results = RouterWrapper.wrapper_matrix(APIBase.profile(params[:api_key]), params)
           results[:router][:version] = 'draft'
+          count_incr :matrix, transactions: APIBase.count_matrix_locations(params)
           present results, with: MatrixResult
         end
       end

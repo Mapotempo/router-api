@@ -180,4 +180,50 @@ class Api::V01::MatrixTest < Minitest::Test
       end
     end
   end
+
+  def test_param_matrix_dont_exceed_limit
+    [:get, :post].each do |method|
+      send method, '/0.1/matrix', api_key: 'demo', src: '43.2804,5.3806,43.291576,5.355835', dst: '43.2804,5.3806,43.291577,5.355836'
+      assert 200, last_response.status
+      send method, '/0.1/matrix', api_key: 'demo', src: '43.2804,5.3806,43.291576,5.355835'
+      assert_includes last_response.body, 'matrix_time'
+    end
+  end
+
+  def test_param_matrix_exceed_limit
+    [:get, :post].each do |method|
+      send method, '/0.1/matrix', api_key: 'demo_limit', src: '43.2804,5.3806,43.291576,5.355835', dst: '43.2804,5.3806,43.291577,5.355836'
+      assert 413, last_response.status
+      send method, '/0.1/matrix', api_key: 'demo_limit', src: '43.2804,5.3806,43.291576,5.355835'
+      assert_includes last_response.body, 'Exceeded'
+    end
+  end
+
+  def test_count_matrix
+    [:get, :post].each_with_index do |method, indx|
+      src = '43.2804,5.3806,43.2804,5.3806'
+      dst = '43.2804,5.3806'
+      send method, '/0.1/matrix', {api_key: 'demo', src: src, dst: dst}
+      keys = RouterWrapper.config[:redis_count].keys("router:matrix:#{Time.now.utc.to_s[0..9]}_key:demo_ip*")
+      assert_equal 1, keys.size
+      transactions = Api::V01::APIBase.count_matrix_locations(src: src, dst: dst)
+      assert_equal({'hits' => (indx + 1).to_s, 'transactions' => ((indx + 1) * transactions).to_s}, RouterWrapper.config[:redis_count].hgetall(keys.first))
+    end
+  end
+
+  def test_use_quotas
+    src = '43.2804,5.3806,43.2804,5.3806'
+    dst = '43.2804,5.3806'
+
+    post '/0.1/matrix', {api_key: 'demo_quotas', src: src, dst: dst}
+    assert last_response.ok?, last_response.body
+
+    post '/0.1/matrix', {api_key: 'demo_quotas', src: src, dst: dst}
+    assert_equal 429, last_response.status
+
+    assert_includes JSON.parse(last_response.body)['message'], 'Too many daily requests'
+    assert_equal ['application/json; charset=UTF-8', 2, 0, Time.now.utc.to_date.next_day.to_time.to_i], last_response.headers.select{ |key|
+      key =~ /(Content-Type|X-RateLimit-Limit|X-RateLimit-Remaining|X-RateLimit-Reset)/
+    }.values
+  end
 end

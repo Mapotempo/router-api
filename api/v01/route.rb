@@ -36,6 +36,13 @@ module Api
       # formatter :gpx, GpxFormatter
       default_format :json
 
+      before do
+        params_limit = APIBase.profile(params[:api_key])[:params_limit].merge(RouterWrapper.access[params[:api_key]][:params_limit] || {})
+        if !params_limit[:locations].nil?
+          error!({message: "Exceeded \"routes\" limit authorized for your account: #{params_limit[:locations]}. Please contact support or sales to increase limits."}, 413) if APIBase.count_route_locations(params) > params_limit[:locations]
+        end
+      end
+
       resource :route do
         desc 'Route via two points or more', {
           detail: 'Find the route between two or more points depending of transportation mode, dimension, etc... Area/speed_multiplier_area can be used to define areas where not to go or with heavy traffic (only available for truck mode at this time, see capability operation for information).',
@@ -57,7 +64,7 @@ module Api
           optional :arrival, type: DateTime, desc: 'Arrival date time (not used by all transport modes). In exclusion with departure.'
           optional :speed_multiplier, type: Float, desc: 'Speed multiplier (default: 1), not available on all transport modes.'
           optional :speed_multiplicator, type: Float, desc: 'Deprecated, use speed_multiplier instead.'
-#          optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time).'
+
           optional :area, type: Array, coerce_with: ->(c) { c.split(/;|\|/).collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with pipes (only available for truck mode at this time).'
           optional :speed_multiplier_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Speed multiplier per area, 0 avoid area. Areas separated with pipes (only available for truck mode at this time).', documentation: { param_type: 'query' }
           optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Deprecated, use speed_multiplier_area instead.', documentation: { param_type: 'query' }
@@ -78,7 +85,6 @@ module Api
           optional :snap, type: Float, desc: 'Snap waypoint to junction close by snap distance.'
           optional :strict_restriction, type: Boolean, default: true, desc: 'Strict compliance with truck limitations.'
           optional :lang, type: String, default: :en
-#          requires :loc, type: Array[Array[Float]], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...'
           requires :loc, type: Array[Float], coerce_with: ->(c) { c.split(',').collect{ |f| Float(f) } }, desc: 'List of latitudes and longitudes separated with commas, e.g. lat1,lng1,lat2,lng2...', documentation: { param_type: 'query' }
           optional :precision, type: Integer, default: 6, desc: 'Precison for encoded polyline.'
           optional :with_summed_by_area, type: Boolean, default: false, desc: 'Returns way type detail when set to true.'
@@ -87,6 +93,7 @@ module Api
           params[:locs] = [params[:loc].each_slice(2).to_a]
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area]
+          count :route, true, APIBase.count_route_locations(params)
           present compute_routes(params)[0], with: RouteResult, geometry: params[:geometry], toll_costs: params[:toll_costs], with_summed_by_area: params[:with_summed_by_area]
         end
       end
@@ -100,7 +107,6 @@ module Api
         optional :arrival, type: DateTime, desc: 'Arrival date time (not used by all transport modes). In exclusion with departure.'
         optional :speed_multiplier, type: Float, desc: 'Speed multiplier (default: 1), not available on all transport modes.'
         optional :speed_multiplicator, type: Float, desc: 'Deprecated, use speed_multiplier instead.'
-#        optional :area, type: Array[Array[Float]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with semicolons (only available for truck mode at this time, see capability operation for informations).'
         optional :area, type: Array, coerce_with: ->(c) { c.split(/;|\|/).collect{ |b| b.split(',').collect{ |f| Float(f) }}}, desc: 'List of latitudes and longitudes separated with commas. Areas separated with pipes (only available for truck mode at this time, see capability operation for informations).', documentation: { param_type: 'query' }
         optional :speed_multiplier_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Speed multiplier per area, 0 avoid area. Areas separated with pipes (only available for truck mode at this time).', documentation: { param_type: 'query' }
         optional :speed_multiplicator_area, type: Array[Float], coerce_with: ->(c) { c.split(/;|\|/).collect{ |f| Float(f) }}, desc: 'Deprecated, use speed_multiplier_area instead.', documentation: { param_type: 'query' }
@@ -121,7 +127,6 @@ module Api
         optional :snap, type: Float, desc: 'Snap waypoint to junction close by snap distance.'
         optional :strict_restriction, type: Boolean, default: true, desc: 'Strict compliance with truck limitations.'
         optional :lang, type: String, default: :en
-#        requires :locs, type: Array[Array[Array[Float]]], coerce_with: ->(c) { c.split(';').collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a } }, desc: 'List of latitudes and longitudes separated with commas. Each route separated with semicolons. E.g. r1lat1,r1lng1,r1lat2,r1lng2;r2lat1,r2lng1,r2lat2,r2lng2'
         requires :locs, type: Array[String], coerce_with: ->(c) { c.split(/;|\|/) }, desc: 'List of latitudes and longitudes separated with commas. Each route separated by pipes. E.g. r1lat1,r1lng1,r1lat2,r1lng2|r2lat1,r2lng1,r2lat2,r2lng2', documentation: { param_type: 'query' }
         optional :precision, type: Integer, default: 6, desc: 'Precison for encoded polyline.'
       }
@@ -141,6 +146,7 @@ module Api
           params[:locs] = params[:locs].collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
+          count :route, true, APIBase.count_route_locations(params)
           many_routes params
         end
 
@@ -159,6 +165,7 @@ module Api
           params[:locs] = params[:locs].collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
+          count :route, true, APIBase.count_route_locations(params)
           many_routes params
           status 200
         end
@@ -168,12 +175,12 @@ module Api
         def compute_routes(params)
           params[:mode] ||= APIBase.profile(params[:api_key])[:route_default]
           if params[:area]
-            params[:area].all?{ |area| area.size % 2 == 0 } || error!({detail: 'area: couples of lat/lng required.'}, 400)
+            params[:area].all?{ |area| area.size % 2 == 0 } || error!('area: couples of lat/lng required.', 400)
             params[:area] = params[:area].collect{ |area| area.each_slice(2).to_a }
           end
           params[:locs].each_with_index{ |loc, index|
-            loc.size >= 2 || error!({detail: "locs: segment ##{index}, at least two couples of lat/lng required."}, 400)
-            loc[-1].size == 2 || error!({detail: "locs: segment ##{index}, couples of lat/lng required."}, 400)
+            loc.size >= 2 || error!("locs: segment ##{index}, at least two couples of lat/lng required.", 400)
+            loc[-1].size == 2 || error!("locs: segment ##{index}, couples of lat/lng required.", 400)
           }
 
           errors_count = 0
@@ -211,6 +218,8 @@ module Api
               end
             end
           }
+          count_incr :route, transactions: APIBase.count_route_locations(params)
+          routes
         end
 
         def many_routes(params)

@@ -8,14 +8,16 @@ services:
     ports:
       - "8082:80" # HOST:CONTAINER, edit only HOST part
     volumes:
-      - ./production.rb:/srv/app/config/environments/production.rb
-      - ./production.rb:/srv/app/config/environments/development.rb
+      - ./access.rb:/srv/app/config/access.rb
       - ./poly:/srv/app/poly
     restart: always
     links:
       - redis-cache
+      - redis-count
     environment:
       PASSENGER_APP_ENV: production
+      REDIS_HOST: redis-cache
+      REDIS_COUNT_HOST: redis-count
 
   otp-bordeaux:
     build:
@@ -44,3 +46,9 @@ services:
     image: redis:${REDIS_VERSION:-3.2-alpine}
     command: redis-server --save ""
     restart: always
+
+  redis-count:
+    image: redis:${REDIS_VERSION:-3.2-alpine}
+    volumes:
+      - ./data-count:/data
+    command: redis-server --appendonly yes

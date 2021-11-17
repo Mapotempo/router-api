@@ -28,6 +28,32 @@ module Api
           ::RouterWrapper.access[api_key].except(:profile)
         )
       end
+
+      ##
+      # @param obj can be a string or an array
+      def self.count_locations(obj)
+        if obj.is_a? Array
+          # route, matrix and isoline can send array like :
+          # [[[lat, lng], [lat, lng]]] or [[lat, lng], [lat, lng]] or [lat, lng, lat, lng]
+          obj.flatten.size / 2
+        else
+          obj.split(',').size / 2 # matrix, isoline, route : "lat,lng,lat,lng"
+        end
+      end
+
+      def self.count_route_locations(params)
+        if params[:loc]
+          count_locations(params[:loc])
+        elsif params[:locs]
+          count_locations(params[:locs])
+        end
+      end
+
+      def self.count_matrix_locations(params)
+        src_size = count_locations(params[:src])
+        dst_size = params[:dst] ? count_locations(params[:dst]) : src_size
+        src_size * dst_size
+      end
     end
   end
 end
