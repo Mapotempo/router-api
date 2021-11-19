@@ -16,6 +16,7 @@
 # <http://www.gnu.org/licenses/agpl.html>
 #
 require './wrappers/wrapper'
+require 'pycall/import'
 
 module Wrappers
   class Here < Wrapper
@@ -24,11 +25,11 @@ module Wrappers
       super(cache, hash)
       @url_router = 'https://route.api.here.com/routing'
       @url_matrix = 'https://matrix.route.api.here.com/routing'
-      @url_isoline = 'https://isoline.route.api.here.com/routing'
+      @url_isoline = 'https://isoline.router.hereapi.com'
       @url_tce = 'https://tce.api.here.com'
-      @app_id = hash[:app_id]
-      @app_code = hash[:app_code]
+      @api_key = hash[:api_key]
       @mode = hash[:mode]
+      @flexpolyline = PyCall.import_module('flexpolyline')
     end
 
     # Declare available router options for capability operation
@@ -231,31 +232,19 @@ module Wrappers
       [:time, here_dimension_distance? ? :distance : nil].compact
     end
 
+    # https://developer.here.com/documentation/isoline-routing-api/api-reference-swagger.html
     def isoline(loc, dimension, size, departure, _language, options = {})
       # Cache defined inside private get method
       params = {
-        start: "geo!#{loc[0]},#{loc[1]}",
-        range: dimension == :time ? (size * (options[:speed_multiplier] || 1)).round : size,
-        rangeType: dimension,
-        mode: here_mode(dimension.to_s.split('_').collect(&:to_sym), @mode, options),
-        departure: departure,
-        # arrival: arrival,
-        # avoidAreas: here_avoid_areas(options[:speed_multiplier_area]),
-        resolution: 1,
-        # quality: 2,
-        truckType: @mode == 'truck' ? 'truck' : nil,
-        trailersCount: options[:trailers], # Truck routing only, number of trailers.
-        limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
-        weightPerAxle: options[:weight_per_axle], # Truck routing only, vehicle weight per axle in tons.
-        height: options[:height], # Truck routing only, vehicle height in meters.
-        width: options[:width], # Truck routing only, vehicle width in meters.
-        length: options[:length], # Truck routing only, vehicle length in meters.
-        shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
-        #tunnelCategory : # Specifies the tunnel category to restrict certain route links. The route will pass only through tunnels of a les
-        # truckRestrictionPenalty: here_strict_restriction(options[:strict_restriction])
-      }.delete_if { |k, v| v.nil? }
+        departureTime: departure,
+        origin: "#{loc[0]},#{loc[1]}", # required <latitude>,<longitude>
+        range: range(dimension, size, options),
+        routingMode: routing_mode(dimension),
+        transportMode: transport_mode, # required
+        truck: truck_parameters(options)
+      }.delete_if { |_k, v| v.nil? }
 
-      request = get(@url_isoline, '7.2/calculateisoline', params)
+      request = get(@url_isoline, 'v8/isolines', params)
 
       ret = {
         type: 'FeatureCollection',
@@ -266,17 +255,15 @@ module Wrappers
         features: []
       }
 
-      if request && request['response'] && request['response']['isoline']
-        isoline = request['response']['isoline'][0]
-        ret[:features] = isoline['component'].map{ |component|
+      if request && request['isolines']
+        isoline = request['isolines'][0]
+        ret[:features] = isoline['polygons'].map{ |polygon|
           {
             type: 'Feature',
             properties: {},
             geometry: {
               type: 'Polygon',
-              coordinates: [component['shape'].map{ |s|
-                s.split(',').map(&:to_f).reverse
-              }]
+              coordinates: [flexpolyline_decode(polygon['outer'])]
             }
           }
         }
@@ -285,6 +272,38 @@ module Wrappers
     end
 
     private
+
+    def flexpolyline_decode(string)
+      # Need to revert lat,lng
+      @flexpolyline.decode(string).map{ |tuple| [tuple[1], tuple[0]] }
+    end
+
+    def transport_mode
+      ['car', 'truck', 'pedestrian'].include?(@mode) ? @mode : 'car'
+    end
+
+    def routing_mode(dimension)
+      dimension == :time ? 'fast' : 'short'
+    end
+
+    def range(dimension, size, options)
+      {
+        type: dimension,
+        values: dimension == :time ? (size * (options[:speed_multiplier] || 1)).round : size
+      }
+    end
+
+    def truck_parameters(options)
+      {
+        grossWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
+        height: options[:height], # Truck routing only, vehicle height in meters.
+        length: options[:length], # Truck routing only, vehicle length in meters.
+        shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
+        truckType: @mode == 'truck' ? 'truck' : nil,
+        weightPerAxle: options[:weight_per_axle], # Truck routing only, vehicle weight per axle in tons.
+        width: options[:width], # Truck routing only, vehicle width in meters.
+      }.delete_if{ |_k, v| v.blank? }
+    end
 
     def here_dimension_distance?
       if @mode == 'truck'
@@ -308,8 +327,8 @@ module Wrappers
     end
 
     def get(url_base, object, params = {})
-      url = "#{url_base}/#{object}.json"
-      params = {app_id: @app_id, app_code: @app_code}.merge(params).delete_if{ |_k, v| v.blank? }
+      url = "#{url_base}/#{object}"
+      params = { apiKey: @api_key }.merge(params).delete_if{ |_k, v| v.blank? }
       key = [:here, :request, Digest::MD5.hexdigest(Marshal.dump([url, params.to_a.sort_by{ |i| i[0].to_s }]))]
       request = @cache.read(key)
 
@@ -387,7 +406,7 @@ module Wrappers
                   nb_request += 1
                   Api::Root.logger.debug("Status failed, getting a route (waypoint0: 'geo!#{param_start['start' + e['startIndex'].to_s]}', waypoint1: 'geo!#{param_destination['destination' + e['destinationIndex'].to_s]}'), strict_restriction: #{strict_restriction}  (nb_request: #{nb_request}) srcs_start: #{srcs_start}, dsts: #{dsts_start + dsts_split - 1} / #{dsts.size}")
 
-                  route = get(@url_router, '7.2/calculateroute', params.select{ |k, _v|
+                  route = get(@url_router, 'v8/routes', params.select{ |k, _v|
                     [
                       :mode,
                       :departure,

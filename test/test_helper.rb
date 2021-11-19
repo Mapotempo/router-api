@@ -39,6 +39,8 @@ require 'grape-entity'
 require 'minitest/autorun'
 require 'rack/test'
 
+require 'webmock/minitest'
+
 ##
 # max_radius in km
 def random_point_in_disk(max_radius)
@@ -71,3 +73,5 @@ module FakeRedis
     RouterWrapper.config[:redis_count].flushall
   end
 end
+
+WebMock.disable_net_connect!

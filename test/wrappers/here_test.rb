@@ -20,6 +20,15 @@ require './test/test_helper'
 require './wrappers/here'
 
 class Wrappers::HereTest < Minitest::Test
+  def setup
+    @stubs = [
+      stub_request(:get, %r{v8/isolines\?apiKey=[a-zA-Z0-9\-]+&departureTime=\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}%2B\d{2}:\d{2}&origin=\d+\.\d+,\d+\.\d+&range%5Btype%5D=time&range%5Bvalues%5D=300&routingMode=fast&transportMode=car}).to_return(status: 200, body: File.new(File.expand_path('../', __dir__) + '/fixtures/isoline-default-v8.json').read),
+    ]
+  end
+
+  def teardown
+    @stubs.each { |stub| remove_request_stub(stub) } if @stubs
+  end
 
   def test_router
     here = RouterWrapper::HERE_TRUCK
@@ -149,8 +158,10 @@ class Wrappers::HereTest < Minitest::Test
   def test_isoline
     here = RouterWrapper::HERE_CAR
     result = here.isoline([49.610710, 18.237305], :time, 300, Time.now.iso8601, 'en', {motorway: true, toll: true})
-    assert !result[:features].empty?
-    assert !result[:features][0][:geometry].empty?
+
+    assert_equal('Polygon', result[:features][0][:geometry][:type])
+    assert_equal([:type, :coordinates], result[:features][0][:geometry].keys)
+    assert_equal(280, result[:features][0][:geometry][:coordinates][0].count)
   end
 
   def test_should_remove_empty_values

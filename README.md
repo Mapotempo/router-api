@@ -10,6 +10,7 @@ Install package containing ogr2ogr exec from system package (GDAL).
 In router-wrapper as root directory:
 
 ```
+pip3 install flexpolyline
 bundle install
 ```
 

@@ -28,6 +28,7 @@ group :test do
   gem 'minitest-reporters'
   gem 'rack-test'
   gem 'simplecov', require: false
+  gem 'webmock'
 end
 
 group :development, :test do
@@ -36,6 +37,7 @@ end
 
 gem 'dotenv'
 gem 'polylines'
+gem 'pycall'
 
 group :production do
   gem 'redis'
