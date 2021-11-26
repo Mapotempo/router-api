@@ -421,7 +421,7 @@ module Wrappers
                   end
                 else
                   Api::Root.logger.debug("Status failed, request set to nil (waypoint0: 'geo!#{param_start['start' + e['startIndex'].to_s]}'', waypoint1: 'geo!#{param_destination['destination' + e['destinationIndex'].to_s]}''), strict_restriction: #{strict_restriction} (nb_request: #{nb_request}) srcs_start: #{srcs_start}, dsts: #{dsts_start + dsts_split - 1} / #{dsts.size}")
-                  Api::Root.logger.debug("#{@url_matrix}7.2/calculatematrix?#{params.dup.merge(param_start).merge(param_destination).to_query}")
+                  Api::Root.logger.debug("#{@url_matrix}/7.2/calculatematrix.json?#{params.dup.merge(param_start).merge({app_id: @app_id, app_code: @app_code}).merge(param_destination).reject{|mp, vl| vl.nil?}.to_query}")
                   request = nil
                   break
                 end
@@ -429,7 +429,7 @@ module Wrappers
             }
           else
             Api::Root.logger.debug('Request failed')
-            Api::Root.logger.debug("#{@url_matrix}7.2/calculatematrix?#{params.dup.merge(param_start).merge(param_destination).to_query}")
+            Api::Root.logger.debug("#{@url_matrix}/7.2/calculatematrix.json?#{params.dup.merge(param_start).merge({app_id: @app_id, app_code: @app_code}).merge(param_destination).reject{|mp, vl| vl.nil?}.to_query}")
             request = nil
           end
 
