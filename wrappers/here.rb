@@ -92,7 +92,7 @@ module Wrappers
         routeAttributes: 'summary' + (with_geometry ? ',shape' : '') + (here_strict_restriction(options[:strict_restriction]) == 'soft' ? ',notes' : ''),
         truckType: @mode == 'truck' ? 'truck' : nil,
         trailersCount: options[:trailers], # Truck routing only, number of trailers.
-        limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
+        limitedWeight: options[:weight].to_i, # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
         weightPerAxle: options[:weight_per_axle], # Truck routing only, vehicle weight per axle in tons.
         height: options[:height], # Truck routing only, vehicle height in meters.
         width: options[:width], # Truck routing only, vehicle width in meters.
