@@ -38,7 +38,7 @@ module Api
       before do
         params_limit = APIBase.profile(params[:api_key])[:params_limit].merge(RouterWrapper.access[params[:api_key]][:params_limit] || {})
         if !params_limit[:locations].nil?
-          error!({message: "Exceeded \"matrix\" limit authorized for your account: #{params_limit[:locations]}. Please contact support or sales to increase limits."}, 413) if APIBase.count_matrix_locations(params) > params_limit[:locations]
+          error!({message: "Exceeded \"matrix\" limit authorized for your account: #{params_limit[:locations]}. Please contact support or sales to increase limits."}, 413) if APIBase.limit_matrix_side_size(params) > params_limit[:locations]
         end
       end
 
@@ -80,7 +80,7 @@ module Api
         get do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
-          count :matrix, true, APIBase.count_matrix_locations(params)
+          count :matrix, true, APIBase.count_matrix_cells(params)
           matrix params
         end
 
@@ -93,7 +93,7 @@ module Api
         post do
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
-          count :matrix, true, APIBase.count_matrix_locations(params)
+          count :matrix, true, APIBase.count_matrix_cells(params)
           matrix params
           status 200
         end
@@ -118,7 +118,7 @@ module Api
 
           results = RouterWrapper.wrapper_matrix(APIBase.profile(params[:api_key]), params)
           results[:router][:version] = 'draft'
-          count_incr :matrix, transactions: APIBase.count_matrix_locations(params)
+          count_incr :matrix, transactions: APIBase.count_matrix_cells(params)
           present results, with: MatrixResult
         end
       end

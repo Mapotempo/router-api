@@ -206,7 +206,7 @@ class Api::V01::MatrixTest < Minitest::Test
       send method, '/0.1/matrix', {api_key: 'demo', src: src, dst: dst}
       keys = RouterWrapper.config[:redis_count].keys("router:matrix:#{Time.now.utc.to_s[0..9]}_key:demo_ip*")
       assert_equal 1, keys.size
-      transactions = Api::V01::APIBase.count_matrix_locations(src: src, dst: dst)
+      transactions = Api::V01::APIBase.count_matrix_cells(src: src, dst: dst)
       assert_equal({'hits' => (indx + 1).to_s, 'transactions' => ((indx + 1) * transactions).to_s}, RouterWrapper.config[:redis_count].hgetall(keys.first))
     end
   end

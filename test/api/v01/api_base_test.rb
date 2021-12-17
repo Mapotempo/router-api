@@ -22,20 +22,25 @@ require './api/root'
 class Api::V01::APIBaseTest < Minitest::Test
   def test_count_locations
     lat, lng = 1, 1
-    assert 2, Api::V01::APIBase.count_locations([[[lat, lng], [lat, lng]]])
-    assert 2, Api::V01::APIBase.count_locations([[lat, lng], [lat, lng]])
-    assert 2, Api::V01::APIBase.count_locations([lat, lng, lat, lng])
-    assert 2, Api::V01::APIBase.count_locations('lat,lng,lat,lng')
-    assert 0, Api::V01::APIBase.count_locations(nil)
+    assert_equal 2, Api::V01::APIBase.count_locations([[[lat, lng], [lat, lng]]])
+    assert_equal 2, Api::V01::APIBase.count_locations([[lat, lng], [lat, lng]])
+    assert_equal 2, Api::V01::APIBase.count_locations([lat, lng, lat, lng])
+    assert_equal 2, Api::V01::APIBase.count_locations('lat,lng,lat,lng')
+    assert_equal 0, Api::V01::APIBase.count_locations(nil)
   end
 
-  def test_count_matrix_locations
-    assert 2, Api::V01::APIBase.count_matrix_locations(src: 'lat,lng,lat,lng', dest: 'lat,lng,lat,lng')
-    assert 2, Api::V01::APIBase.count_matrix_locations(src: 'lat,lng,lat,lng')
+  def test_count_matrix_cells
+    assert_equal 2, Api::V01::APIBase.count_matrix_cells(src: 'lat,lng,lat,lng', dst: 'lat,lng')
+    assert_equal 144, Api::V01::APIBase.count_matrix_cells(src: 'lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng')
+  end
+
+  def test_limit_matrix_side_size
+    assert_equal 2, Api::V01::APIBase.limit_matrix_side_size(src: 'lat,lng,lat,lng', dst: 'lat,lng')
+    assert_equal 12, Api::V01::APIBase.limit_matrix_side_size(src: 'lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng')
   end
 
   def test_count_route_locations
-    assert 2, Api::V01::APIBase.count_matrix_locations(loc: 'lat,lng,lat,lng')
-    assert 2, Api::V01::APIBase.count_matrix_locations(locs: 'lat,lng,lat,lng')
+    assert_equal 2, Api::V01::APIBase.count_route_locations(loc: 'lat,lng,lat,lng')
+    assert_equal 12, Api::V01::APIBase.count_route_locations(locs: 'lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng')
   end
 end
