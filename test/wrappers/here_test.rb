@@ -23,6 +23,14 @@ class Wrappers::HereTest < Minitest::Test
   def setup
     @stubs = [
       stub_request(:get, %r{v8/isolines\?apiKey=[a-zA-Z0-9\-]+&departureTime=\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}%2B\d{2}:\d{2}&origin=\d+\.\d+,\d+\.\d+&range%5Btype%5D=time&range%5Bvalues%5D=300&routingMode=fast&transportMode=car}).to_return(status: 200, body: File.new(File.expand_path('../', __dir__) + '/fixtures/isoline-default-v8.json').read),
+      stub_request(:get, %r{v8/routes\?apiKey=[a-zA-Z0-9\-]+&avoid%5Bfeatures%5D=controlledAccessHighway&currency=EUR&destination=\d+\.\d+,\d+\.\d+&lang=en&origin=\d+\.\d+,\d+\.\d+&return=summary,polyline&routingMode=fast&spans=truckAttributes&transportMode=truck&truck%5Btype%5D=straight}).to_return(status: 200, body: File.new(File.expand_path('../', __dir__) + '/fixtures/route-without-motorway-v8.json').read),
+      stub_request(:get, %r{v8/routes\?apiKey=[a-zA-Z0-9\-]+&currency=EUR&destination=-16.92609,145.75843&lang=en&origin=-18.90928,47.53381&return=summary,polyline&routingMode=fast&spans=truckAttributes&transportMode=truck&truck%5Btype%5D=straight}).to_return(status: 200, body: File.new(File.expand_path('../', __dir__) + '/fixtures/route-disconnected-v8.json').read),
+      stub_request(:get, %r{v8/routes\?apiKey=[a-zA-Z0-9\-]+&avoid%5Bfeatures%5D=controlledAccessHighway&currency=EUR&destination=42.73295,0.27685&lang=en&origin=0,0&return=summary,polyline&routingMode=fast&spans=truckAttributes&transportMode=truck&truck%5Btype%5D=straight}).to_return(status: 200, body: File.new(File.expand_path('../', __dir__) + '/fixtures/route-unreachable-point-error-v8.json').read),
+      stub_request(:get, %r{v8/routes\?apiKey=[a-zA-Z0-9\-]+&avoid%5Bareas%5D=bbox:10.722,49.2665,11.4704,49.608&currency=EUR&destination=47.010226,2.900391&lang=en&origin=49.61071,18.237305&return=summary,polyline&routingMode=fast&spans=truckAttributes&transportMode=truck&truck%5Btype%5D=straight}).to_return(status: 200, body: File.new(File.expand_path('../', __dir__) + '/fixtures/route-avoid-areas-v8.json').read),
+      stub_request(:get, %r{v8/routes\?apiKey=[a-zA-Z0-9\-]+&avoid%5Bfeatures%5D=controlledAccessHighway&currency=EUR&destination=43.630469,3.87083&lang=en&origin=43.6064,3.8662047&return=summary,polyline&routingMode=fast&spans=truckAttributes&transportMode=truck&truck%5BshippedHazardousGoods%5D=explosive&truck%5Btype%5D=straight}).to_return(status: 200, body: File.new(File.expand_path('../', __dir__) + '/fixtures/route-hazardous-goods-v8.json').read),
+      stub_request(:get, %r{v8/routes\?apiKey=[a-zA-Z0-9\-]+&avoid%5Bfeatures%5D=controlledAccessHighway&currency=EUR&destination=47.010226,2.900391&lang=en&origin=49.61071,18.237305&return=summary,polyline&routingMode=fast&spans=truckAttributes&transportMode=truck&truck%5BtrailerCount%5D=3.5&truck%5Btype%5D=straight}).to_return(status: 400, body: File.new(File.expand_path('../', __dir__) + '/fixtures/route-with-trailers-error-v8.json').read),
+      stub_request(:get, %r{v8/routes\?apiKey=[a-zA-Z0-9\-]+&currency=EUR&destination=43.29959713447473,3.41400146484375&lang=en&origin=44.92727960202825,-1.091766357421875&return=summary,tolls,polyline&routingMode=fast&spans=length,speedLimit,truckAttributes&transportMode=truck&truck%5BgrossWeight%5D=4&truck%5Bheight%5D=4&truck%5Blength%5D=10&truck%5Btype%5D=straight&truck%5Bwidth%5D=3}).to_return(status: 200, body: File.new(File.expand_path('../', __dir__) + '/fixtures/route-with-toll-costs-v8.json').read),
+      stub_request(:get, %r{v8/routes\?apiKey=[a-zA-Z0-9\-]+&currency=EUR&destination=47.010226,2.900391&lang=en&origin=49.61071,18.237305&return=summary,polyline&routingMode=fast&spans=truckAttributes&transportMode=truck&truck%5Btype%5D=straight}).to_return(status: 200, body: File.new(File.expand_path('../', __dir__) + '/fixtures/route-without-geometry-v8.json').read),
     ]
   end
 
@@ -33,8 +41,13 @@ class Wrappers::HereTest < Minitest::Test
   def test_router
     here = RouterWrapper::HERE_TRUCK
     result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, {motorway: true, toll: true})
+
     assert !result[:features].empty?
     assert !result[:features][0][:geometry].empty?
+    assert_equal [:type, :coordinates], result[:features][0][:geometry].keys
+    assert_equal 30318, result[:features][0][:geometry][:coordinates].count
+    assert_equal 1480051, result[:features][0][:properties][:router][:total_distance]
+    assert_equal 66396.0, result[:features][0][:properties][:router][:total_time]
   end
 
   def test_router_without_geometry
@@ -47,6 +60,8 @@ class Wrappers::HereTest < Minitest::Test
     here = RouterWrapper::HERE_TRUCK
     result = here.route([[47.096305, 2.491150], [47.010226, 2.900391]], :time, nil, nil, 'en', true)
     assert !result[:features].empty?
+    assert_equal 38809, result[:features][0][:properties][:router][:total_distance]
+    assert_equal 2634.0, result[:features][0][:properties][:router][:total_time]
   end
 
   def test_router_disconnected
@@ -64,9 +79,11 @@ class Wrappers::HereTest < Minitest::Test
 
   def test_router_avoid_area
     here = RouterWrapper::HERE_TRUCK
-    options = {speed_multiplier_area: {[[52, 14], [42, 5]] => 0}, motorway: true, toll: true}
+    options = {speed_multiplier_area: {[[49.6080, 10.7220], [49.2665, 11.4704]] => 0}, motorway: true, toll: true}
     result = here.route([[49.610710, 18.237305], [47.010226, 2.900391]], :time, nil, nil, 'en', true, options)
-    assert 1_900_000 < result[:features][0][:properties][:router][:total_distance]
+    distance_without_bypass = 1_478_892
+
+    assert result[:features][0][:properties][:router][:total_distance] > distance_without_bypass
   end
 
   def test_router_truck_restriction
@@ -143,8 +160,9 @@ class Wrappers::HereTest < Minitest::Test
 
   def test_router_with_toll_costs
     here = RouterWrapper::HERE_TRUCK
-    result = here.route([[44.92727960202825, -1.091766357421875], [43.29959713447473,3.41400146484375]], :time, nil, nil, 'en', false, {motorway: true, toll: true, toll_costs: true, weight: 3.4, height: 3, width: 2.5, length: 10})
-    assert result[:features][0][:properties][:router][:total_toll_costs]
+    result = here.route([[44.92727960202825, -1.091766357421875], [43.29959713447473,3.41400146484375]], :time, nil, nil, 'en', false, {motorway: true, toll: true, toll_costs: true, grossWeight: 3.4, weight: 3.4, height: 3.2, width: 2.5, length: 10})
+
+    assert_equal(39.4, result[:features][0][:properties][:router][:total_toll_costs])
   end
 
   # def test_matrix_with_null
@@ -184,5 +202,10 @@ class Wrappers::HereTest < Minitest::Test
     ].each do |obj|
       assert_equal(RouterWrapper::HERE_TRUCK.send(:max_srcs, obj[:distance]), obj[:max_srcs])
     end
+  end
+
+  def test_here_avoid_areas
+    # shape => bbox:{west},{south},{east},{north}
+    assert_equal("bbox:-5.911,40.347,18.04,51.931", RouterWrapper::HERE_TRUCK.send(:here_avoid_areas, {[[51.931, -5.911], [40.347, 18.04]]=>0}))
   end
 end

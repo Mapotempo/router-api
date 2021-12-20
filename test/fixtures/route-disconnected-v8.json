@@ -1,0 +1,10 @@
+{
+  "notices": [
+    {
+      "title": "Route calculation failed: Couldn't find a route.",
+      "code": "noRouteFound",
+      "severity": "critical"
+    }
+  ],
+  "routes": []
+}

@@ -1,0 +1,8 @@
+{
+  "title": "Malformed request",
+  "status": 400,
+  "code": "E605001",
+  "cause": "Error while parsing request:\n  Invalid value for parameter 'truck[trailerCount]' at '3.5'",
+  "action": "",
+  "correlationId": "6f7e10f6-22c7-4e6d-98bc-bfa24e1ce021"
+}

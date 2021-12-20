@@ -1,0 +1,58 @@
+{
+  "routes": [
+    {
+      "id": "f35715a5-ce89-4b06-a664-73154ad2436f",
+      "sections": [
+        {
+          "id": "5e5cea80-e9d9-4723-9f99-c3125877e622",
+          "type": "vehicle",
+          "departure": {
+            "time": "2021-12-20T11:28:13+01:00",
+            "place": {
+              "type": "place",
+              "location": {
+                "lat": 47.0965372,
+                "lng": 2.4911345
+              },
+              "originalLocation": {
+                "lat": 47.0963049,
+                "lng": 2.49115
+              }
+            }
+          },
+          "arrival": {
+            "time": "2021-12-20T12:12:31+01:00",
+            "place": {
+              "type": "place",
+              "location": {
+                "lat": 47.0076022,
+                "lng": 2.899207
+              },
+              "originalLocation": {
+                "lat": 47.010226,
+                "lng": 2.900391
+              }
+            }
+          },
+          "summary": {
+            "duration": 2658,
+            "length": 38809,
+            "baseDuration": 2634
+          },
+          "polyline": "BGytx65C8vh4EasZ4IT8LoL4IgPU8GrEwgB8B4NwH8Vge_TsT3N0enVsYzPsYzKsE7BwRvH8GnBA8BwCkcwC8kBoGkuC4Dk1BwCgoBoBgUoBwWU8GUkIkDgZ8B4IkD4NrEgF7BgKUoGsEwH0F8BU4NUsOU4SUsToGwnF0FoxC0F8nCrEsE3D4DjD4DjDsEvCsEjD8G3wB4wB_qCsqCztBouBjXwW3IkI_dgeztB0tBj1Bs2B_iB0jBvH8GnG0F_EgFnQsO_ToQ_T8QzUgU3SoV3rBozBj4CgpD3rBw0BrnBkwBrO8QzK8L7GoG7LsJ3I0FrO8GzK4DzKkD7GUjIA_OTvlBjDnGAzjBvCnVnB_dvC_iBnBjITnGTzF7B7GjD7V7LnQrJrEvC3DnB3DTjDoBjDwC7B4D7BoG7BoGnB4D7BkDvCwCrEAzFnB_E7B_EvC3DjD7BT7BAvCoB7BwC7B4D_E8QjI0erEsO_E8QzFoQjDsJrYwoCrJ4cr2BohFrdk4C3Sg3BjIsYjDwH3DoG3DsE3DwC3D8BzF8BrEA_EnB3D7BrEjD_OjNzKrJ7QjN_OjIvM_ErO3DvMnBzPUvW0F7fsJ3SkDvMU_O7BzPjDvRzFrJrEvMvHzKvH3NnLvH7GrE_E_OnQrTjX_JvMnGvHrE7GjD7GnBjIT3IU3NA_JnB3IvCzFvC3D3D3D7VrT3X7Vj_Bn4BvjCn9B_xBrsBzZjXzPjN7LrJ_O_JztBjc_gCrnB_0CnzB79BvlBnG7G_E_E_E_E_ErE_EsOzFkSjNsnBnG4SvC4IAgF7B0FnGkS_JsdzU08BzrCk_GvsFs4PnxCosH7Q4wBvHoVvjCkmGze06CzKge7LgjB3mBsyD7fs-CvoC41G_qCg8GjmB8qD_J4c7LofvMkcnGwMnGoL3NkX7Vge7f0oBvWgenGkI_T0ZjSkXrYof_JkNzKkN7G4InQoVrJ8LzK4NrEoGvHgKjDsE3IoL7GkIrJwMzF8GrJ8LzF8G7L0P_JkN7V4cjNoQ_EkIrEgKT8B3IwWjDkInVs2BvMgezFoL3SwlB_OgezZ8zBzFoL7G4N7B4D3IkS3DwHrEsJrJsT3IgU7BgF3IoVjDgK3DoQzFwbjDoV7B8L_EkmBnB0KvCsTvR8jEztBk8KvWspFjNgkDnB0K7BwMzP04D3NknD3NoqD3Xw2FzPw6DTgFvqB4oK3hB0kIrT83EjI89BnkB0zI7QojETwHjmBooJnfkuHnQs8DrE8fzFw0BvCoQ7V0lF3hB4iIzhC81PzKgwCvCAvCUvC8B7BwCnB4DAkDU4DoBkD8BwC8BoB8BUvC4S_EopBnB4IjNsjDzFwqBvCsT3DofrJ0hC7Lg1C7G8zBnBsJvHg8BvC4SvCkS7BsOvC0F7BoLjDsTjDgUjDsTnB4InBoGjD8QrEsT3D8QrdgkDrOw0BvCwMjX0rCjS08BrmEkgOrjD0qKzyB8mF7iCw-G_T0hC3X8sCrd8gDrT4_B_E0PzPw0BjS46B3IsdnGkX_E4SrEkSvCwM7BkInBwHrE4XrEsdjc4mGvbg-FrEgejNw3C3N0wC7BsJjI8pBnLw5B7qDsgRzP0wC7Ls7BrEkX3So7CjS4pCvC0KzF4Sj9C8_Kz3BsxGzF8VzF0UzFgUvH0Z7BoGvCkI_E4NrE0K7QwqBzFoQ_E0PrEoQvC4NnB8GnBkIvC8V7B4XnB8QvCsY7BkN3DsTjDsOnB4D3Ioa3DsJzKkcjI4XrEsO7BoG3DkN_E4SzPk6BzFoVnxC8yJzF8VnGwWzFsTzFwRzFoQ7G8QvHoQjNoajIsOjXgoBnuBoxCjSwgBvgBo4B3I0P7kBghCvH4NvWgoBjDgFna0tBvM8VzK4SvCsE3DoG7LoV3D8GnL4S_EsJ_EkI7B4DnGoL3IgPnG0K_TokBvCsE3N4XnG0KrYkrBnG0KnGoL_J8Q3I0PzK0UjDsJ3DsOvC4NT4NAkSAkIUsTA0UUgeAwMAgKA4SoBw_DAoLAwyC4DspKU03BoB42DoBklEU4_BTk_BA8VT8Q7BwRnBkIrE8arE8QrEoQzFoQnG0PnGsOvHsO7GoLrJ8QnQoanQoazKgUjI0P7GoQvHoV7B0FrE0PzFsYnB8G7B8L7BoQ7BsT_J85DrE8zBT8G7QkrGnB8L_E03BrOggFjIolD3Ig4D7B8aAof4Ds7BgKovDoGogD8BgmCoB4hBoBgjBoBoQ8BgUkDwWoGwlBgK8zBsE0PsEkNgFsOoGsOoBkD4Nwb0UwqB8B4DwH4S4DkNsEgUoBkInB8GUkXTkSnBoLTgFTwC3DgPvCkIzF0P7GkN3DoGT0FvHoLjIsJvHkI7L0KnLgKnakXvM0PnG0KzFoLrEoLjD8LjD4NvCsO_E8f7BoL3DoQ3DkNrEkNjIwR3I4S3D4InL4X_E8L3D0KvCoL7BoLT0KA4hBAwHUoQUkhBU4kCoBwhDA4D8BwmDAgjBU4wBAsJU4I8BwM8BgKgF8VwC8LwCgKwCkSAsJAgFnB8LnBkIrEoa3DgP3D4NrEgPzKkcjI4XnB8GnBgF_EsiBjD8a7BoQToLT4c7BwgB7BoQrEkwBvC8VsE0KgFkN0F0P8BoGwC0FwCsEoB8B8BwC0FgFgF4DgFsE0FoGwHgKgU8f8pB4kC4couBgoBghCsYsnB0ZwqB0PgZgZ0oBo4Bo7CssBwoCkIkNoG0KgFgKsE8LkD8LwCkNoGokBoGsnBkIw0BoB8QnBsTvCgUvC0P7BwRT8VoBwvBwC8nCkDgkDU4hBwCg1CoBoa8B0PwCsOgF8VkDsOoBkNAwMToQjDsdnBwbTsYUofoBwR4DgPkDgKgFoLgF0KoQkhBwR4mBwCgFoVgtBgmCw4EgKoVwbs7B0PwgBoLsYwjCgxEwbk6BoGsOsEwM4D4NgF0UgK0tBwC8L8BwH0P0mC8aw6DkN46B0U49C4DoQkD4SUgKA4NT0KTwHjDgUnBkNT8LU8aUkhBUkS8B4S8BkNsE0e4IgyBkNosCkI4rBkD8QwCoQoBkNUsOT4NTkNnB8LjD4N3DwMrE0K_JkS_J8QnG0K7GwM3DkIT8B3DsJ7BgKToLUwM8BwMgF0UkNk6BkNw5B4DkSgFoVoGoVwHsTwHkSsE4NkDgPwCoQUkhBA0eU8kBUk1BAgkDAwbU8iCoBgUoB8LwCgPsE8VsOoiCsJkrBsJkrBsE4XkD0UwCsToBsOU4I_TUj1BAvbjD79BnLnLAjDoBjDkDnBoB7BsEvHwb_Tg1C_E8VrEoQjD0KjDkIrEoGnG8G7QwH3DkD3D0F3D4NvHopBjD0KzPwvB7JiuB",
+          "spans": [
+            {
+              "offset": 0,
+              "truckAttributes": [
+                "open"
+              ]
+            }
+          ],
+          "transport": {
+            "mode": "truck"
+          }
+        }
+      ]
+    }
+  ]
+}

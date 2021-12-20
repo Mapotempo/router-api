@@ -23,7 +23,7 @@ module Wrappers
 
     def initialize(cache, hash = {})
       super(cache, hash)
-      @url_router = 'https://route.api.here.com/routing'
+      @url_router = 'https://router.hereapi.com'
       @url_matrix = 'https://matrix.route.api.here.com/routing'
       @url_isoline = 'https://isoline.router.hereapi.com'
       @url_tce = 'https://tce.api.here.com'
@@ -40,76 +40,29 @@ module Wrappers
       end
     end
 
-    def toll_costs(link_ids, departure, options = {})
-      # https://developer.here.com/platform-extensions/documentation/toll-cost/topics/example-tollcost.html
-      params = {
-        # https://developer.here.com/platform-extensions/documentation/toll-cost/topics/resource-tollcost-input-param-vspec.html
-        tollVehicleType: 3,
-        trailerType: options[:trailers] ? 2 : nil,
-        trailersCount: options[:trailers],
-        vehicleNumberAxles: 2, # Not including trailer axles
-        trailerNumberAxles: options[:trailers] ? 2 * options[:trailers] : nil,
-        # hybrid:
-        emissionType: 6,
-        height: options[:height] ? "#{options[:height]}m" : nil,
-        trailerHeight: options[:trailers] ? "#{options[:height] || 3}m" : nil,
-        vehicleWeight: options[:weight] ? "#{options[:weight]}t" : nil,
-        limitedWeight: options[:weight] ? "#{options[:weight]}t" : nil,
-        # disabledEquipped:
-        passengersCount: 1,
-        # tiresCount: 8, # Default 4
-        # commercial:
-        shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]] == :explosive ? 1 : here_hazardous_map[options[:hazardous_goods]] ? 2 : nil,
-        # heightAbove1stAxle:
-        # departure:
-        # If departure is given, then each route detail is a comma separated struct of link id,seconds left to destination. Otherwise, each route detail is only a link id.
-        route: link_ids.join(';'), # FIXME add seconds if departure
-        detail: 1,
-        rollup: 'total,tollsys,country', # none(per_links),total,tollsys(toll_system_summary),country(per_contries),country;tollsys(per_contries_and_toll_sys)
-        currency: options[:currency],
-      }.delete_if{ |k, v| v.nil? }
-      response = get(@url_tce, '2/tollcost', params)
-
-      if response && response['totalCost']
-        response['totalCost']['amountInTargetCurrency']
-      end
-    end
-
-    def route_dimension
-      [:time, here_dimension_distance? ? :distance : nil].compact
-    end
-
+    # https://developer.here.com/documentation/routing-api/api-reference-swagger.html
     def route(locs, dimension, departure, arrival, language, with_geometry, options = {})
       # Cache defined inside private get method
       params = {
-        mode: here_mode(dimension.to_s.split('_').collect(&:to_sym), @mode, options),
-        departure: departure,
-        arrival: arrival,
-        avoidAreas: here_avoid_areas(options[:speed_multiplier_area]),
-        alternatives: 0,
-        resolution: 1,
-        language: language,
-        representation: with_geometry || options[:toll_costs] ? 'display' : 'overview',
-        routeAttributes: 'summary' + (with_geometry ? ',shape' : '') + (here_strict_restriction(options[:strict_restriction]) == 'soft' ? ',notes' : ''),
-        truckType: @mode == 'truck' ? 'truck' : nil,
-        trailersCount: options[:trailers], # Truck routing only, number of trailers.
-        limitedWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
-        weightPerAxle: options[:weight_per_axle], # Truck routing only, vehicle weight per axle in tons.
-        height: options[:height], # Truck routing only, vehicle height in meters.
-        width: options[:width], # Truck routing only, vehicle width in meters.
-        length: options[:length], # Truck routing only, vehicle length in meters.
-        shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
-        #tunnelCategory : # Specifies the tunnel category to restrict certain route links. The route will pass only through tunnels of a les
-        legAttributes: options[:toll_costs] ? 'maneuvers,waypoint,length,travelTime,links' : nil,
-        # maneuverAttributes: options[:toll_costs] ? 'link' : nil, # links are already returned in legs
-        linkAttributes: options[:toll_costs] && !with_geometry ? 'speedLimit' : nil, # Avoid shapes
-        truckRestrictionPenalty: here_strict_restriction(options[:strict_restriction])
-      }.delete_if { |k, v| v.nil? }
-      locs.each_with_index{ |loc, index|
-        params["waypoint#{index}"] = "geo!#{loc[0]},#{loc[1]}"
-      }
+        arrivalTime: arrival,
+        avoid: { # Avoid routes that violate certain features or that go through geographical bounding boxes
+          areas: here_avoid_areas(options[:speed_multiplier_area]),
+          features: avoid_features(options)
+        }.delete_if { |_k, v| v.nil? },
+        currency: 'EUR', # required to get converted prices for tolls etc.
+        departureTime: departure,
+        destination: locs.last.join(','), # {lat},{lng}
+        lang: language, # Specifies the preferred language of the response
+        origin: locs.first.join(','), # {lat},{lng}
+        return: define_return(options),
+        routingMode: routing_mode(dimension),
+        spans: define_spans(options, with_geometry), # Defines which attributes are included in the response spans
+        transportMode: transport_mode,
+        truck: truck_parameters(options),
+        via: locs.slice(1..-2).join(','), # {lat},{lng}
+      }.delete_if { |_k, v| v.nil? || v.empty? }
 
-      request = get(@url_router, '7.2/calculateroute', params)
+      request = get(@url_router, 'v8/routes', params, options[:strict_restriction])
 
       ret = {
         type: 'FeatureCollection',
@@ -120,19 +73,18 @@ module Wrappers
         features: []
       }
 
-      if request && request['response'] && request['response']['route']
-        r = request['response']['route'][0]
-        s = r['summary']
+      if request && request['routes'].present?
+        sections = request['routes'][0]['sections'][0] # @todo why only first ? Test with via points
         infos = {
-          total_distance: s['distance'],
-          total_time: (s[options[:traffic] ? 'trafficTime' : 'travelTime'] * 1.0 / (options[:speed_multiplier] || 1)).round(1),
+          total_distance: sections['summary']['length'],
+          total_time: (sections['summary'][options[:traffic] ? 'duration' : 'baseDuration'] * 1.0 / (options[:speed_multiplier] || 1)).round(1),
           start_point: locs[0].reverse,
           end_point: locs[-1].reverse
         }
         if options[:toll_costs]
-          infos[:total_toll_costs] = toll_costs(r['leg'].flat_map{ |l|
-              l['link'].map{ |ll| ll['linkId'] }
-            }.compact, departure, options)
+          infos[:total_toll_costs] = sections['tolls'].map{ |to|
+            to['fares'].map{ |fa| fa['price']['value'] }
+          }.flatten.sum
         end
 
         ret[:features] = [{
@@ -145,9 +97,7 @@ module Wrappers
         if with_geometry
           ret[:features][0][:geometry] = {
             type: 'LineString',
-            coordinates: r['shape'].collect{ |p|
-              p.split(',').collect(&:to_f)
-            }.collect(&:reverse)
+            coordinates: flexpolyline_decode(sections['polyline'])
           }
         end
       end
@@ -228,10 +178,6 @@ module Wrappers
       ret
     end
 
-    def isoline_dimension
-      [:time, here_dimension_distance? ? :distance : nil].compact
-    end
-
     # https://developer.here.com/documentation/isoline-routing-api/api-reference-swagger.html
     def isoline(loc, dimension, size, departure, _language, options = {})
       # Cache defined inside private get method
@@ -278,8 +224,35 @@ module Wrappers
       @flexpolyline.decode(string).map{ |tuple| [tuple[1], tuple[0]] }
     end
 
+    # Array of strings (Return)
+    # polyline, actions, instructions, summary, travelSummary, mlDuration, typicalDuration, turnByTurnActions, elevation, routeHandle, passthrough, incidents, routingZones, tolls
+    def define_return(options)
+      rtrn = ['summary']
+      rtrn << 'tolls' if options[:toll_costs]
+      rtrn << 'polyline' if transport_mode == 'car' || transport_mode == 'truck'
+      rtrn.join(',')
+    end
+
+    # Defines which attributes are included in the response spans
+    # walkAttributes, streetAttributes, carAttributes, truckAttributes, scooterAttributes, names, length, duration, baseDuration, typicalDuration, countryCode, functionalClass, routeNumbers, speedLimit, maxSpeed, dynamicSpeedInfo, segmentId, segmentRef, consumption, routingZones, notices, incidents
+    def define_spans(options, with_geometry = false)
+      spans = []
+      if options[:toll_costs]
+        spans << 'length'
+        spans << 'speedLimit' unless with_geometry
+      end
+
+      case transport_mode
+      when 'car'
+        spans << 'carAttributes '
+      when 'truck'
+        spans << 'truckAttributes'
+      end
+      spans.join(',')
+    end
+
     def transport_mode
-      ['car', 'truck', 'pedestrian'].include?(@mode) ? @mode : 'car'
+      ['car', 'truck', 'pedestrian', 'bicycle', 'scooter', 'taxi', 'bus'].include?(@mode) ? @mode : 'car'
     end
 
     def routing_mode(dimension)
@@ -295,16 +268,18 @@ module Wrappers
 
     def truck_parameters(options)
       {
-        grossWeight: options[:weight], # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
-        height: options[:height], # Truck routing only, vehicle height in meters.
-        length: options[:length], # Truck routing only, vehicle length in meters.
+        grossWeight: options[:weight]&.ceil, # Truck routing only, vehicle weight including trailers and shipped goods, in tons.
+        height: options[:height]&.ceil, # Truck routing only, vehicle height in meters.
+        length: options[:length]&.ceil, # Truck routing only, vehicle length in meters.
         shippedHazardousGoods: here_hazardous_map[options[:hazardous_goods]], # Truck routing only, list of hazardous materials.
-        truckType: @mode == 'truck' ? 'truck' : nil,
+        trailerCount: options[:trailers],
+        type: @mode == 'truck' ? 'straight' : nil, # can be tractor too
         weightPerAxle: options[:weight_per_axle], # Truck routing only, vehicle weight per axle in tons.
-        width: options[:width], # Truck routing only, vehicle width in meters.
+        width: options[:width]&.ceil, # Truck routing only, vehicle width in meters.
       }.delete_if{ |_k, v| v.blank? }
     end
 
+    # @todo remove ?
     def here_dimension_distance?
       if @mode == 'truck'
         false # not supported in 7.2 for truck
@@ -313,20 +288,34 @@ module Wrappers
       end
     end
 
+    # @todo remove ?
     def here_mode(dimension, mode, options)
       "#{dimension[0] == :time ? 'fastest' : 'shortest'};#{@mode};traffic:#{options[:traffic] ? 'enabled' : 'disabled'}#{!options[:motorway] ? ';motorway:-3' : !options[:toll] ? ';tollroad:-3' : ''}"
     end
 
+    def avoid_features(options)
+      if options[:motorway]
+        'tollRoad' unless options[:toll] # old tollroad:-3
+      else
+        'controlledAccessHighway' # old motorway:-3
+      end
+    end
+
+    # @todo test it returns bounding boxes with the following format
+    # @return format => {shape1}|{shape2}|{shape3}
+    # shape => bbox:{west},{south},{east},{north}
     def here_avoid_areas(areas)
+      return unless areas
+
       # Keep only avoid area
       areas.select{ |k, v| v == 0 }.collect{ |area, _v|
         lats = area.minmax_by{ |p| p[0] }
         lons = area.minmax_by{ |p| p[1] }
-        "#{lats[1][0]},#{lons[1][1]};#{lats[0][0]},#{lons[0][1]}"
-      }.join('!') if areas
+        "bbox:#{lons[0][1]},#{lats[0][0]},#{lons[1][1]},#{lats[1][0]}"
+      }.join('|')
     end
 
-    def get(url_base, object, params = {})
+    def get(url_base, object, params = {}, strict_restriction = false)
       url = "#{url_base}/#{object}"
       params = { apiKey: @api_key }.merge(params).delete_if{ |_k, v| v.blank? }
       key = [:here, :request, Digest::MD5.hexdigest(Marshal.dump([url, params.to_a.sort_by{ |i| i[0].to_s }]))]
@@ -337,32 +326,18 @@ module Wrappers
           response = RestClient.get(url, params: params)
         rescue RestClient::Exception => e
           error = JSON.parse(e.response)
-          if error['type'] == 'ApplicationError'
-            additional_data = error['AdditionalData'] || error['additionalData']
-            if additional_data
-              if additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED' }) ||
-                  additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED_CHECK_OPTIONS' })
-                return
-              elsif additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTING_CANCELLED' })
-                return
-              elsif additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_START_POINT' })
-                raise UnreachablePointError.new(error), "Here, UnreachablePoint: #{params.keys.grep(/waypoint/).map{|key| params[key]}}"
-              elsif error['subtype'] == 'InvalidInputData'
-                raise RouterWrapper::InvalidArgumentError.new(error), "Here, #{error['subtype']}: #{error['details']} (#{additional_data.first['key']} : #{additional_data.first['value']})"
-              elsif error['subtype'] == 'NoRouteFound'
-                raise RouterWrapper::NoRouteFound.new(error), "Here, #{error['subtype']}: #{params.keys.grep(/waypoint/).map{|key| params[key]}}"
-              else
-                raise
-              end
-            end
+
+          case error['status']
+          when 400
+            raise RouterWrapper::InvalidArgumentError.new(error), "Here, #{error['title']}: #{error['cause']} (#{error['action']})"
           end
+
           Api::Root.logger.info [url, params]
           Api::Root.logger.info error.inspect
-          error = error['response'] if error.key?('response')
-          raise ['Here', error['type'], error['subtype'], error['details'], error['Details']].compact.join(' ')
+          raise ['Here', error].compact.join(' ')
         end
 
-        request = JSON.parse(response)
+        request = handle_notices(JSON.parse(response), params, strict_restriction)
         @cache.write(key, request)
       end
 
@@ -476,16 +451,12 @@ module Wrappers
         combustible: :combustible,
         organic: :organic,
         poison: :poison,
-        radio_active: :radioActive,
+        radio_active: :radioactive,
         corrosive: :corrosive,
         poisonous_inhalation: :poisonousInhalation,
         harmful_to_water: :harmfulToWater,
         other: :other
       }
-    end
-
-    def here_strict_restriction(param_value)
-      param_value ? 'strict' : 'soft'
     end
 
     ##
@@ -496,6 +467,44 @@ module Wrappers
       else
         [25 - (dist_km / 100).floor, 1].max
       end
+    end
+
+    # V8 returns errors and restrictions in notices with a http 200 status
+    def handle_notices(body, params, strict_restriction)
+      notices = body['notices'] || body['routes']&.map{|rt| rt['sections'].map{|se| se['notices']}}&.flatten.compact
+      coordinates = "#{params[:origin]}, #{params[:destination]}"
+
+      notices&.each do |notice|
+        case notice['code']
+        when 'couldNotMatchOrigin'
+          raise UnreachablePointError.new(notice['title']), "Here, couldNotMatchOrigin (#{coordinates})"
+        when 'violatedVehicleRestriction'
+          Api::Root.logger.debug("HERE, #{notice['title']}, #{notice['code']} (#{coordinates})")
+          return {} if strict_restriction
+        end
+      end
+
+      body
+
+      # if error['type'] == 'ApplicationError'
+      #   additional_data = error['AdditionalData'] || error['additionalData']
+      #   if additional_data
+      #     if additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED' }) ||
+      #         additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_GRAPH_DISCONNECTED_CHECK_OPTIONS' })
+      #       return
+      #     elsif additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTING_CANCELLED' })
+      #       return
+      #     elsif additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_START_POINT' })
+      #       raise UnreachablePointError.new(error), "Here, UnreachablePoint: #{params.keys.grep(/waypoint/).map{|key| params[key]}}"
+      #     elsif error['subtype'] == 'InvalidInputData'
+      #       raise RouterWrapper::InvalidArgumentError.new(error), "Here, #{error['subtype']}: #{error['details']} (#{additional_data.first['key']} : #{additional_data.first['value']})"
+      #     elsif error['subtype'] == 'NoRouteFound'
+      #       raise RouterWrapper::NoRouteFound.new(error), "Here, #{error['subtype']}: #{params.keys.grep(/waypoint/).map{|key| params[key]}}"
+      #     else
+      #       raise
+      #     end
+      #   end
+      # end
     end
   end
 end
