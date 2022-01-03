@@ -18,6 +18,7 @@ WORKDIR /srv/app
 # because of Certificate verification failed
 RUN apt update ; apt upgrade -y
 RUN apt-get install -y git build-essential zlib1g-dev zlib1g  > /dev/null
+RUN pip3 install flexpolyline
 RUN gem install bundler --version 1.17.3
 RUN bundle install --path vendor/bundle --full-index --without ${BUNDLE_WITHOUT}
 
