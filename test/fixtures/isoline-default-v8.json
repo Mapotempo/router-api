@@ -1,0 +1,29 @@
+{
+  "departure": {
+    "time": "2021-12-20T13:37:44+01:00",
+    "place": {
+      "type": "place",
+      "location": {
+        "lat": 49.6106295,
+        "lng": 18.2376727
+      },
+      "originalLocation": {
+        "lat": 49.6107099,
+        "lng": 18.2373049
+      }
+    }
+  },
+  "isolines": [
+    {
+      "range": {
+        "type": "time",
+        "value": 300
+      },
+      "polygons": [
+        {
+          "outer": "BGwtw1-C0_43iBAqmF3KmgBlgB2K7qBAlgB4K9qB-qB3KmgB4KmgBuVuVwVsgCuVuV4KmgBA-qB3KmgBtVuVvVsgClgB4K51CAlgB2KAwV-qB8qBsgCwV2KmgBA4gE1KmgB9qB8qBlgB4K9qBAlgB4KtVuVrgCuV51C61C3KmgBA4gE3KmgB7qB-qBrgCuVvVsgC7qB-qBrgCuVrgCsgClgB4K3gEAlgB3KtVtVvVAtVuVrgCwV3KmgBA8qB4KmgBuVwV4KkgBA-qB4KmgBuVuVuVsgC-qB-qBmgB4K-qBAmgB2KuVwVmgB2K61CAmgB4KwVuVqgCwV-qB8qB4KmgBA4gE3KmgB9qB-qBlgB4K51CAlgB3KtVtVlgB3K51CAlgB3KvVtVlgB3KzrFAlgB1KvVrgCtVvVtVrgCvVtV1KlgBA1rF3KlgBlgB1KlgB2K7qB-qBvVsgCnrDqrD3KmgB4KmgBuVuV4KmgBA61C3KmgB3gE4gErgCuV3gE4gEAwV-qB8qBsgCwVuVsgCsgCuVuVuVsgCwVo2Em2EsgCuV2KmgBA2rF1KmgBlgB2K71CAlgB1KtVvVlgB1K51CAlgB3KvVtVlgB3K7qBAlgB3K9qB7qB3KlgBA51C1KlgBlgB3K71CAjgB3KvVtVlgB3KlgB4KtVuVtVAvVtVtVAtVuVlgB4K9qBAlgB3K9qB7qB1KlgBA9qB3KlgB9qB9qBlgB1KzrFAlgB3K3KlgBA3gE4KlgB61C51CmgB3K4gEAmgB1KuVvVmgB1KmgB2KsgCsgCmgB4KmgB3K4KlgBA54S4KlgBmgB3K8qBAmgB4K-qB-qB2KmgBA0rF4KmgBuVwV4KmgBA4gE4KmgBuVAuVvVsgCtV4KlgBA9qB4KlgBuVtV4KlgBA51C2KlgBwVvVuVrgCm2El2EwVrgCuVtV4KlgB3KlgBrgCtVtVvVrgCtVvVtVrgCvVtVtVrgCtV9qB9qB1KlgBA1rF2KlgB-qB7qBmgB3K2rFAmgB1KuVvVsgCtVuVrgCsgCtVqrDprDmgB3K8qBAmgB4K-qB-qB4KmgBA61C3KmgBl2Em2EtVsgCrgCuV3KmgB4KmgBsgCwVuVuVmgB4KmgB3KuVtVsgCvVuVtVsgCtVwVvVmgB1K4gEAmgB3K2KlgBA51C4KlgBuVtV4KlgBA9qB4KlgB4gE3gEqgCtV4gE3gE4KlgB3KlgBrgCvV51C51C3KlgBA3gE4KlgB-qB7qBmgB3KmgB4KuVuVsgCuVuVwVmgB2KmgB1K4KlgBA9qB4KlgBuVtV4KlgBA3gE2KlgB-qB9qBmgB3Ky2GAmgBsF4KkQA6a"
+        }
+      ]
+    }
+  ]
+}

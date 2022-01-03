@@ -1,0 +1,85 @@
+{
+  "routes": [
+    {
+      "id": "7235e1eb-b24f-41ff-8910-2ad6b95acec4",
+      "sections": [
+        {
+          "id": "41444b37-8773-44df-a215-0cf7c2113d52",
+          "type": "vehicle",
+          "departure": {
+            "time": "2021-12-17T14:12:54+01:00",
+            "place": {
+              "type": "place",
+              "location": {
+                "lat": 43.60622,
+                "lng": 3.866
+              },
+              "originalLocation": {
+                "lat": 43.6064,
+                "lng": 3.8662046
+              }
+            }
+          },
+          "arrival": {
+            "time": "2021-12-17T14:40:11+01:00",
+            "place": {
+              "type": "place",
+              "location": {
+                "lat": 43.6304873,
+                "lng": 3.8707684
+              },
+              "originalLocation": {
+                "lat": 43.6304689,
+                "lng": 3.8708299
+              }
+            }
+          },
+          "summary": {
+            "duration": 1637,
+            "length": 7141,
+            "baseDuration": 1459
+          },
+          "polyline": "BG4swlzCg5-rH0PjrBwC_EwCrEsE3DgFkSkDgKkD4IkDwH4SjN8G0egP3I4SrJ0PjI0K_ET7pBUrJUnawCrOoB_J4DvRgFvgBsEvR0FvRsOriBkD_OU_OT7uBsEzoB3DjIkDvRwH_sBkDjX8B_ToBzPAvRnB3hB7Bvb7Gz_CrE_lC7BnkBTzP7B_dT7LTnG3Dj1BnBjSjDz3BA3SU7aA7QwCzF8B7GoBzKU_OUrxBUjIoBzF8B_EoBUoBAoBToBnBU7BAvCT7BnBnBnBTnBAnBUAzFoB7gDoBn6FoBzUU_xB4DvqB8LnzBoGnkB4InuBoBnG0FvbkDrO0tBwMkDwCwC8BoBkDAwCnB8B_EkDzFoBvCT_O_EnL3D_O_EjDnBzF7BnGvCnLrE3IrJjDrEvC7GTnGoBzFwC_EkD3DsE7BsEAsEwC4DgFwCsE8B8GoBoQjDwM7BsJrEkNjD0FjD4DjDwC3DoB_EA3D7BjD3DvC_EnBnGoB7GkDzFkD3D8G3DsJjDoLsEoGwC0F8BkDoBgPgFoL4DgPgFwCU4N4DwCU4DUgFUgFUoGAoLUgPA8QAwCA0PnBgKTwCA4DAoGTgFAoGA0FAgFAgFA0FUkIUkDU4NoB4DUoVgF4DoB0K4D4NoG4N8G0Z4N4mB4SsJgFsEkDwC8BgF4DsEsEkIkIoBoBwHgKsEwHsT0egPgZkNoVkDgF4SgekIkN4NkX8LoQ4DgFsEgFgFwHgF8GkIwM0FsJsEkIkD4I8GgUkDgK0FgZ4DkS0Ko4BkI0tBgF8asEsTkDsJ4I4XsT0oBgU8pB0F0PoG4X8BkIoBkIUwHA4IA0ZAgKA4mBoBwqB8B8fU8QAwHoBkcU4IoBkc8BwWoBoL8BoLsJkwB4IkrBkDkXoB4IwCwR4DgPkDkI4DkIoG0KoLgKsJsJ0P0P4SkXkS0Z4N4SsJwM8asnBsEoGkN0U4NgUkSsYwHgKkIgK4I0K8BwC0KoQwH8LoQgZ8LsToL8QwMgUkS8agP8V4DoG0KsTwHsOsE4IwCoGoGoQwCkIwC0KUkDoBsE8GjDgFjD8G_E4_B01C4SgZsOkS8BwC0oBw5B4I_EsJ_E8BvCwCjDsEnG0F_EoBnB8BAwCwCU4D7BgFnVsnBgFwHkDoGoBoG8GgF4D4DsE4D8BwH4DgFgF8BgF7BoGkDsOsJ8LkIyI8E",
+          "spans": [
+            {
+              "offset": 0,
+              "truckAttributes": [
+                "open"
+              ]
+            },
+            {
+              "offset": 8,
+              "truckAttributes": [
+                "open",
+                "noThrough"
+              ]
+            },
+            {
+              "offset": 19,
+              "truckAttributes": [
+                "open"
+              ]
+            }
+          ],
+          "notices": [
+            {
+              "title": "Violated vehicle restriction.",
+              "code": "violatedVehicleRestriction",
+              "severity": "critical",
+              "details": [
+                {
+                  "type": "restriction",
+                  "cause": "Route violates vehicle restriction",
+                  "forbiddenHazardousGoods": "any"
+                }
+              ]
+            }
+          ],
+          "transport": {
+            "mode": "truck"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -52,7 +52,7 @@ module Api
       def self.count_matrix_locations(params)
         src_size = count_locations(params[:src])
         dst_size = params[:dst] ? count_locations(params[:dst]) : src_size
-        src_size * dst_size
+        [src_size, dst_size].max
       end
     end
   end

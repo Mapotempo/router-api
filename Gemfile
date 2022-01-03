@@ -7,7 +7,7 @@ gem 'puma'
 gem 'rack-cors'
 gem 'rack-server-pages', '~> 0.1.0'
 
-gem 'grape'
+gem 'grape', '>=1.5.3'
 gem 'grape_logging'
 gem 'grape-entity'
 gem 'grape-swagger'
@@ -28,6 +28,7 @@ group :test do
   gem 'minitest-reporters'
   gem 'rack-test'
   gem 'simplecov', require: false
+  gem 'webmock'
 end
 
 group :development, :test do
@@ -36,6 +37,7 @@ end
 
 gem 'dotenv'
 gem 'polylines'
+gem 'pycall'
 
 group :production do
   gem 'redis'

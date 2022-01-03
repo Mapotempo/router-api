@@ -22,6 +22,16 @@ require './api/root'
 class Api::V01::IsolineTest < Minitest::Test
   include Rack::Test::Methods
 
+  def setup
+    @stubs = [
+      stub_request(:get, %r{0.1/isochrone\?.*lat=-?\d+\.\d+&lng=-?\d+\.\d+&time=\d+}).to_return(status: 200, body: File.new(File.expand_path('../../', __dir__) + '/fixtures/isoline-default.json').read),
+    ]
+  end
+
+  def teardown
+    @stubs.each { |stub| remove_request_stub(stub) } if @stubs
+  end
+
   def app
     Api::Root
   end
