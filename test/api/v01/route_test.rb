@@ -180,4 +180,12 @@ class Api::V01::RouteTest < Minitest::Test
       key =~ /(Content-Type|X-RateLimit-Limit|X-RateLimit-Remaining|X-RateLimit-Reset)/
     }.values
   end
+
+  def test_demo_nil_quotas
+    # assert override 10 by nil (unlimited)
+    11.times do
+      post '/0.1/routes', { api_key: 'demo_nil_quotas', locs: '43.2804,5.3806,43.2804,5.3806', size: 1 }
+      assert last_response.ok?, last_response.body
+    end
+  end
 end
