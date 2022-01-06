@@ -49,10 +49,16 @@ module Api
         end
       end
 
-      def self.count_matrix_locations(params)
+      def self.count_matrix_cells(params)
         src_size = count_locations(params[:src])
         dst_size = params[:dst] ? count_locations(params[:dst]) : src_size
         src_size * dst_size
+      end
+
+      def self.limit_matrix_side_size(params)
+        src_size = count_locations(params[:src])
+        dst_size = params[:dst] ? count_locations(params[:dst]) : src_size
+        [src_size, dst_size].max
       end
     end
   end
