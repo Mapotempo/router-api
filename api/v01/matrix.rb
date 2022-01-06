@@ -36,7 +36,7 @@ module Api
       default_format :json
 
       before do
-        params_limit = APIBase.profile(params[:api_key])[:params_limit].merge(RouterWrapper.access[params[:api_key]][:params_limit] || {})
+        params_limit = APIBase.profile(params[:api_key])[:params_limit]
         if !params_limit[:locations].nil?
           error!({message: "Exceeded \"matrix\" limit authorized for your account: #{params_limit[:locations]}. Please contact support or sales to increase limits."}, 413) if APIBase.count_matrix_locations(params) > params_limit[:locations]
         end

@@ -66,7 +66,7 @@ module RouterWrapper
 
   PARAMS_LIMIT = { locations: 10000 }.freeze
   REDIS_COUNT = Redis.new # Fake redis
-  QUOTAS = [{ daily: 100000, monthly: 1000000, yearly: 10000000 }].freeze # Only taken into account if REDIS_COUNT
+  QUOTAS = [{ daily: 10, monthly: 1000000, yearly: 10000000 }].freeze # Only taken into account if REDIS_COUNT
 
   @@c = {
     product_title: 'Router Wrapper API',

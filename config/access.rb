@@ -26,6 +26,11 @@ module RouterWrapper
       { operation: :matrix, daily: 2 },
       { monthly: 4 }
     ]},
+    'demo_nil_quotas' => { profile: :standard, params_limit: { locations: 2 }, quotas: [
+      { operation: :route, daily: nil },
+      { operation: :isoline, daily: nil },
+      { operation: :matrix, daily: nil }
+    ]},
     'expired' => { profile: :standard, expire_at: '2000-01-01' }
   }
 end
