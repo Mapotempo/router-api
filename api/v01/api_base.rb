@@ -37,7 +37,9 @@ module Api
           # [[[lat, lng], [lat, lng]]] or [[lat, lng], [lat, lng]] or [lat, lng, lat, lng]
           obj.flatten.size / 2
         else
-          obj.split(',').size / 2 # matrix, isoline, route : "lat,lng,lat,lng"
+          # route, matrix and isoline can send value like :
+          # "lat,lng,lat,lng" or "lat,lng;lat,lng" or "lat,lng|lat,lng"
+          obj.split(/,|\;|\|/).size / 2
         end
       end
 

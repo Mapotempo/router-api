@@ -26,6 +26,8 @@ class Api::V01::APIBaseTest < Minitest::Test
     assert_equal 2, Api::V01::APIBase.count_locations([[lat, lng], [lat, lng]])
     assert_equal 2, Api::V01::APIBase.count_locations([lat, lng, lat, lng])
     assert_equal 2, Api::V01::APIBase.count_locations('lat,lng,lat,lng')
+    assert_equal 2, Api::V01::APIBase.count_locations('lat,lng;lat,lng')
+    assert_equal 2, Api::V01::APIBase.count_locations('lat,lng|lat,lng')
     assert_equal 0, Api::V01::APIBase.count_locations(nil)
   end
 
