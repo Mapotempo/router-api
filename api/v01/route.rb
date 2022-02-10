@@ -39,7 +39,7 @@ module Api
       before do
         params_limit = APIBase.profile(params[:api_key])[:params_limit]
         if !params_limit[:locations].nil?
-          error!({message: "Exceeded \"routes\" limit authorized for your account: #{params_limit[:locations]}. Please contact support or sales to increase limits."}, 413) if APIBase.count_route_locations(params) > params_limit[:locations]
+          error!({message: "Exceeded \"routes\" limit authorized for your account: #{params_limit[:locations]}. Please contact support or sales to increase limits."}, 413) if APIBase.count_route_legs(params) > params_limit[:locations]
         end
       end
 
@@ -93,7 +93,7 @@ module Api
           params[:locs] = [params[:loc].each_slice(2).to_a]
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if !params[:speed_multiplier_area]
-          count :route, true, APIBase.count_route_locations(params)
+          count :route, true, APIBase.count_route_legs(params)
           present compute_routes(params)[0], with: RouteResult, geometry: params[:geometry], toll_costs: params[:toll_costs], with_summed_by_area: params[:with_summed_by_area]
         end
       end
@@ -146,7 +146,7 @@ module Api
           params[:locs] = params[:locs].collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
-          count :route, true, APIBase.count_route_locations(params)
+          count :route, true, APIBase.count_route_legs(params)
           many_routes params
         end
 
@@ -165,7 +165,7 @@ module Api
           params[:locs] = params[:locs].collect{ |b| b.split(',').collect{ |f| Float(f) }.each_slice(2).to_a }
           params[:speed_multiplier] = params[:speed_multiplicator] if !params[:speed_multiplier]
           params[:speed_multiplier_area] = params[:speed_multiplicator_area] if params[:speed_multiplicator_area] && params[:speed_multiplicator_area].size > 0 && (!params[:speed_multiplier_area] || params[:speed_multiplier_area].size == 0)
-          count :route, true, APIBase.count_route_locations(params)
+          count :route, true, APIBase.count_route_legs(params)
           many_routes params
           status 200
         end
@@ -218,7 +218,7 @@ module Api
               end
             end
           }
-          count_incr :route, transactions: APIBase.count_route_locations(params)
+          count_incr :route, transactions: APIBase.count_route_legs(params)
           routes
         end
 
