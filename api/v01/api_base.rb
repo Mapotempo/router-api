@@ -61,6 +61,19 @@ module Api
         end
       end
 
+      ##
+      # @param obj can be a string or an array
+      def self.count_distinct_routes(obj)
+        case obj
+        when String
+          obj.count(';|\|') + 1
+        when Array
+          obj.size
+        else
+          raise 'Unknown obj type in count_distinct_routes'
+        end
+      end
+
       # Calculate route legs for given points considering start and end are not the same
       # For A-B ; C-D-E-F it equals to 4 -- i.e., (2-1) + (4-1) => (2+4) - (1+1)
       def self.count_route_legs(params)
@@ -69,11 +82,7 @@ module Api
         # :loc or :locs is required, returning 0 since the request is invalid and will be refused
         return 0 unless locations
 
-        if params[:loc]
-          count_locations(params[:loc]) - 1
-        elsif params[:locs]
-          [1, legs_in_distinct_routes(params[:locs]) - distinct_routes(params[:locs])].max
-        end
+        count_locations(locations) - count_distinct_routes(locations)
       end
 
       def self.count_matrix_cells(params)
@@ -89,41 +98,6 @@ module Api
         src_size = count_locations(params[:src])
         dst_size = params[:dst] ? count_locations(params[:dst]) : src_size
         [src_size, dst_size].max
-      end
-
-      def self.legs_in_distinct_routes(obj)
-        return count_locations(obj) unless multi_leg_route?(obj)
-
-        case obj
-        when Array
-          obj.map { |locs| count_locations(locs) }.sum
-        when String
-          obj.split('\;|\|').map { |locs| count_locations(locs) }.sum
-        end
-      end
-
-      def self.distinct_routes(obj)
-        case obj
-        when Array
-          multi_leg_route?(obj) ? obj.size : 1
-        when String
-          multi_leg_route?(obj) ? obj.count('\;|\|') + 1 : 1
-        end
-      end
-
-      def self.multi_leg_route?(obj)
-        case obj
-        when Array
-          depth(obj) == 3 # Because of multi route structure [ [[], []], [[], []] ]
-        when String
-          obj.match(/\;|\|/) ? true : false
-        end
-      end
-
-      def self.depth(arr)
-        return 0 unless arr.is_a?(Array)
-
-        1 + depth(arr[0])
       end
     end
   end
