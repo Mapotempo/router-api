@@ -138,9 +138,9 @@ class Api::V01::RouteTest < Minitest::Test
 
   def test_param_route_exceed_limit
     [
-      { method: :get, url: '/0.1/route', options: { api_key: 'demo_limit', loc: '43.2804,5.3806,43.2804,5.3806' }},
-      { method: :get, url: '/0.1/routes', options: { api_key: 'demo_limit', locs: '43.2804,5.3806,43.2804,5.3806' }},
-      { method: :post, url: '/0.1/routes', options: { api_key: 'demo_limit', locs: '43.2804,5.3806,43.2804,5.3806' }}
+      { method: :get, url: '/0.1/route', options: { api_key: 'demo_limit', loc: '43.2804,5.3806,43.2804,5.3806,43.2804,5.3806' }},
+      { method: :get, url: '/0.1/routes', options: { api_key: 'demo_limit', locs: '43.2804,5.3806,43.2804,5.3806,43.2804,5.3806' }},
+      { method: :post, url: '/0.1/routes', options: { api_key: 'demo_limit', locs: '43.2804,5.3806,43.2804,5.3806,43.2804,5.3806' }}
     ].each do |obj|
       send obj[:method], obj[:url], obj[:options]
       assert 413, last_response.status
@@ -166,7 +166,7 @@ class Api::V01::RouteTest < Minitest::Test
   end
 
   def test_use_quotas
-    locs = '43.2804,5.3806,43.2804,5.3806'
+    locs = '43.2804,5.3806,43.2804,5.3806,43.2804,5.3806'
 
     post '/0.1/routes', {api_key: 'demo_quotas', locs: locs}
     assert last_response.ok?, last_response.body
