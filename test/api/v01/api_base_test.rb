@@ -28,7 +28,10 @@ class Api::V01::APIBaseTest < Minitest::Test
     assert_equal 2, Api::V01::APIBase.count_locations('lat,lng,lat,lng')
     assert_equal 2, Api::V01::APIBase.count_locations('lat,lng;lat,lng')
     assert_equal 2, Api::V01::APIBase.count_locations('lat,lng|lat,lng')
-    assert_equal 0, Api::V01::APIBase.count_locations(nil)
+    error = assert_raises do
+      Api::V01::APIBase.count_locations(nil)
+    end
+    assert_equal 'count_locations cannot be called with a nil object', error.message
   end
 
   def test_count_matrix_cells
