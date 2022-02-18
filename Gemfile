@@ -37,8 +37,11 @@ end
 gem 'dotenv'
 gem 'polylines'
 
-group :production do
+group :development, :production do
   gem 'redis'
+end
+
+group :production do
   gem 'redis-store', '~> 1.4.1' # Ensure redis-store dependency is at least 1.4.1 for CVE-2017-1000248 correction
   gem 'redis-activesupport'
 end
