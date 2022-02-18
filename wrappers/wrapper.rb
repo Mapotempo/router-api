@@ -116,7 +116,4 @@ module Wrappers
       end
     end
   end
-
-  class UnreachablePointError < StandardError
-  end
 end
