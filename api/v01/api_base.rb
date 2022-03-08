@@ -32,24 +32,63 @@ module Api
       ##
       # @param obj can be a string or an array
       def self.count_locations(obj)
-        if obj.is_a? Array
-          # route, matrix and isoline can send array like :
-          # [[[lat, lng], [lat, lng]]] or [[lat, lng], [lat, lng]] or [lat, lng, lat, lng]
+        raise 'count_locations cannot be called with a nil object' unless obj
+
+        case obj
+        when Array
+          # For route and routes, loc and locs become an array of arrays internally as follows:
+          # 1 route with 3 locations         ->  [[[lat, lng], [lat, lng], [lat, lng]]]
+          # 2 routes with 3 locations each   ->  [[[lat, lng], [lat, lng], [lat, lng]], [[lat, lng], [lat, lng], [lat, lng]]]
+          # For matrix, src and dst become internally array and array of arrays:
+          # [lat, lng, lat, lng, lat, lng]
+          # [[lat, lng], [lat, lng], [lat, lng]]
+          # For isoline it is a single pair of lat, lng
+          # [lat, lng]
           obj.flatten.size / 2
+        when String
+          # The endpoints can receive values as follows (i.e., before coerce_with):
+          # route and routes
+          # 1 route with 3 locations      ->   "lat,lng,lat,lng,lat,lng"
+          # 2 routes with 3+2 locations   ->   "lat,lng,lat,lng,lat,lng;lat,lng,lat,lng"
+          # 2 routes with 3+2 locations   ->   "lat,lng,lat,lng,lat,lng|lat,lng,lat,lng"
+          # matrix
+          # "lat,lng,lat,lng,lat,lng"
+          # isoline
+          # "lat,lng"
+          obj.split(/,|;|\|/).size / 2
         else
-          obj.split(',').size / 2 # matrix, isoline, route : "lat,lng,lat,lng"
+          raise 'Unknown obj type in count_locations'
         end
       end
 
-      def self.count_route_locations(params)
-        if params[:loc]
-          count_locations(params[:loc])
-        elsif params[:locs]
-          count_locations(params[:locs])
+      ##
+      # @param obj can be a string or an array
+      def self.count_distinct_routes(obj)
+        case obj
+        when String
+          obj.count(';|\|') + 1
+        when Array
+          obj.size
+        else
+          raise 'Unknown obj type in count_distinct_routes'
         end
+      end
+
+      # Calculate route legs for given points considering start and end are not the same
+      # For A-B ; C-D-E-F it equals to 4 -- i.e., (2-1) + (4-1) => (2+4) - (1+1)
+      def self.count_route_legs(params)
+        locations = params[:locs] || params[:loc] # The order is important since loc is expanded to locs in the endpoint
+
+        # :loc or :locs is required, returning 0 since the request is invalid and will be refused
+        return 0 unless locations
+
+        count_locations(locations) - count_distinct_routes(locations)
       end
 
       def self.count_matrix_cells(params)
+        # :src is required, returning 0 since the request is invalid and will be refused
+        return 0 unless params[:src]
+
         src_size = count_locations(params[:src])
         dst_size = params[:dst] ? count_locations(params[:dst]) : src_size
         src_size * dst_size

@@ -26,7 +26,12 @@ class Api::V01::APIBaseTest < Minitest::Test
     assert_equal 2, Api::V01::APIBase.count_locations([[lat, lng], [lat, lng]])
     assert_equal 2, Api::V01::APIBase.count_locations([lat, lng, lat, lng])
     assert_equal 2, Api::V01::APIBase.count_locations('lat,lng,lat,lng')
-    assert_equal 0, Api::V01::APIBase.count_locations(nil)
+    assert_equal 2, Api::V01::APIBase.count_locations('lat,lng;lat,lng')
+    assert_equal 2, Api::V01::APIBase.count_locations('lat,lng|lat,lng')
+    error = assert_raises do
+      Api::V01::APIBase.count_locations(nil)
+    end
+    assert_equal 'count_locations cannot be called with a nil object', error.message
   end
 
   def test_count_matrix_cells
@@ -39,8 +44,14 @@ class Api::V01::APIBaseTest < Minitest::Test
     assert_equal 12, Api::V01::APIBase.limit_matrix_side_size(src: 'lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng')
   end
 
-  def test_count_route_locations
-    assert_equal 2, Api::V01::APIBase.count_route_locations(loc: 'lat,lng,lat,lng')
-    assert_equal 12, Api::V01::APIBase.count_route_locations(locs: 'lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng,lat,lng')
+  def test_count_route_legs
+    assert_equal 1, Api::V01::APIBase.count_route_legs(loc: '1,1,1,1')
+    assert_equal 11, Api::V01::APIBase.count_route_legs(locs: '1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1') # single route
+    assert_equal 2, Api::V01::APIBase.count_route_legs(locs: '1,1,1,1|1,1,1,1') # 2 routes
+    assert_equal 7, Api::V01::APIBase.count_route_legs(locs: '1,1,1,1|1,1,1,1|1,1,1,1|1,1,1,1|1,1,1,1|1,1,1,1,1,1') # 6 routes
+    assert_equal 2, Api::V01::APIBase.count_route_legs(locs: [[[1, 1], [1, 1]], [[1, 1], [1, 1]]]) # 2 routes
+    assert_equal 3, Api::V01::APIBase.count_route_legs(locs: [[[1, 1], [1, 1], [1, 1], [1, 1]]]) # single route
+    assert_equal 3, Api::V01::APIBase.count_route_legs(locs: [[[1, 1], [1, 1]], [[1, 1], [1, 1], [1, 1]]]) # 2 routes
+    assert_equal 3, Api::V01::APIBase.count_route_legs(locs: [[[1, 1], [1, 1]], [[1, 1], [1, 1]], [[1, 1], [1, 1]]]) # 3 routes
   end
 end

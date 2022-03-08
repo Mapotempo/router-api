@@ -138,9 +138,9 @@ class Api::V01::RouteTest < Minitest::Test
 
   def test_param_route_exceed_limit
     [
-      { method: :get, url: '/0.1/route', options: { api_key: 'demo_limit', loc: '43.2804,5.3806,43.2804,5.3806' }},
-      { method: :get, url: '/0.1/routes', options: { api_key: 'demo_limit', locs: '43.2804,5.3806,43.2804,5.3806' }},
-      { method: :post, url: '/0.1/routes', options: { api_key: 'demo_limit', locs: '43.2804,5.3806,43.2804,5.3806' }}
+      { method: :get, url: '/0.1/route', options: { api_key: 'demo_limit', loc: '43.2804,5.3806,43.2804,5.3806,43.2804,5.3806' }},
+      { method: :get, url: '/0.1/routes', options: { api_key: 'demo_limit', locs: '43.2804,5.3806,43.2804,5.3806,43.2804,5.3806' }},
+      { method: :post, url: '/0.1/routes', options: { api_key: 'demo_limit', locs: '43.2804,5.3806,43.2804,5.3806,43.2804,5.3806' }}
     ].each do |obj|
       send obj[:method], obj[:url], obj[:options]
       assert 413, last_response.status
@@ -148,26 +148,25 @@ class Api::V01::RouteTest < Minitest::Test
     end
   end
 
-  def test_count_routes
-    locs = '43.2804,5.3806,43.2804,5.3806'
-    [
-      { method: 'get', url: '/0.1/route',
-        options: {api_key: 'demo', loc: locs} },
-      { method: 'get', url: '/0.1/routes',
-        options: {api_key: 'demo', locs: locs} },
-      { method: 'post', url: '/0.1/routes',
-        options: {api_key: 'demo', locs: locs} },
-    ].each_with_index do |obj, indx|
-      send obj[:method], obj[:url], obj[:options]
-      keys = RouterWrapper.config[:redis_count].keys("router:route:#{Time.now.utc.to_s[0..9]}_key:demo_ip*")
-      assert_equal 1, keys.size
-      transactions = Api::V01::APIBase.count_route_locations(locs: locs)
-      assert_equal({'hits' => (indx + 1).to_s, 'transactions' => ((indx + 1) * transactions).to_s}, RouterWrapper.config[:redis_count].hgetall(keys.first))
-    end
+  def test_count_route_legs
+    get '/0.1/route', { api_key: 'demo', loc: '43.2804,5.3806,43.2804,5.3806' }
+    keys = RouterWrapper.config[:redis_count].keys("router:route:#{Time.now.utc.to_s[0..9]}_key:demo_ip*")
+    assert_equal 1, keys.size
+    assert_equal({ 'hits' => 1.to_s, 'transactions' => 1.to_s }, RouterWrapper.config[:redis_count].hgetall(keys.first))
+
+    get '/0.1/routes', { api_key: 'demo', locs: '43.2805,5.3806,43.2804,5.3806,43.330672,5.375404,43.267706,5.402184' }
+    keys = RouterWrapper.config[:redis_count].keys("router:route:#{Time.now.utc.to_s[0..9]}_key:demo_ip*")
+    assert_equal 1, keys.size
+    assert_equal({ 'hits' => 2.to_s, 'transactions' => 4.to_s }, RouterWrapper.config[:redis_count].hgetall(keys.first))
+
+    post '/0.1/routes', { api_key: 'demo', locs: '43.2805,5.3806,43.2804,5.3806,43.330672,5.375404' }
+    keys = RouterWrapper.config[:redis_count].keys("router:route:#{Time.now.utc.to_s[0..9]}_key:demo_ip*")
+    assert_equal 1, keys.size
+    assert_equal({ 'hits' => 3.to_s, 'transactions' => 6.to_s }, RouterWrapper.config[:redis_count].hgetall(keys.first))
   end
 
   def test_use_quotas
-    locs = '43.2804,5.3806,43.2804,5.3806'
+    locs = '43.2804,5.3806,43.2804,5.3806,43.2804,5.3806'
 
     post '/0.1/routes', {api_key: 'demo_quotas', locs: locs}
     assert last_response.ok?, last_response.body
