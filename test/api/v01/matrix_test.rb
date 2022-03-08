@@ -245,7 +245,7 @@ class Api::V01::MatrixTest < Minitest::Test
     end
   end
 
-  def test_no_content
+  def test_nil_content_in_case_unreachable
     post '/0.1/matrix', { api_key: 'demo', src: '48.407237, -2.816638, 44.44469, -2.75015', strict_restriction: false, mode: 'here' }
 
     assert last_response.ok?, last_response.body
