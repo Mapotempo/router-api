@@ -133,8 +133,6 @@ module Api
           rack_response(format_message(response, nil), 417)
         elsif e.is_a?(RouterWrapper::InvalidArgumentError)
           rack_response(format_message(response, nil), 400)
-        elsif e.is_a?(Wrappers::UnreachablePointError)
-          rack_response(format_message(response, nil), 204)
         elsif e.is_a?(QuotaExceeded)
           headers = { 'Content-Type' => content_type,
                       'X-RateLimit-Limit' => e.data[:limit],

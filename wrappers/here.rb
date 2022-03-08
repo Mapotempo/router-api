@@ -326,8 +326,9 @@ module Wrappers
                 return
               elsif additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTING_CANCELLED' })
                 return
-              elsif additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_START_POINT' })
-                raise UnreachablePointError.new(error), "Here, UnreachablePoint: #{params.keys.grep(/waypoint/).map{|key| params[key]}}"
+              elsif additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_START_POINT' }) || additional_data.include?({ 'key' => 'error_code', 'value' => 'NGEO_ERROR_ROUTE_NO_END_POINT' })
+                Api::Root.logger.debug("Here, UnreachablePoint: #{params.keys.grep(/waypoint/).map{|key| params[key]}}")
+                return
               elsif error['subtype'] == 'InvalidInputData'
                 raise RouterWrapper::InvalidArgumentError.new(error), "Here, #{error['subtype']}: #{error['details']} (#{additional_data.first['key']} : #{additional_data.first['value']})"
               elsif error['subtype'] == 'NoRouteFound'

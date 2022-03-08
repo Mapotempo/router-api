@@ -46,13 +46,6 @@ class Wrappers::HereTest < Minitest::Test
     assert result[:features].empty?
   end
 
-  def test_router_no_route_point
-    here = RouterWrapper::HERE_TRUCK
-    assert_raises Wrappers::UnreachablePointError do
-      result = here.route([[0, 0], [42.73295, 0.27685]], :time, nil, nil, 'en', true)
-    end
-  end
-
   def test_router_avoid_area
     here = RouterWrapper::HERE_TRUCK
     options = {speed_multiplier_area: {[[52, 14], [42, 5]] => 0}, motorway: true, toll: true}
@@ -183,5 +176,12 @@ class Wrappers::HereTest < Minitest::Test
       assert_equal(obj[:max_srcs], RouterWrapper::HERE_TRUCK.send(:max_srcs, obj[:distance], obj[:options]))
       assert_equal(obj[:max_dsts], RouterWrapper::HERE_TRUCK.send(:max_dsts, obj[:distance], [*1..100], obj[:options]))
     end
+  end
+
+  def test_prevent_no_content_in_case_unreachable
+    here = RouterWrapper::HERE_TRUCK
+    result = here.matrix([[48.407237, -2.816638]], [[44.44469, -2.75015]], :time_distance, nil, nil, 'en', strict_restriction: false)
+    assert_equal [[nil]], result[:matrix_time]
+    assert_equal [[nil]], result[:matrix_distance]
   end
 end
