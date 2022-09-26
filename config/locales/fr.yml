@@ -21,8 +21,10 @@ fr:
     crow:
       name: Vol d'oiseau
     osrm:
-      name: Open Source Routing Engine 5
+      name: VL OSRM
     otp:
       name: OpenTripPlanner
-    here:
-      name: HERE
+    here_truck:
+      name: PL HERE
+    here_car:
+      name: VL HERE

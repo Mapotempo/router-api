@@ -1,0 +1,47 @@
+version: '3.7'
+
+x-app-args: &app-args
+  APP_BASE: ${APP_BASE}
+  BUNDLE_VERSION: ${BUNDLE_VERSION}
+  RUBY_VERSION: ${RUBY_VERSION}
+  BUNDLE_WITHOUT: production
+
+x-default-environment: &default-environment
+  HERE_APP_CODE: ${HERE_APP_CODE}
+  HERE_APP_ID: ${HERE_APP_ID}
+  RAVEN_DSN: localhost
+  REDIS_COUNT_HOST: redis-count
+  REDIS_HOST: redis-cache
+
+services:
+  redis-cache:
+    image: redis:${REDIS_VERSION:-6.2.5-alpine}
+    volumes:
+      - ./redis:/data
+    hostname: redis-cache
+
+  redis-count:
+    image: redis:${REDIS_VERSION:-6.2.5-alpine}
+    volumes:
+      - ./redis-count:/data
+    hostname: redis-count
+    command: redis-server --appendonly yes
+
+  main:
+    build:
+      args:
+        <<: *app-args
+      context: .
+      dockerfile: docker/dev/Dockerfile
+    image: dev.example.com/mapotempo/mt-router
+    volumes:
+      - ./:/srv/app/
+      - app_cache_vendor:/srv/app/vendor
+    environment:
+      <<: *default-environment
+    ports:
+      - "4899:4899"
+    tty: true
+
+volumes:
+  app_cache_vendor:

@@ -15,17 +15,17 @@
 # along with Mapotempo. If not, see:
 # <http://www.gnu.org/licenses/agpl.html>
 #
+require "redis"
 require 'active_support'
 require 'active_support/core_ext'
 require 'byebug'
 require 'dotenv'
 require 'tmpdir'
-require 'byebug'
 
 require './wrappers/crow'
+require './wrappers/here'
 require './wrappers/osrm'
 require './wrappers/otp'
-require './wrappers/here'
 
 require './lib/cache_manager'
 
@@ -58,16 +58,22 @@ module RouterWrapper
     }
   ]
 
-  CACHE = CacheManager.new(ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*60*24*1))
-
+  CACHE = CacheManager.new(ActiveSupport::Cache::NullStore.new)
   CROW = Wrappers::Crow.new(CACHE)
-  OSRM = Wrappers::Osrm.new(CACHE, url_time: 'http://router.project-osrm.org', url_distance: 'http://router.project-osrm.org', url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', area_mapping: area_mapping, whitelist_classes: whitelist_classes, with_summed_by_area: true, licence: 'ODbL', attribution: '© OpenStreetMap contributors')
-  OTP_BORDEAUX = Wrappers::Otp.new(CACHE, url: 'http://localhost:7001', router_id: 'bordeaux', licence: 'ODbL', attribution: 'Bordeaux Métropole', area: 'Bordeaux', crs: 'EPSG:2154')
+
+  url_time = 'http://router.project-osrm.org'
+  url_distance = url_time
+  OSRM = Wrappers::Osrm.new(CACHE, url_time: url_time, url_distance: url_distance, url_isochrone: 'http://localhost:1723', url_isodistance: 'http://localhost:1723', with_summed_by_area: true, licence: 'ODbL', attribution: '© OpenStreetMap contributors')
+
+  OTP_BORDEAUX = Wrappers::Otp.new(CACHE, url: 'http://localhost:7000', router_id: 'idf', licence: 'ODbL', attribution: 'Bordeaux Métropole', area: 'Bordeaux', crs: 'EPSG:2154')
+
   HERE_TRUCK = Wrappers::Here.new(CACHE, app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'truck')
   HERE_CAR = Wrappers::Here.new(CACHE, app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'car')
 
-  PARAMS_LIMIT = { locations: 1000 }.freeze
+  PARAMS_LIMIT = { locations: 1_000_000 }.freeze
+
   REDIS_COUNT = ENV['REDIS_COUNT_HOST'] && Redis.new(host: ENV['REDIS_COUNT_HOST'])
+
   QUOTAS = [{ daily: 100000, monthly: 1000000, yearly: 10000000 }].freeze # Only taken into account if REDIS_COUNT
 
   @@c = {
@@ -78,20 +84,6 @@ module RouterWrapper
       file: './config/access.rb'
     },
     profiles: {
-      light: {
-        route_default: :crow,
-        params_limit: PARAMS_LIMIT,
-        quotas: QUOTAS, # Only taken into account if REDIS_COUNT
-        route: {
-          crow: [CROW],
-        },
-        matrix: {
-          crow: [CROW],
-        },
-        isoline: {
-          crow: [CROW],
-        }
-      },
       standard: {
         route_default: :osrm,
         params_limit: PARAMS_LIMIT,
@@ -100,18 +92,22 @@ module RouterWrapper
           osrm: [OSRM],
           crow: [CROW],
           otp: [OTP_BORDEAUX],
-          here: [HERE_TRUCK],
+          truck: [HERE_TRUCK],
+          here_car: [HERE_CAR],
         },
         matrix: {
           crow: [CROW],
           osrm: [OSRM],
           otp: [OTP_BORDEAUX],
-          here: [HERE_TRUCK],
+          truck: [HERE_TRUCK],
+          here_car: [HERE_CAR],
         },
         isoline: {
           crow: [CROW],
           osrm: [OSRM],
           otp: [OTP_BORDEAUX],
+          truck: [HERE_TRUCK],
+          here_car: [HERE_CAR],
         }
       }
     },
