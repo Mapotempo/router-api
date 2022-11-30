@@ -66,6 +66,12 @@ def random_location(centroid, max_radius)
   [random_lat.round(5), random_lng.round(5)] # meter precision
 end
 
+def clear_router_redis_count
+  RouterWrapper.config[:redis_count].keys.select{ |key| key =~ /router:/ }.each do |to_remove|
+    RouterWrapper.config[:redis_count].del(to_remove)
+  end
+end
+
 module FakeRedis
   def teardown
     RouterWrapper.config[:redis_count].flushall

@@ -37,25 +37,33 @@ class Api::V01::ApiTest < Minitest::Test
   end
 
   def test_metrics
-    clear_optim_redis_count
-    post '/0.1/vrp/submit?asset=myAsset', { api_key: 'demo', vrp: VRP.toy }.to_json, \
-         'CONTENT_TYPE' => 'application/json'
+    clear_router_redis_count
+    post '/0.1/routes', { api_key: 'demo', locs: '43.2805,5.3806,43.2804,5.3806,43.330672,5.375404' }
+
     assert last_response.ok?, last_response.body
 
-    get '0.1/metrics', { api_key: 'demo'}
+    get '0.1/metrics.json', { api_key: 'demo'}
     assert_equal 401, last_response.status
 
-    get '0.1/metrics', { api_key: 'metrics'}
+    get '0.1/metrics.json', { api_key: 'metrics'}
     assert last_response.ok?, last_response.body
     json = JSON.parse(last_response.body).first
 
-    assert_equal Date.today.strftime("%Y-%m-%d"), json["count_date"]
-    assert_equal "1", json["count_hits"]
-    assert_equal "1", json["count_transactions"]
-    assert_equal "127.0.0.1", json["count_ip"]
-    assert_equal "demo", json["count_key"]
-    assert_equal "myAsset", json["count_asset"]
-    assert_equal "optimizer", json["count_service"]
-    assert_equal "optimize", json["count_endpoint"]
+    assert_equal Date.today.strftime('%Y-%m-%d'), json['count_date']
+    assert_equal '1', json['count_hits']
+    assert_equal '2', json['count_transactions']
+    assert_equal '127.0.0.1', json['count_ip']
+    assert_equal 'demo', json['count_key']
+    assert_equal 'router', json['count_service']
+    assert_equal 'route', json['count_endpoint']
+
+    post '/0.1/matrix', {api_key: 'demo', src: '43.2804,5.3806,43.2804,5.3806' }
+
+    get '0.1/metrics.json', { api_key: 'metrics'}
+    assert last_response.ok?, last_response.body
+    json = JSON.parse(last_response.body)
+    assert_equal 2, json.count
+    assert_equal '1', json[1]['count_hits']
+    assert_equal '4', json[1]['count_transactions']
   end
 end

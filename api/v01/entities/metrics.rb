@@ -1,4 +1,3 @@
-@@ -0,0 +1,36 @@
 # Copyright © Mapotempo, 2015
 #
 # This file is part of Mapotempo.
