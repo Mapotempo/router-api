@@ -31,6 +31,7 @@ module RouterWrapper
       { operation: :isoline, daily: nil },
       { operation: :matrix, daily: nil }
     ]},
+    'metrics' => { profile: :demo, params_limit: { points: nil, vehicles: nil }, metrics: true},
     'expired' => { profile: :standard, expire_at: '2000-01-01' }
   }
 end
