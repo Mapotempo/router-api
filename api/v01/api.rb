@@ -150,6 +150,34 @@ module Api
         end
       end
 
+      ##
+      # Use to export prometheus metrics
+      resource :metrics do
+        desc 'Return Prometheus metrics', {}
+        get do
+          error!('Unauthorized', 401) unless OptimizerWrapper.access[params[:api_key]][:metrics] == true
+
+          status 200
+          present(
+            redis_count.keys("*#{count_base_key_no_key('optimize').join(':')}*").flat_map{ |key|
+              hkey = split_key(key)
+              hredis = redis_count.hgetall(key)
+
+              {
+                count_asset: hkey['asset'],
+                count_date: hkey['date'],
+                count_endpoint: hkey['endpoint'],
+                count_hits: hredis['hits'],
+                count_ip: hkey['ip'],
+                count_key: hkey['key'],
+                count_service: hkey['service'],
+                count_transactions: hredis['transactions'],
+              }
+            }, with: Metrics
+          )
+        end
+      end
+
       mount Route
       mount Matrix
       mount Isoline

@@ -1,0 +1,3 @@
+inherit_gem:
+  mapotempo_rubocop:
+    - rubocop-default.yml

@@ -24,12 +24,12 @@ Running
 =======
 
 ```
-bundle exec rackup [-p 4899]
+bundle exec rackup [-o 0.0.0.0] [-p 4899]
 ```
 
 And in production mode:
 ```
-APP_ENV=production bundle exec rackup [-p 4899]
+APP_ENV=production bundle exec rackup [-o 0.0.0.0] [-p 4899]
 ```
 
 Available production extra environment variables are:
@@ -37,8 +37,10 @@ Available production extra environment variables are:
 REDIS_HOST=example.com
 ```
 
-Testing
+Docker runtime
 =======
+
+Create a `.env` file with HERE_APP_ID and HERE_APP_CODE values
 
 Build docker images
 ```
@@ -49,6 +51,11 @@ docker-compose build
 Build and launch containers
 ```
 docker-compose -p router up -d
+```
+
+Launch server
+```
+bundle exec rackup -o 0.0.0.0
 ```
 
 Generate otp graph
