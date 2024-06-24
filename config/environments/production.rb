@@ -41,6 +41,7 @@ module RouterWrapper
   HERE_APP_CODE = nil
   HERE_TRUCK = Wrappers::Here.new(CACHE, app_id: HERE_APP_ID, app_code: HERE_APP_CODE, mode: 'truck')
   HERE8_CAR = Wrappers::Here8.new(CACHE, apikey: ENV['HERE8_APIKEY'], mode: 'car', over_400km: false)
+  HERE8_TRUCK = Wrappers::Here8.new(CACHE, apikey: ENV['HERE8_APIKEY'], mode: 'truck', over_400km: false)
 
   PARAMS_LIMIT = { locations: 1000 }.freeze
   REDIS_COUNT = ENV['REDIS_COUNT_HOST'] && Redis.new(host: ENV['REDIS_COUNT_HOST'])
@@ -74,18 +75,21 @@ module RouterWrapper
           osrm: [OSRM_CAR_ICELAND, OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
-          here8: [HERE8_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         matrix: {
           osrm: [OSRM_CAR_ICELAND, OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
-          here8: [HERE8_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         isoline: {
           osrm: [OSRM_CAR_ICELAND, OSRM],
           otp: [OTP_BORDEAUX],
-          here8: [HERE8_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         }
       }
     },

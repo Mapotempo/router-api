@@ -41,41 +41,6 @@ module Wrappers
       end
     end
 
-    # def toll_costs(link_ids, departure_time, options = {})
-    #   # https://developer.here.com/platform-extensions/documentation/toll-cost/topics/example-tollcost.html
-    #   params = {
-    #     # https://developer.here.com/platform-extensions/documentation/toll-cost/topics/resource-tollcost-input-param-vspec.html
-    #     tollVehicleType: 3,
-    #     trailerType: options[:trailers] ? 2 : nil,
-    #     'vehicle[trailerCount]': options[:trailers],
-    #     vehicleNumberAxles: 2, # Not including trailer axles
-    #     trailerNumberAxles: options[:trailers] ? 2 * options[:trailers] : nil,
-    #     # hybrid:
-    #     emissionType: 6,
-    #     'vehicle[height]': options[:height] ? options[:height] * 100 : nil,
-    #     trailerHeight: options[:trailers] ? "#{options[:height] || 3}m" : nil,
-    #     vehicleWeight: options[:weight] ? "#{options[:weight]}t" : nil,
-    #     'vehicle[grossWeight]': options[:weight] ? options[:weight] * 1000 : nil,
-    #     # disabledEquipped:
-    #     passengersCount: 1,
-    #     # tiresCount: 8, # Default 4
-    #     # commercial:
-    #     'vehicle[shippedHazardousGoods]': [here_hazardous_map[options[:hazardous_goods]] == :explosive ? 1 : here_hazardous_map[options[:hazardous_goods]] ? 2 : nil].compact,
-    #     # heightAbove1stAxle:
-    #     # departureTime:
-    #     # If departure_time is given, then each route detail is a comma separated struct of link id,seconds left to destination. Otherwise, each route detail is only a link id.
-    #     route: link_ids.join(';'), # FIXME add seconds if departure_time
-    #     detail: 1,
-    #     rollup: 'total,tollsys,country', # none(per_links),total,tollsys(toll_system_summary),country(per_contries),country;tollsys(per_contries_and_toll_sys)
-    #     currency: options[:currency],
-    #   }.delete_if{ |k, v| v.nil? }
-    #   response = get(@url_tce, '2/tollcost', params)
-
-    #   if response && response['totalCost']
-    #     response['totalCost']['amountInTargetCurrency']
-    #   end
-    # end
-
     def route_dimension
       [:time, :time_distance, :distance, :distance_time]
     end
@@ -86,8 +51,6 @@ module Wrappers
 
       params["origin"] = "#{locs[0][0]},#{locs[0][1]}"
       locs.each_with_index.to_a[1..-2].each{ |loc, index|
-        raise 'Via point Not implemented'
-        # TODO Support via parameter, requires multiple `via` paramters, not supported by RestClient
         params["via"] = "#{loc[0]},#{loc[1]}"
       }
       params["destination"] = "#{locs[-1][0]},#{locs[-1][1]}"
@@ -97,8 +60,8 @@ module Wrappers
       ret = {
         type: 'FeatureCollection',
         router: {
-          licence: 'HERE',
-          attribution: 'HERE'
+          licence: 'HERE v8',
+          attribution: 'HERE v8'
         },
         features: []
       }
@@ -106,12 +69,21 @@ module Wrappers
       if request && request['routes'] && request['routes'][0] && request['routes'][0]['sections'] && request['routes'][0]['sections'][0]
         r = request['routes'][0]['sections'][0]
         s = r['summary']
+
+        # Implementation of via points
+        if params['via']
+          req = request['routes'][0]['sections'].map { |a| a['summary'] }
+          s['duration'] = req.collect {|v| v['duration']}.sum
+          s['length'] = req.collect {|v| v['length']}.sum
+        end
+
         infos = {
           total_distance: s['length'],
           total_time: (s['duration'] * 1.0 / (options[:speed_multiplier] || 1)).round(1),
           start_point: [r['departure']['place']['location']['lng'], r['departure']['place']['location']['lat']],
           end_point: [r['arrival']['place']['location']['lng'], r['arrival']['place']['location']['lat']],
         }
+
         if options[:toll_costs]
           raise 'toll_costs Not implemented'
           # TODO
@@ -194,65 +166,54 @@ module Wrappers
       ret
     end
 
-    # def isoline_dimension
-    #   [:time, :distance]
-    # end
+    def isoline_dimension
+      [:time, :distance]
+    end
 
-    # def isoline(loc, dimension, size, departure_time, _lang, options = {})
-    #   # Cache defined inside private get method
-    #   params = {
-    #     start: "#{loc[0]},#{loc[1]}",
-    #     range: dimension == :time ? (size * (options[:speed_multiplier] || 1)).round : size,
-    #     rangeType: dimension,
-    #     routingMode: here_routing_mode(dimension.to_s.split('_').collect(&:to_sym)),
-    #     transportMode: @mode,
-    #     avoid: {
-    #       features: here_avoid_features(options).join(','),
-    #       zoneCategories: options[:low_emission_zone] == false ? 'environmental' : nil,
-    #     }.select { |_, value| !value.blank? },
-    #     departureTime: departure_time,
-    #     # arrivalTime: arrival_time,
-    #     # 'avoid[areas]': here_avoid_areas(options[:speed_multiplier_area]),
-    #     # quality: 2,
-    #     'vehicle[type]': @mode == 'truck' ? 'straightTruck' : nil,
-    #     'vehicle[trailerCount]': options[:trailers], # Truck routing only, number of trailers.
-    #     'vehicle[grossWeight]': options[:weight] ? options[:weight] * 1000 : nil, # Truck routing only, vehicle weight including trailers and shipped goods, in kg.
-    #     'vehicle[weightPerAxle]': options[:weight_per_axle] ? options[:weight_per_axle] * 1000 : nil, # Truck routing only, vehicle weight per axle in kg.
-    #     'vehicle[height]': options[:height] ? options[:height] * 100 : nil, # Truck routing only, vehicle height in centimeters.
-    #     'vehicle[width]': options[:width] ? options[:width] * 100 : nil, # Truck routing only, vehicle width in centimeters.
-    #     'vehicle[length]': options[:length] ? options[:length] * 100 : nil, # Truck routing only, vehicle length in centimeters.
-    #     'vehicle[shippedHazardousGoods]': [here_hazardous_map[options[:hazardous_goods]]].compact, # Truck routing only, list of hazardous materials.
-    #     #tunnelCategory : # Specifies the tunnel category to restrict certain route links. The route will pass only through tunnels of a les
-    #   }.delete_if { |k, v| v.nil? }
+    def isoline(loc, dimension, size, departure_time, _lang, options = {})
+      params = {
+        origin: "#{loc[0]},#{loc[1]}",
+        'range[values]': dimension == :time ? (size * (options[:speed_multiplier] || 1)).round : size,
+        'range[type]': dimension,
+        routingMode: here_routing_mode(dimension.to_s.split('_').collect(&:to_sym)),
+        transportMode: @mode,
+        avoid: {
+          features: here_avoid_features(options).join(','),
+          zoneCategories: options[:low_emission_zone] == false ? 'environmental' : nil,
+        }.select { |_, value| !value.blank? },
+        departureTime: departure_time,
+      }.delete_if { |k, v| v.nil? }
 
-    #   request = get(@url_isoline, '7.2/calculateisoline', params)
+      request = get(@url_isoline, 'v8/isolines', params)
 
-    #   ret = {
-    #     type: 'FeatureCollection',
-    #     router: {
-    #       licence: 'HERE',
-    #       attribution: 'HERE'
-    #     },
-    #     features: []
-    #   }
+      ret = {
+        type: 'FeatureCollection',
+        router: {
+          licence: 'HERE v8',
+          attribution: 'HERE v8'
+        },
+        features: []
+      }
 
-    #   if request && request['response'] && request['response']['isoline']
-    #     isoline = request['response']['isoline'][0]
-    #     ret[:features] = isoline['component'].map{ |component|
-    #       {
-    #         type: 'Feature',
-    #         properties: {},
-    #         geometry: {
-    #           type: 'Polygon',
-    #           coordinates: [component['shape'].map{ |s|
-    #             s.split(',').map(&:to_f).reverse
-    #           }]
-    #         }
-    #       }
-    #     }
-    #     ret
-    #   end
-    # end
+      if request && request['isolines']
+        isoline = request['isolines'][0]
+        ret[:features] = isoline['polygons'].map{ |component|
+          coordinates = FlexiblePolyline::Decoder.decode(component['outer'])
+
+          {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'Polygon',
+              coordinates: [ coordinates[:positions].map{ |s| s.reverse } ],
+              polylines: Polylines::Encoder.encode_points(coordinates[:positions]),
+            }
+          }
+        }
+
+        ret
+      end
+    end
 
     def build_matrix_params(dist_km, dimension, departure_time, arrival_time, lang, options = {})
       dim = dimension.to_s.split('_').collect(&:to_sym)

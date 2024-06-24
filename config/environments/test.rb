@@ -67,6 +67,7 @@ module RouterWrapper
   # Use a cache for HERE event in test to avoid to pay requests
   CACHE_HERE = ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*10)
   HERE8_CAR = Wrappers::Here8.new(CACHE_HERE, apikey: ENV['HERE8_APIKEY'], mode: 'car', over_400km: false)
+  HERE8_TRUCK = Wrappers::Here8.new(CACHE_HERE, apikey: ENV['HERE8_APIKEY'], mode: 'truck', over_400km: false)
 
   PARAMS_LIMIT = { locations: 10000 }.freeze
   REDIS_COUNT = Redis.new # Fake redis
@@ -101,21 +102,24 @@ module RouterWrapper
           osrm: [OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
-          here8: [HERE8_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         matrix: {
           crow: [CROW],
           osrm: [OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
-          here8: [HERE8_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         isoline: {
           crow: [CROW],
           osrm: [OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
-          here8: [HERE8_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         }
       }
     },

@@ -71,6 +71,7 @@ module RouterWrapper
   HERE_TRUCK = Wrappers::Here.new(CACHE, app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'truck')
   HERE_CAR = Wrappers::Here.new(CACHE, app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'car')
   HERE8_CAR = Wrappers::Here8.new(CACHE, apikey: ENV['HERE8_APIKEY'], mode: 'car', over_400km: false)
+  HERE8_TRUCK = Wrappers::Here8.new(CACHE, apikey: ENV['HERE8_APIKEY'], mode: 'truck', over_400km: false)
 
   PARAMS_LIMIT = { locations: 1_000_000 }.freeze
 
@@ -95,7 +96,8 @@ module RouterWrapper
           otp: [OTP_BORDEAUX],
           truck: [HERE_TRUCK],
           here_car: [HERE_CAR],
-          here8: [HERE8_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         matrix: {
           crow: [CROW],
@@ -103,7 +105,8 @@ module RouterWrapper
           otp: [OTP_BORDEAUX],
           truck: [HERE_TRUCK],
           here_car: [HERE_CAR],
-          here8: [HERE8_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         isoline: {
           crow: [CROW],
@@ -111,7 +114,8 @@ module RouterWrapper
           otp: [OTP_BORDEAUX],
           truck: [HERE_TRUCK],
           here_car: [HERE_CAR],
-          here8: [HERE8_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         }
       }
     },
