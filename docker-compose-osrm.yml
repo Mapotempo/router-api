@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+  api:
+    depends_on:
+      - osrm-car-iceland
+
+  osrm-car-iceland:
+    build:
+      context: docker/osrm
+    environment:
+      BASENAME: car-iceland
+      PBF_URL: http://download.geofabrik.de/europe/iceland-latest.osm.pbf
+      PROFILE: /srv/osrm/profiles/car/car.lua
+      ALGORITHM: ch # "ch" or "mld"
+    volumes:
+      - ./docker/osrm/data:/srv/osrm/data
+      - ./docker/osrm/profiles:/srv/osrm/profiles
+      - ./docker/osrm/low_emission_zone.geojson:/usr/local/share/osrm/data/low_emission_zone.geojson
+      - /dev/log:/dev/log
+    restart: unless-stopped

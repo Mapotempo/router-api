@@ -1,0 +1,16 @@
+version: '3.3'
+services:
+  api:
+    depends_on:
+      - otp-bordeaux
+
+  otp-bordeaux:
+    build:
+      context: docker/otp
+    environment:
+      GRAPH: bordeaux
+    ports:
+      - "7001:7000"
+    volumes:
+      - ./docker/otp/data:/srv/otp/data
+    restart: unless-stopped

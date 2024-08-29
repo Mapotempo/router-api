@@ -59,7 +59,7 @@ module Api
         contact_email: ::RouterWrapper::config[:product_contact_email],
         contact_url: ::RouterWrapper::config[:product_contact_url],
         license: 'GNU Affero General Public License 3',
-        license_url: 'https://raw.githubusercontent.com/Mapotempo/router-wrapper/master/LICENSE',
+        license_url: 'https://raw.githubusercontent.com/cartoroute/router-api/master/LICENSE',
         description: '
 ## Technical access
 
@@ -92,11 +92,11 @@ The API supports several return formats: `geojson`, `json` and `xml` which depen
 
 ### Routing
 
-[Find your route on a map](http://router.mapotempo.com/route.html)
+[Find your route on a map](/route.html)
 
 ### Isolines
 
-[Build your isoline on a map](http://router.mapotempo.com/isoline.html)'
+[Build your isoline on a map](/isoline.html)'
       }
     )
   end

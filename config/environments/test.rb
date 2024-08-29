@@ -25,6 +25,7 @@ require './wrappers/crow'
 require './wrappers/osrm'
 require './wrappers/otp'
 require './wrappers/here'
+require './wrappers/here8'
 
 require './lib/cache_manager'
 
@@ -63,15 +64,17 @@ module RouterWrapper
   OTP_BORDEAUX = Wrappers::Otp.new(CACHE, url: 'http://localhost:7001', router_id: 'bordeaux', licence: 'ODbL', attribution: 'Bordeaux Métropole', area: 'Bordeaux', crs: 'EPSG:2154')
   HERE_TRUCK = Wrappers::Here.new(CACHE, app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'truck')
   HERE_CAR = Wrappers::Here.new(CACHE, app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'car')
+  # Use a cache for HERE event in test to avoid to pay requests
+  CACHE_HERE = ActiveSupport::Cache::FileStore.new(File.join(Dir.tmpdir, 'router'), namespace: 'router', expires_in: 60*10)
+  HERE8_CAR = Wrappers::Here8.new(CACHE_HERE, apikey: ENV['HERE8_APIKEY'], mode: 'car', over_400km: false)
+  HERE8_TRUCK = Wrappers::Here8.new(CACHE_HERE, apikey: ENV['HERE8_APIKEY'], mode: 'truck', over_400km: false)
 
   PARAMS_LIMIT = { locations: 10000 }.freeze
   REDIS_COUNT = Redis.new # Fake redis
   QUOTAS = [{ daily: 10, monthly: 1000000, yearly: 10000000 }].freeze # Only taken into account if REDIS_COUNT
 
   @@c = {
-    product_title: 'Router Wrapper API',
-    product_contact_email: 'tech@mapotempo.com',
-    product_contact_url: 'https://github.com/Mapotempo/router-wrapper',
+    product_title: 'Router API',
     access_by_api_key: {
       file: './config/access.rb'
     },
@@ -99,18 +102,24 @@ module RouterWrapper
           osrm: [OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         matrix: {
           crow: [CROW],
           osrm: [OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         isoline: {
           crow: [CROW],
           osrm: [OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         }
       }
     },

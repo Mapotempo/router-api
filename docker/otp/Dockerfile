@@ -1,7 +1,5 @@
 FROM openjdk:8
 
-LABEL maintainer="Mapotempo <contact@mapotempo.com>"
-
 ARG OTP_VERSION
 ENV OTP_VERSION ${OTP_VERSION:-1.5.0}
 

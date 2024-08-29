@@ -3,8 +3,7 @@ function getApiKey() {
 }
 
 var options = {
-  betaUrl: "https://geocode.beta.mapotempo.com/0.1/geocode.json",
-  prodUrl: "https://geocode.mapotempo.com/0.1/geocode.json",
+  betaUrl: "/0.1/geocode.json",
   serviceUrl: "0.1",
   apiKey: getApiKey()
 };

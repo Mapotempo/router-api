@@ -19,13 +19,12 @@ build/
 /_yardoc/
 /doc/
 /rdoc/
-/docker/**/*.pbf
-/docker/**/*.obj
-/docker/**/*.zip
-/docker/**/*.ZIP
-/docker/**/*.log
-/docker/**/chouette*
-/docker/**/production.rb
+/docker/redis*
+/docker/osrm/data
+/docker/osrm/landuses
+/docker/osrm/profiles
+/docker/otp/data
+/docker/production.rb
 
 ## Environment normalisation:
 /.bundle/
@@ -48,6 +47,7 @@ build/
 
 # Ignore application configuration
 local.env
+.env
 
 # Redis
 *.aof

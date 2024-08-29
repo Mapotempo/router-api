@@ -170,6 +170,9 @@ module RouterWrapper
   class NoRouteFound < RouterWrapperError
   end
 
+  class UnreachablePointError < RouterWrapperError
+  end
+
   private
 
   def self.speed_multiplier_area(params)

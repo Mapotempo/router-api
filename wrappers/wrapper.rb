@@ -31,6 +31,8 @@ module Wrappers
       :track,
       :motorway,
       :toll,
+      :low_emission_zone,
+      :large_light_vehicle,
       :trailers,
       :weight,
       :weight_per_axle,

@@ -8,9 +8,11 @@ die() {
 BASENAME=$1
 
 DATADIR=/srv/osrm/data
-DATA_LINK=${DATADIR}/${BASENAME}-latest.osrm
+DATA_LINK=${DATADIR}/${BASENAME}-latest.osrm.timestamp
 OSRM_FILE=$(/bin/readlink -e ${DATA_LINK})
+OSRM_FILE=${OSRM_FILE%.timestamp}
 
-[ $? -eq 1 ] && die "${DATA_LINK} target not found."
+[ $? -eq 1 ] && die "${OSRM_FILE} target not found."
 
-exec /usr/bin/osrm-datastore ${OSRM_FILE}
+echo "Loads ${OSRM_FILE}"
+exec osrm-datastore ${OSRM_FILE}

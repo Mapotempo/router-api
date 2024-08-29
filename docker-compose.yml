@@ -1,47 +1,28 @@
-version: '3.7'
-
-x-app-args: &app-args
-  APP_BASE: ${APP_BASE}
-  BUNDLE_VERSION: ${BUNDLE_VERSION}
-  RUBY_VERSION: ${RUBY_VERSION}
-  BUNDLE_WITHOUT: production
-
-x-default-environment: &default-environment
-  HERE_APP_CODE: ${HERE_APP_CODE}
-  HERE_APP_ID: ${HERE_APP_ID}
-  RAVEN_DSN: localhost
-  REDIS_COUNT_HOST: redis-count
-  REDIS_HOST: redis-cache
-
+version: '3.3'
 services:
-  redis-cache:
-    image: redis:${REDIS_VERSION:-6.2.5-alpine}
-    volumes:
-      - ./redis:/data
-    hostname: redis-cache
-
-  redis-count:
-    image: redis:${REDIS_VERSION:-6.2.5-alpine}
-    volumes:
-      - ./redis-count:/data
-    hostname: redis-count
-    command: redis-server --appendonly yes
-
-  main:
-    build:
-      args:
-        <<: *app-args
-      context: .
-      dockerfile: docker/dev/Dockerfile
-    image: dev.example.com/mapotempo/mt-router
-    volumes:
-      - ./:/srv/app/
-      - app_cache_vendor:/srv/app/vendor
-    environment:
-      <<: *default-environment
+  api:
+    build: .
+    image: router-api:${CARTOROUTE_VERSION:-latest}
     ports:
-      - "4899:4899"
-    tty: true
+      - "8082:80" # HOST:CONTAINER, edit only HOST part
+    volumes:
+      - .:/srv/app
+      - ./docker/access.rb:/srv/app/config/access.rb
+      - ./docker/production.rb:/srv/app/config/environments/production.rb
+      - ./docker/production.rb:/srv/app/config/environments/development.rb
+      - ./docker/poly:/srv/app/poly
+    depends_on:
+      - redis-cache
+    environment:
+      REDIS_HOST: redis-cache
+      APP_ENV: production # Switch to "development" for more traces
+      HERE_APP_ID: ${HERE_APP_ID}
+      HERE_APP_CODE: ${HERE_APP_CODE}
+      HERE8_APIKEY: ${HERE8_APIKEY}
+    command: bundle exec puma -v -p 80 --pidfile 'tmp/server.pid'
+    restart: unless-stopped
 
-volumes:
-  app_cache_vendor:
+  redis-cache:
+    image: redis:${REDIS_VERSION:-7-alpine}
+    command: redis-server --save ""
+    restart: unless-stopped

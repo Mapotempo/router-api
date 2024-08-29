@@ -24,6 +24,7 @@ require 'tmpdir'
 
 require './wrappers/crow'
 require './wrappers/here'
+require './wrappers/here8'
 require './wrappers/osrm'
 require './wrappers/otp'
 
@@ -69,6 +70,8 @@ module RouterWrapper
 
   HERE_TRUCK = Wrappers::Here.new(CACHE, app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'truck')
   HERE_CAR = Wrappers::Here.new(CACHE, app_id: ENV['HERE_APP_ID'], app_code: ENV['HERE_APP_CODE'], mode: 'car')
+  HERE8_CAR = Wrappers::Here8.new(CACHE, apikey: ENV['HERE8_APIKEY'], mode: 'car', over_400km: false)
+  HERE8_TRUCK = Wrappers::Here8.new(CACHE, apikey: ENV['HERE8_APIKEY'], mode: 'truck', over_400km: false)
 
   PARAMS_LIMIT = { locations: 1_000_000 }.freeze
 
@@ -77,9 +80,7 @@ module RouterWrapper
   QUOTAS = [{ daily: 100000, monthly: 1000000, yearly: 10000000 }].freeze # Only taken into account if REDIS_COUNT
 
   @@c = {
-    product_title: 'Router Wrapper API',
-    product_contact_email: 'tech@mapotempo.com',
-    product_contact_url: 'https://github.com/Mapotempo/router-wrapper',
+    product_title: 'Router API',
     access_by_api_key: {
       file: './config/access.rb'
     },
@@ -88,12 +89,15 @@ module RouterWrapper
         route_default: :osrm,
         params_limit: PARAMS_LIMIT,
         quotas: QUOTAS, # Only taken into account if REDIS_COUNT
+        route_default: :osrm,
         route: {
           osrm: [OSRM],
           crow: [CROW],
           otp: [OTP_BORDEAUX],
           truck: [HERE_TRUCK],
           here_car: [HERE_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         matrix: {
           crow: [CROW],
@@ -101,6 +105,8 @@ module RouterWrapper
           otp: [OTP_BORDEAUX],
           truck: [HERE_TRUCK],
           here_car: [HERE_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         isoline: {
           crow: [CROW],
@@ -108,6 +114,8 @@ module RouterWrapper
           otp: [OTP_BORDEAUX],
           truck: [HERE_TRUCK],
           here_car: [HERE_CAR],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         }
       }
     },

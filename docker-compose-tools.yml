@@ -1,0 +1,16 @@
+version: '3.3'
+services:
+  postgis:
+    image: postgis/postgis:15-3.4
+    environment:
+      POSTGRES_USER: postgis
+      POSTGRES_PASSWORD: postgis
+    volumes:
+      - postgis:/var/lib/postgres
+      - ./docker/osrm/landuses:/landuses
+
+  redis-build:
+    image: redis:${REDIS_VERSION:-7-alpine}
+
+volumes:
+  postgis:

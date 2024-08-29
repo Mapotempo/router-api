@@ -24,6 +24,7 @@ require './wrappers/crow'
 require './wrappers/osrm'
 require './wrappers/otp'
 require './wrappers/here'
+require './wrappers/here8'
 
 require './lib/cache_manager'
 
@@ -39,15 +40,15 @@ module RouterWrapper
   HERE_APP_ID = nil
   HERE_APP_CODE = nil
   HERE_TRUCK = Wrappers::Here.new(CACHE, app_id: HERE_APP_ID, app_code: HERE_APP_CODE, mode: 'truck')
+  HERE8_CAR = Wrappers::Here8.new(CACHE, apikey: ENV['HERE8_APIKEY'], mode: 'car', over_400km: false)
+  HERE8_TRUCK = Wrappers::Here8.new(CACHE, apikey: ENV['HERE8_APIKEY'], mode: 'truck', over_400km: false)
 
   PARAMS_LIMIT = { locations: 1000 }.freeze
   REDIS_COUNT = ENV['REDIS_COUNT_HOST'] && Redis.new(host: ENV['REDIS_COUNT_HOST'])
   QUOTAS = [{ daily: 100000, monthly: 1000000 }].freeze # Only taken into account if REDIS_COUNT
 
   @@c = {
-    product_title: 'Router Wrapper API',
-    product_contact_email: 'tech@mapotempo.com',
-    product_contact_url: 'https://github.com/Mapotempo/router-wrapper',
+    product_title: 'Router API',
     access_by_api_key: {
       file: './config/access.rb'
     },
@@ -74,15 +75,21 @@ module RouterWrapper
           osrm: [OSRM_CAR_ICELAND, OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         matrix: {
           osrm: [OSRM_CAR_ICELAND, OSRM],
           otp: [OTP_BORDEAUX],
           here: [HERE_TRUCK],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         },
         isoline: {
           osrm: [OSRM_CAR_ICELAND, OSRM],
           otp: [OTP_BORDEAUX],
+          here8_car: [HERE8_CAR],
+          here8_truck: [HERE8_TRUCK],
         }
       }
     },

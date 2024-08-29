@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
-ruby '~> 2.5'
+ruby '>= 3'
 
 gem 'rack'
 gem 'rake'
 gem 'puma'
 gem 'rack-cors'
-gem 'rack-server-pages', '~> 0.1.0'
+gem 'rack-server-pages'
 
 gem 'grape'
 gem 'grape_logging'
@@ -36,13 +36,14 @@ group :development, :test do
 end
 
 gem 'dotenv'
+gem 'flexible_polyline'
 gem 'polylines'
 
 group :development, :production do
-  gem 'redis'
+  gem 'redis', '< 5' # redis-store is buggy with redis 5 https://github.com/redis-store/redis-store/issues/358
 end
 
 group :production do
-  gem 'redis-store', '~> 1.4.1' # Ensure redis-store dependency is at least 1.4.1 for CVE-2017-1000248 correction
+  gem 'redis-store'
   gem 'redis-activesupport'
 end

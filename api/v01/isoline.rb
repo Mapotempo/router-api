@@ -47,6 +47,8 @@ module Api
         optional :track, type: Boolean, default: true, desc: 'Use track or not.'
         optional :motorway, type: Boolean, default: true, desc: 'Use motorway or not.'
         optional :toll, type: Boolean, default: true, desc: 'Use toll section or not.'
+        optional :low_emission_zone, type: Boolean, default: true, desc: 'Go into Low Emission Zone or not.'
+        optional :large_light_vehicle, type: Boolean, default: true, desc: 'Large Light Vehicule.'
         optional :trailers, type: Integer, desc: 'Number of trailers.'
         optional :weight, type: Float, desc: 'Vehicle weight including trailers and shipped goods, in tons.'
         optional :weight_per_axle, type: Float, desc: 'Weight per axle in tons.'
