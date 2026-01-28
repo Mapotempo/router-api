@@ -49,7 +49,7 @@ L.mapotempo = (function() {
       this._map = new L.Map(id, option);
 
       // Get leaflet tile layers depending on api_key
-      const mapTiles = formatMapTiles([{"name":"OpenStreetMap","url":"https://a.tile.openstreetmap.org/{z}/{x}/{y}.png","options":{"zoom":18,"attribution":"Map data \u0026copy; \u003ca href=\"https://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e contributors"}}])
+      const mapTiles = formatMapTiles([{"name":"OpenStreetMap","url":"https://tile.openstreetmap.org/{z}/{x}/{y}.png","options":{"zoom":18,"attribution":"Map data \u0026copy; \u003ca href=\"https://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e contributors"}}])
 
       // Apply default tile layer
       mapTiles.default.addTo(this._map);
